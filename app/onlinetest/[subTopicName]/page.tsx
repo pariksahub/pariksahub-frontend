@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { AlertCircle, Timer, ChevronLeft, ChevronRight, Send } from 'lucide-react';
@@ -35,6 +35,18 @@ function OnlineTest() {
   const [isFinished, setIsFinished] = useState(false);
   const [score, setScore] = useState<{ correct: number; total: number; answered: number; percentage: number } | null>(null);
 
+  // Use refs to store latest values for timer
+  const questionsRef = useRef<QuestionItem[]>([]);
+  const answersRef = useRef<Record<string, string>>({});
+
+  useEffect(() => {
+    questionsRef.current = questions;
+  }, [questions]);
+
+  useEffect(() => {
+    answersRef.current = answers;
+  }, [answers]);
+
   useEffect(() => {
     if (subTopicName) {
       fetchQuestions();
@@ -46,11 +58,11 @@ function OnlineTest() {
       const timer = setInterval(() => {
         setTimeLeft((prev) => {
           if (prev <= 1) {
-            // Calculate score when timer expires
+            // Calculate score when timer expires using refs
             let correct = 0;
             let answered = 0;
-            questions.forEach(item => {
-              const selectedOptionId = answers[item.question._id];
+            questionsRef.current.forEach(item => {
+              const selectedOptionId = answersRef.current[item.question._id];
               if (selectedOptionId) {
                 answered++;
                 const selectedOption = item.options.find(opt => opt._id === selectedOptionId);
@@ -61,9 +73,9 @@ function OnlineTest() {
             });
             setScore({
               correct,
-              total: questions.length,
+              total: questionsRef.current.length,
               answered,
-              percentage: questions.length ? Math.round((correct / questions.length) * 100) : 0
+              percentage: questionsRef.current.length ? Math.round((correct / questionsRef.current.length) * 100) : 0
             });
             setIsFinished(true);
             return 0;
@@ -73,7 +85,7 @@ function OnlineTest() {
       }, 1000);
       return () => clearInterval(timer);
     }
-  }, [timeLeft, isFinished, questions, answers]);
+  }, [timeLeft, isFinished, questions.length]);
 
   const fetchQuestions = async () => {
     try {
