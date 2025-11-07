@@ -25,7 +25,7 @@ export async function GET() {
         'Cache-Control': 'public, max-age=86400, s-maxage=86400', // Cache for 24 hours
       },
     });
-  } catch (error) {
+  } catch (error) { 
     console.error('Error fetching sitemap:', error);
     return new NextResponse('Error generating sitemap', {
       status: 500,
