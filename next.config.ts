@@ -6,7 +6,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: '/sitemap.xml',
-        destination: '/sitemap', // Route to our Next.js route handler which proxies with proper headers
+        destination: '/sitemap', // Route to our Next.js route handler
       },
     ];
   },
