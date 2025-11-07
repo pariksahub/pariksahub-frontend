@@ -131,8 +131,11 @@ export default function SubTopics() {
               <h1 className="text-4xl md:text-5xl font-bold leading-tight mb-4">
                 {formatDisplayText(topicName)} <span className="text-[#C0A063]">Subtopics</span>
               </h1>
+              <h2 className="text-xl md:text-2xl font-semibold text-gray-200 mb-4">
+                Choose a specific subtopic to practice and master your skills
+              </h2>
               <p className="text-lg text-gray-300 mb-8 max-w-2xl mx-auto">
-                Choose a specific subtopic to practice and master your skills.
+                Select from the available subtopics below to start practicing
               </p>
               
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">

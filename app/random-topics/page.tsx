@@ -143,11 +143,12 @@ function RandomTopics() {
         {/* Topics Section */}
         <section className="py-12 md:py-20 bg-gray-50">
           <div className="container mx-auto px-6">
+            <h2 className="text-2xl md:text-3xl font-bold text-[#192A41] mb-8 text-center">Random Practice Topics</h2>
             {!dataLoaded ? (
               <div className="text-center py-20">
                 <div className="bg-white rounded-2xl p-12 max-w-md mx-auto shadow-lg">
                   <div className="w-16 h-16 bg-gray-100 rounded-full mx-auto mb-6"></div>
-                  <h2 className="text-2xl font-bold text-[#192A41] mb-4">Loading Topics</h2>
+                  <h3 className="text-2xl font-bold text-[#192A41] mb-4">Loading Topics</h3>
                   <p className="text-gray-600">Please wait while we prepare your random topics...</p>
                 </div>
               </div>
@@ -155,7 +156,7 @@ function RandomTopics() {
               <div className="text-center py-20">
                 <div className="bg-white rounded-2xl p-12 max-w-md mx-auto shadow-lg">
                   <div className="w-16 h-16 bg-gray-100 rounded-full mx-auto mb-6"></div>
-                  <h2 className="text-2xl font-bold text-[#192A41] mb-4">No Topics Available</h2>
+                  <h3 className="text-2xl font-bold text-[#192A41] mb-4">No Topics Available</h3>
                   <p className="text-gray-600">Topics will appear here once they are added to the system.</p>
                 </div>
               </div>

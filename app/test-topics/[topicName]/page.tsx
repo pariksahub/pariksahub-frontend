@@ -75,9 +75,12 @@ function TestSubTopics() {
             <ArrowLeft className="h-5 w-5 group-hover:-translate-x-1 transition-transform duration-200" />
             Back to Topics
           </Link>
-          <h1 className="text-3xl font-bold text-slate-800 text-center">
+          <h1 className="text-3xl font-bold text-slate-800 text-center mb-4">
             {formatDisplayText(topicName)}
           </h1>
+          <h2 className="text-xl font-semibold text-slate-700 text-center mb-8">
+            Select a subtopic to start your online test
+          </h2>
         </div>
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">

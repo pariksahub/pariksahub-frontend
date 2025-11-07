@@ -188,15 +188,6 @@ function Saved() {
   // Change page
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
-  // Calculate dynamic meta content
-  const pageTitle = `Saved Questions - Review Your Bookmarked Practice Questions | PariksaHub`;
-  const description = savedQuestions.length > 0
-    ? `Review your ${savedQuestions.length} saved questions. Practice with your bookmarked questions and improve your understanding with detailed explanations.`
-    : 'Review your saved and bookmarked practice questions. Access your collection of saved questions for competitive exam preparation.';
-  const keywords = 'saved questions, bookmarked questions, practice questions, competitive exam, review questions, saved mcq';
-  const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
-  const canonicalUrl = `${baseUrl}/saved`;
-
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50">

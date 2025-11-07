@@ -66,7 +66,8 @@ function TestTopics() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-orange-50 pt-20 pb-8">
       <div className="max-w-4xl mx-auto px-6">
-        <h1 className="text-3xl font-bold text-slate-800 mb-12 text-center">Select a Topic</h1>
+        <h1 className="text-3xl font-bold text-slate-800 mb-4 text-center">Select a Topic</h1>
+        <h2 className="text-xl font-semibold text-slate-700 mb-12 text-center">Choose a topic to start your online test</h2>
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {topics.map((topic) => (
             <button

@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import CustomNavbar from "../components/CustomNavbar";
 import Footer from "../components/Footer";
 import ScrollToTop from "../components/ScrollToTop";
 import PageTrackingWrapper from "../components/PageTrackingWrapper";
 import JsonLdSchema from "../components/JsonLdSchema";
-import GoogleAnalytics from "../components/GoogleAnalytics";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -129,8 +129,22 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        {/* Google Analytics - injected at top of head via useEffect */}
-        <GoogleAnalytics />
+        {/* Google Analytics - using Next.js Script component for proper ordering */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-E717Z3TMN6"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics-config" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-E717Z3TMN6', {
+              send_page_view: false,
+              page_path: window.location.pathname,
+            });
+          `}
+        </Script>
         
         {/* JSON-LD Schema - injected into head via useEffect (after analytics) */}
         <JsonLdSchema schema={organizationSchema} id="organization-schema" />

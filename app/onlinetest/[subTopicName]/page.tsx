@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { AlertCircle, Timer, ChevronLeft, ChevronRight, Send } from 'lucide-react';
 import axiosInstance from '../../../utils/axiosInstance';
+import { formatDisplayText } from '../../../utils/textUtils';
  
 
 interface QuestionItem {
@@ -307,13 +308,14 @@ function OnlineTest() {
         <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-200 flex flex-col max-h-[85vh] sm:max-h-[85vh]">
           {/* Header - Fixed Height */}
           <div className="bg-[#192A41] rounded-t-2xl p-3 sm:p-4 flex-shrink-0">
+            <h1 className="text-lg sm:text-xl font-bold text-white mb-2 text-center">Online Test - {formatDisplayText(subTopicName)}</h1>
             <div className="flex justify-between items-center text-white">
               <div className="flex items-center space-x-3">
                 <div className="w-8 h-8 bg-[#C0A063] rounded-full flex items-center justify-center">
                   <span className="text-white font-bold text-sm">{currentQuestionIndex + 1}</span>
                 </div>
                 <div>
-                  <div className="text-sm font-medium">Question {currentQuestionIndex + 1} of {questions.length}</div>
+                  <h2 className="text-sm font-medium">Question {currentQuestionIndex + 1} of {questions.length}</h2>
                 </div>
               </div>
               <div className="flex items-center space-x-2 bg-white/20 px-2 sm:px-3 py-1 rounded-lg">

@@ -91,7 +91,7 @@ export default function Practice() {
         <section className="py-20 bg-gray-50">
           <div className="container mx-auto px-6">
             <div className="text-center mb-16">
-              <h3 className="text-3xl font-bold text-[#192A41] mb-3">Available Topics</h3>
+              <h2 className="text-3xl font-bold text-[#192A41] mb-3">Available Topics</h2>
               <p className="text-gray-600 text-lg">Master essential topics for competitive exams.</p>
             </div>
 
