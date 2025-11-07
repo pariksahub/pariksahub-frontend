@@ -3,7 +3,7 @@ import JsonLdSchema from '../../components/JsonLdSchema';
 
 export const metadata: Metadata = {
   title: 'Practice Questions for Competitive Exams',
-  description: 'Practice competitive exam questions with detailed solutions. Free MCQs covering aptitude, reasoning, quantitative ability, and technical topics for SSC, RRB, Banking and other competitive exams.',
+  description: 'Free competitive exam practice questions with detailed solutions. MCQs for aptitude, reasoning, quantitative ability, and technical topics for SSC, RRB, and banking exams.',
   keywords: [
     'competitive exam practice',
     'aptitude questions',
@@ -18,14 +18,14 @@ export const metadata: Metadata = {
   ],
   openGraph: {
     title: 'Practice Questions for Competitive Exams',
-    description: 'Practice competitive exam questions with detailed solutions. Free MCQs covering aptitude, reasoning, quantitative ability, and technical topics for SSC, RRB, Banking and other competitive exams.',
+    description: 'Free competitive exam practice questions with detailed solutions. MCQs for aptitude, reasoning, quantitative ability, and technical topics for SSC, RRB, and banking exams.',
     url: '/practice',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Practice Questions for Competitive Exams',
-    description: 'Practice competitive exam questions with detailed solutions. Free MCQs covering aptitude, reasoning, quantitative ability, and technical topics for SSC, RRB, Banking and other competitive exams.',
+    description: 'Free competitive exam practice questions with detailed solutions. MCQs for aptitude, reasoning, quantitative ability, and technical topics for SSC, RRB, and banking exams.',
   },
   alternates: {
     canonical: '/practice',
@@ -36,7 +36,7 @@ const practiceSchema = {
   '@context': 'https://schema.org',
   '@type': 'CollectionPage',
   name: 'Practice Questions for Competitive Exams',
-  description: 'Practice competitive exam questions with detailed solutions. Free MCQs covering aptitude, reasoning, quantitative ability, and technical topics for SSC, RRB, Banking and other competitive exams.',
+  description: 'Free competitive exam practice questions with detailed solutions. MCQs for aptitude, reasoning, quantitative ability, and technical topics for SSC, RRB, and banking exams.',
   url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://pariksahub.com'}/practice`,
   mainEntity: {
     '@type': 'ItemList',

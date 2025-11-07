@@ -79,7 +79,7 @@ export default function Practice() {
         <section className="bg-[#192A41] text-white mt-10">
           <div className="container mx-auto px-3 py-12 text-center">
             <h1 className="text-4xl md:text-5xl font-bold leading-tight mb-4">
-              Choose Your <span className="text-[#C0A063]">Practice Topic</span>
+              Practice Questions for Competitive Exams
             </h1>
             <p className="text-lg text-gray-300 mb-8 max-w-2xl mx-auto">
               Select a topic to start your practice journey and enhance your skills for competitive exams.
@@ -87,12 +87,13 @@ export default function Practice() {
           </div>
         </section>
 
+     
         {/* Topics Section */}
         <section className="py-20 bg-gray-50">
           <div className="container mx-auto px-6">
             <div className="text-center mb-16">
               <h2 className="text-3xl font-bold text-[#192A41] mb-3">Available Topics</h2>
-              <p className="text-gray-600 text-lg">Master essential topics for competitive exams.</p>
+              <p className="text-gray-600 text-lg">Select from our comprehensive collection of practice topics to begin your preparation journey.</p>
             </div>
 
             {topics.length === 0 ? (
@@ -151,6 +152,24 @@ export default function Practice() {
             )}
           </div>
         </section>
+
+           {/* Introduction Section */}
+           <section className="py-12 bg-white">
+          <div className="container mx-auto px-6 max-w-4xl">
+            <div className="prose prose-lg max-w-none text-gray-800 space-y-4 leading-relaxed">
+              <p>
+                Welcome to PariksaHub's practice section, your go-to destination for free competitive exam preparation. Whether you're preparing for SSC, RRB, banking exams, or other government competitive tests, we offer a comprehensive collection of practice questions designed to help you succeed.
+              </p>
+              <p>
+                Our practice questions cover all major topics including quantitative aptitude, logical reasoning, verbal ability, and technical subjects. Each question comes with detailed explanations to help you understand the concepts and improve your problem-solving skills. You can practice at your own pace, track your progress, and identify areas that need more attention.
+              </p>
+              <p>
+                The questions are organized by topics, making it easy to focus on specific areas. Whether you want to strengthen your mathematical skills, improve your reasoning abilities, or master technical concepts, you'll find relevant practice material here. Start practicing today and take a step closer to achieving your career goals.
+              </p>
+            </div>
+          </div>
+        </section>
+
       </main>
     </div>
   );

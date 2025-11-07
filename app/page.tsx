@@ -12,8 +12,8 @@ const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://pariksahub.com';
 const homePageSchema = {
   '@context': 'https://schema.org',
   '@type': 'WebPage',
-  name: 'PariksaHub - Practice for Competitive Exams, Interview',
-  description: 'PariksaHub is a free platform to prepare for competitive exams like RRB, SSC, and other general competitive exams. We provide aptitude questions and answers, reasoning, programming, and mathematics MCQs for JEE and more.',
+  name: 'PariksaHub | Free Competitive Exam Practice Tests & Mock Quizzes',
+  description: 'PariksaHub offers free competitive exam practice tests, mock quizzes, and topic-wise drills for SSC, RRB, banking, campus placements, and more.',
   url: baseUrl,
   mainEntity: {
     '@type': 'EducationalOrganization',
@@ -45,7 +45,7 @@ const Home = () => {
               </h1>
               
               <p className="text-base sm:text-lg text-gray-100 mb-8 leading-relaxed max-w-xl mx-auto lg:mx-0">
-                Practice smarter with our comprehensive question bank designed for SSC, RRB, Banking, and more.
+                Prepare for competitive exams with confidence using our free competitive exam practice tests, mock quizzes, and topic-wise drills designed for SSC, RRB, banking, and campus placement aspirants.
               </p>
               
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
@@ -126,6 +126,21 @@ const Home = () => {
               </p>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Story Section */}
+      <section className="py-12 sm:py-16 bg-white">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-gray-800 space-y-6 leading-relaxed">
+          <p>
+            PariksaHub exists to help you prepare for competitive exams with confidence. Instead of juggling scattered PDFs and outdated notes, you can log in and follow a guided path that mirrors the real exam flow. Each question bank is updated with current patterns, so the effort you invest today directly supports your upcoming tests.
+          </p>
+          <p>
+            Our free competitive exam practice tests and mock quizzes cover quantitative aptitude, logical reasoning, computer science fundamentals, and more. You can drill down to the exact sub-topic you want to strengthen, review detailed explanations, and revisit the areas where you lose marks. The experience feels like studying with a mentor who keeps track of your progress and nudges you toward the next small win.
+          </p>
+          <p>
+            Whether you are preparing for SSC CGL, an RRB technical paper, a banking prelim, or a campus placement round, PariksaHub keeps your preparation organised. Build confidence steadily, practice smarter instead of longer, and arrive at exam day with a clear idea of how you will handle every section.
+          </p>
         </div>
       </section>
 

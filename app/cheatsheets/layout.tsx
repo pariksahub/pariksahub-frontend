@@ -3,7 +3,7 @@ import JsonLdSchema from '../../components/JsonLdSchema';
 
 export const metadata: Metadata = {
   title: 'Cheatsheets & Quick Reference Guides',
-  description: 'Quick reference cheatsheets and study guides for competitive exams, programming, formulas and more. Find essential facts, formulas, code snippets and reference materials in one place.',
+  description: 'Free quick reference cheatsheets and study guides for competitive exams, programming, and formulas. Essential facts, formulas, and code snippets in one place.',
   keywords: [
     'cheatsheets',
     'quick reference',
@@ -16,14 +16,14 @@ export const metadata: Metadata = {
   ],
   openGraph: {
     title: 'Cheatsheets & Quick Reference Guides',
-    description: 'Quick reference cheatsheets and study guides for competitive exams, programming, formulas and more. Find essential facts, formulas, code snippets and reference materials in one place.',
+    description: 'Free quick reference cheatsheets and study guides for competitive exams, programming, and formulas. Essential facts, formulas, and code snippets in one place.',
     url: '/cheatsheets',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Cheatsheets & Quick Reference Guides',
-    description: 'Quick reference cheatsheets and study guides for competitive exams, programming, formulas and more. Find essential facts, formulas, code snippets and reference materials in one place.',
+    description: 'Free quick reference cheatsheets and study guides for competitive exams, programming, and formulas. Essential facts, formulas, and code snippets in one place.',
   },
   alternates: {
     canonical: '/cheatsheets',
@@ -36,7 +36,7 @@ const cheatsheetsSchema = {
   '@context': 'https://schema.org',
   '@type': 'CollectionPage',
   name: 'Cheatsheets & Quick Reference Guides',
-  description: 'Quick reference cheatsheets and study guides for competitive exams, programming, formulas and more. Find essential facts, formulas, code snippets and reference materials in one place.',
+  description: 'Free quick reference cheatsheets and study guides for competitive exams, programming, and formulas. Essential facts, formulas, and code snippets in one place.',
   url: `${baseUrl}/cheatsheets`,
   breadcrumb: {
     '@type': 'BreadcrumbList',

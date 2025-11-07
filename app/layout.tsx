@@ -10,10 +10,10 @@ import "./globals.css";
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://pariksahub.com'),
   title: {
-    default: "PariksaHub - Practice for Competitive Exams, Interview",
+    default: "PariksaHub | Free Competitive Exam Practice Tests & Mock Quizzes",
     template: "%s"
   },
-  description: "PariksaHub is a free platform to prepare for competitive exams like RRB, SSC, and other general competitive exams. We provide aptitude questions and answers, reasoning, programming, and mathematics MCQs for JEE and more.",
+  description: "PariksaHub offers free competitive exam practice tests, mock quizzes, and topic-wise drills for SSC, RRB, banking, campus placements, and more.",
   keywords: [
     "competitive exam practice",
     "aptitude questions",
@@ -51,8 +51,8 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: "/",
     siteName: "PariksaHub",
-    title: "PariksaHub - Practice for Competitive Exams, Interview",
-    description: "PariksaHub is a free platform to prepare for competitive exams like RRB, SSC, and other general competitive exams. We provide aptitude questions and answers, reasoning, programming, and mathematics MCQs for JEE and more.",
+    title: "PariksaHub | Free Competitive Exam Practice Tests & Mock Quizzes",
+    description: "PariksaHub offers free competitive exam practice tests, mock quizzes, and topic-wise drills for SSC, RRB, banking, campus placements, and more.",
     images: [
       {
         url: "/assets/PariksaHub.png",
@@ -64,8 +64,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "PariksaHub - Practice for Competitive Exams, Interview",
-    description: "PariksaHub is a free platform to prepare for competitive exams like RRB, SSC, and other general competitive exams. We provide aptitude questions and answers, reasoning, programming, and mathematics MCQs for JEE and more.",
+    title: "PariksaHub | Free Competitive Exam Practice Tests & Mock Quizzes",
+    description: "PariksaHub offers free competitive exam practice tests, mock quizzes, and topic-wise drills for SSC, RRB, banking, campus placements, and more.",
     images: ["/assets/PariksaHub.png"],
   },
   robots: {
@@ -94,7 +94,7 @@ const organizationSchema = {
   '@context': 'https://schema.org',
   '@type': 'EducationalOrganization',
   name: 'PariksaHub',
-  description: 'PariksaHub is a free platform to prepare for competitive exams like RRB, SSC, and other general competitive exams. We provide aptitude questions and answers, reasoning, programming, and mathematics MCQs for JEE and more.',
+  description: 'PariksaHub offers free competitive exam practice tests, mock quizzes, and topic-wise drills for SSC, RRB, banking, campus placements, and more.',
   url: baseUrl,
   logo: `${baseUrl}/assets/PariksaHub.png`,
   sameAs: [],
@@ -109,7 +109,7 @@ const websiteSchema = {
   '@context': 'https://schema.org',
   '@type': 'WebSite',
   name: 'PariksaHub',
-  description: 'PariksaHub is a free platform to prepare for competitive exams like RRB, SSC, and other general competitive exams.',
+  description: 'PariksaHub offers free competitive exam practice tests, mock quizzes, and topic-wise drills for SSC, RRB, banking, campus placements, and more.',
   url: baseUrl,
   potentialAction: {
     '@type': 'SearchAction',

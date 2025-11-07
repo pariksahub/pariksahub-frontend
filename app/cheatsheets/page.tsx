@@ -150,9 +150,8 @@ function Cheatsheets() {
               <FileText className="w-3.5 h-3.5" />
               <span>Study Resources</span>
             </div>
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold mb-4 sm:mb-6 leading-tight inline-block">
-              <span className="text-[#192A41]">Quick Reference </span>
-              <span className="text-[#C0A063]">Cheatsheets</span>
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold mb-4 sm:mb-6 leading-tight">
+              Cheatsheets & Quick Reference Guides
             </h1>
             <p className="text-base sm:text-lg text-gray-700 leading-relaxed">
               Fast access to formulas, concepts, programming syntax, and essential shortcuts for competitive exams, developer resources, and more. Everything you need in one place.
@@ -217,6 +216,7 @@ function Cheatsheets() {
         </div>
       </section>
 
+   
       {/* Featured Section */}
       {featuredSheets.length > 0 && !filters.search && (
         <section className="py-10 bg-gray-50">
@@ -499,6 +499,24 @@ function Cheatsheets() {
           )}
         </div>
       </section>
+
+          {/* Introduction Section */}
+          <section className="py-12 bg-gray-50">
+            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="prose prose-lg max-w-none text-gray-800 space-y-4 leading-relaxed">
+                <p>
+                  This page is a fast reference for topics you revisit often. Each cheatsheet is short, scannable, and focused on the exact facts you need during practice or revision.
+                </p>
+                <p>
+                 <strong>What you'll find:</strong> common math formulas and identities, quick definitions for OS/DBMS/Networks/Compiler Design, core CS notes, and ready-to-use snippets for Python, C/C++, and Java. Most pages include a minimal example and a short "remember" note to avoid typical mistakes.
+                </p>
+                <p>
+                 <strong>How to use it:</strong> search for a term, open the sheet, scan the headings, copy what you need, and get back to questions. If a topic is missing or outdated, suggest an update - we keep these pages current based on exam patterns and user requests.
+                </p>
+              </div>
+            </div>
+          </section>
+
     </div>
   );
 }
