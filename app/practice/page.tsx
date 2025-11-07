@@ -158,7 +158,7 @@ export default function Practice() {
           <div className="container mx-auto px-6 max-w-4xl">
             <div className="prose prose-lg max-w-none text-gray-800 space-y-4 leading-relaxed">
               <p>
-                Welcome to PariksaHub's practice section, your go-to destination for free competitive exam preparation. Whether you're preparing for SSC, RRB, banking exams, or other government competitive tests, we offer a comprehensive collection of practice questions designed to help you succeed.
+                Welcome to PariksaHub's practice section, your  only  resource for free competitive exam preparation. We have resources for preparing for SSC, RRB, banking exams, or other government competitive tests, we offer a comprehensive collection of practice questions designed to help you succeed.
               </p>
               <p>
                 Our practice questions cover all major topics including quantitative aptitude, logical reasoning, verbal ability, and technical subjects. Each question comes with detailed explanations to help you understand the concepts and improve your problem-solving skills. You can practice at your own pace, track your progress, and identify areas that need more attention.
@@ -166,7 +166,9 @@ export default function Practice() {
               <p>
                 The questions are organized by topics, making it easy to focus on specific areas. Whether you want to strengthen your mathematical skills, improve your reasoning abilities, or master technical concepts, you'll find relevant practice material here. Start practicing today and take a step closer to achieving your career goals.
               </p>
-            </div>
+              <p><strong>If you think we're helping you, please share your kind words with us — they mean a lot to us 💖💖💖</strong></p>
+
+             </div>
           </div>
         </section>
 

@@ -208,7 +208,7 @@ function ManageQuestions() {
       
       // Remove the deleted question from the state
       setQuestions(prevQuestions => 
-        prevQuestions.filter((q: Question) => q._id !== questionId)
+        prevQuestions.filter((q: Question) => q.question._id !== questionId)
       );
       
       // Clear success message after 3 seconds
@@ -217,7 +217,12 @@ function ManageQuestions() {
       }, 3000);
     } catch (error) {
       console.error('Error deleting question:', error);
-      setError('Failed to delete question. Please try again.');
+      if (error instanceof AxiosError && error.response) {
+        const errorMessage = error.response.data?.message || error.response.data?.error || 'Failed to delete question. Please try again.';
+        setError(errorMessage);
+      } else {
+        setError('Failed to delete question. Please try again.');
+      }
     }
   };
 
@@ -572,7 +577,7 @@ function ManageQuestions() {
                   </thead>
                   <tbody>
                     {currentQuestions.map((item: Question, index: number) => (
-                      <tr key={item._id} className="border-b border-white/10 hover:bg-white/5">
+                      <tr key={item.question._id} className="border-b border-white/10 hover:bg-white/5">
                         <td className="py-4 px-4">
                           <div className="flex items-start space-x-3">
                             <div className="flex-shrink-0 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
@@ -619,14 +624,14 @@ function ManageQuestions() {
                           <div className="flex items-center justify-center space-x-2">
                              
                             <button
-                              onClick={() => handleEditQuestion(item._id)}
+                              onClick={() => handleEditQuestion(item.question._id)}
                               className="bg-yellow-600 hover:bg-yellow-700 text-white p-2 rounded-lg transition-colors"
                               title="Edit Question"
                             >
                               <Edit className="h-4 w-4" />
                             </button>
                             <button
-                              onClick={() => handleDeleteQuestion(item._id)}
+                              onClick={() => handleDeleteQuestion(item.question._id)}
                               className="bg-red-600 hover:bg-red-700 text-white p-2 rounded-lg transition-colors"
                               title="Delete Question"
                             >
