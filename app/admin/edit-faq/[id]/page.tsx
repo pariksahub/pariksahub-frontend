@@ -290,9 +290,10 @@ function EditFAQ() {
         .ql-editor.ql-blank::before {
           color: #9ca3af !important;
         }
-        .ql-editor pre.ql-syntax {
-          background-color: #1e293b !important;
-          color: #e2e8f0 !important;
+        .ql-editor pre.ql-syntax,
+        .ql-editor pre[class*="ql-syntax"] {
+          background-color: #000000 !important;
+          color: #ffffff !important;
           border-radius: 4px !important;
           padding: 12px !important;
           margin: 8px 0 !important;
@@ -301,7 +302,14 @@ function EditFAQ() {
           font-size: 13px !important;
           line-height: 1.5 !important;
         }
-        .ql-editor code {
+        .ql-editor pre.ql-syntax code,
+        .ql-editor pre[class*="ql-syntax"] code {
+          background: transparent !important;
+          color: #ffffff !important;
+          padding: 0 !important;
+          border: none !important;
+        }
+        .ql-editor code:not(pre code) {
           background-color: #f1f5f9 !important;
           color: #e11d48 !important;
           padding: 2px 6px !important;

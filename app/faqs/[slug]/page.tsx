@@ -164,10 +164,10 @@ export default async function FAQDetail({ params }: FAQDetailPageProps) {
           <Link
             href="/faqs"
             className="inline-flex items-center gap-2 text-[#C0A063] hover:text-[#192A41] font-medium transition-colors"
-            aria-label="View all FAQs"
+            aria-label="See other FAQs"
           >
             <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-            View All FAQs
+            See Other FAQs
           </Link>
         </div>
       </div>
