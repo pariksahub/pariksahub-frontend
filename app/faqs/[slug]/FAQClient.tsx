@@ -76,22 +76,23 @@ export default function FAQClient({ questions }: FAQClientProps) {
           aria-labelledby={`faq-question-${index}`}
           role="article"
         >
-          <div className="mb-4 flex items-start gap-2">
-            <span 
-              className="flex-shrink-0 inline-flex items-center justify-center w-6 h-6 bg-[#C0A063] text-white font-bold text-sm rounded-full align-middle"
-              aria-label={`Question number ${index + 1}`}
-            >
-              {index + 1}
-            </span>
+          <div className="mb-4">
             <h3 
               id={`faq-question-${index}`}
-              className="flex-1 text-lg sm:text-xl font-bold text-[#192A41] leading-snug"
+              className="text-lg sm:text-xl font-bold text-[#192A41] leading-snug"
             >
+              <span 
+                className="inline-flex items-center justify-center w-6 h-6 bg-[#C0A063] text-white font-bold text-sm rounded-full align-middle mr-3 md:mr-2"
+                aria-label={`Question number ${index + 1}`}
+              >
+                {index + 1}
+              </span>
               {q.question}
             </h3>
           </div>
           
           <div 
+            className="md:ml-8"
             role="region"
             aria-label="Answer"
           >

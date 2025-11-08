@@ -124,9 +124,6 @@ export default async function CheatsheetDetail({ params }: CheatsheetDetailPageP
                 <span className="px-3 py-1 bg-gray-100 rounded">
                   {cheatsheet.category}
                 </span>
-                {cheatsheet.views && cheatsheet.views > 0 && (
-                  <span>{cheatsheet.views} views</span>
-                )}
               </div>
             </div>
           </div>

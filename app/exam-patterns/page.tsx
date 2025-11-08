@@ -1,7 +1,6 @@
- 
 import React from 'react';
 import Link from 'next/link';
-import { AlertCircle, Star, Clock, BookOpen, Award, Check, X, ArrowRight } from 'lucide-react';
+import { AlertCircle, ArrowRight, FileText } from 'lucide-react';
 import { fetchFromApi } from '../../utils/serverApi';
 import SearchForm from './SearchForm';
 
@@ -107,18 +106,20 @@ export default async function ExamPatterns({ searchParams }: ExamPatternsPagePro
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4 pt-20">
-        <main className="text-center max-w-md">
-          <AlertCircle className="h-16 w-16 mx-auto mb-4 text-red-500" />
-          <h1 className="text-2xl font-bold mb-3 text-[#192A41]">Error Loading Data</h1>
-          <p className="text-gray-600 mb-6">{error}</p>
-          <a
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <main className="text-center max-w-md mx-auto px-4">
+          <div className="bg-red-50 border border-red-200 rounded-full p-4 inline-block mb-6">
+            <AlertCircle className="h-12 w-12 text-red-500" aria-hidden="true" />
+          </div>
+          <h1 className="text-2xl font-bold text-[#192A41] mb-3">Oops! Something went wrong</h1>
+          <p className="text-gray-600 mb-8 leading-relaxed">{error}</p>
+          <Link
             href="/exam-patterns"
-            className="px-6 py-3 rounded-lg font-semibold text-white shadow-md hover:shadow-lg transition-all inline-block"
-            style={{ backgroundColor: '#C0A063' }}
+            className="bg-[#C0A063] text-white font-semibold px-8 py-3 rounded-full hover:bg-opacity-90 transition duration-300 text-lg shadow-md hover:shadow-xl inline-block"
+            aria-label="Try loading exam patterns again"
           >
-            Retry
-          </a>
+            Try Again
+          </Link>
         </main>
       </div>
     );
@@ -129,117 +130,71 @@ export default async function ExamPatterns({ searchParams }: ExamPatternsPagePro
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
-      <section className="py-16 sm:py-20 md:py-24" style={{ backgroundColor: '#192A41' }}>
-        <div className="container mx-auto px-4 sm:px-6">
-          <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-3">
-              Exam Patterns & <span style={{ color: '#C0A063' }}>Syllabus</span>
+      <section className="border-b border-gray-200 bg-white mt-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
+          {/* Header */}
+          <div className="max-w-3xl mb-10">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium mb-6 bg-[#FEF3E2] text-[#C0A063]">
+              <span>Exam Patterns</span>
+            </div>
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold mb-4 sm:mb-6 leading-tight">
+              Exam Patterns & <span className="text-[#C0A063]">Syllabus</span>
             </h1>
-            <p className="text-sm sm:text-base text-gray-300 mb-6">
-              Comprehensive guide for SSC, RRB, Banking, UPSC and other competitive exams
+            <p className="text-base sm:text-lg text-gray-700 leading-relaxed mb-6">
+              Comprehensive guide for SSC, RRB, Banking, UPSC and other competitive exams. Get detailed exam patterns, marking schemes, and syllabus information.
             </p>
             
-            {/* Search Bar */}
+            {/* Search and Filter */}
             <SearchForm search={search} examLevels={filterOptions.examLevels} selectedLevel={exam_level} />
-
-            {/* Stats */}
-            <div className="flex justify-center gap-6 text-sm">
-              <div>
-                <span className="font-bold text-lg" style={{ color: '#C0A063' }}>{stats.totalExams}</span>
-                <span className="text-gray-300 ml-1">Exams</span>
-              </div>
-              <div>
-                <span className="font-bold text-lg" style={{ color: '#C0A063' }}>{stats.featuredCount}</span>
-                <span className="text-gray-300 ml-1">Featured</span>
-              </div>
-              <div>
-                <span className="font-bold text-lg" style={{ color: '#C0A063' }}>100%</span>
-                <span className="text-gray-300 ml-1">Free</span>
-              </div>
-            </div>
           </div>
         </div>
       </section>
 
       {/* Featured Exams */}
       {featuredExams.length > 0 && (
-        <section className="py-10 sm:py-14 bg-white">
-          <div className="container mx-auto px-4 sm:px-6">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl sm:text-2xl font-bold text-[#192A41]">Featured Exams</h2>
-              <div className="flex items-center gap-1 text-sm" style={{ color: '#C0A063' }}>
-                <Star className="h-4 w-4 fill-current" />
-                <span className="font-semibold">Popular</span>
+        <section className="py-12 sm:py-16 lg:py-20 bg-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4">
+              <div>
+                <h2 className="text-2xl sm:text-3xl font-bold mb-1 text-[#192A41]">
+                  Featured Exams
+                </h2>
+                <p className="text-sm text-gray-700">
+                  {featuredExams.length} {featuredExams.length === 1 ? 'exam' : 'exams'} available
+                </p>
               </div>
             </div>
             
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 max-w-6xl mx-auto">
               {featuredExams.map((exam) => (
                 <Link
                   key={exam._id}
                   href={`/exam-patterns/${exam.slug}`}
-                  className="bg-white rounded-xl shadow-lg p-6 cursor-pointer hover:shadow-xl transition-all duration-300 border border-gray-100 block"
+                  className="group relative bg-white rounded-xl overflow-hidden cursor-pointer transition-all duration-300 hover:-translate-y-0.5 flex flex-col shadow-[0_1px_3px_rgba(0,0,0,0.05)] border border-gray-200 hover:border-[#C0A063] hover:shadow-[0_8px_16px_rgba(0,0,0,0.08)] block"
+                  aria-label={`View exam pattern for ${exam.exam_name}`}
                 >
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex-1">
-                      <h3 className="text-2xl font-bold mb-3 text-[#192A41]">
-                        {exam.exam_name}
-                      </h3>
-                      <span className="inline-block px-3 py-1 rounded-full text-sm font-semibold text-white" style={{ backgroundColor: '#C0A063' }}>
-                        {exam.exam_level}
-                      </span>
-                    </div>
-                    <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#C0A063' }}>
-                      <Star className="h-5 w-5 fill-current text-white" />
-                    </div>
-                  </div>
+                  {/* Top accent */}
+                  <div className="absolute top-0 left-0 right-0 h-0.5 bg-[#C0A063]" />
+                  
+                  <div className="p-6 flex flex-col flex-grow min-h-[160px]">
+                    {/* Title */}
+                    <h3 className="text-xl font-bold mb-2 line-clamp-2 text-[#192A41] leading-tight">
+                      {exam.exam_name}
+                    </h3>
+                    <p className="text-sm text-gray-600 mb-auto">
+                      {exam.exam_level} • {exam.exam_mode}
+                    </p>
 
-                  <div className="grid grid-cols-2 gap-4 mb-4">
-                    <div className="bg-gray-50 rounded-lg p-4">
-                      <div className="flex items-center gap-2 mb-2">
-                        <BookOpen className="h-4 w-4 text-gray-500" />
-                        <span className="text-sm text-gray-600">Questions</span>
-                      </div>
-                      <div className="text-xl font-bold text-[#192A41]">{exam.total_questions}</div>
-                    </div>
-                    <div className="bg-gray-50 rounded-lg p-4">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Clock className="h-4 w-4 text-gray-500" />
-                        <span className="text-sm text-gray-600">Duration</span>
-                      </div>
-                      <div className="text-xl font-bold text-[#192A41]">{exam.duration}m</div>
-                    </div>
-                  </div>
-
-                  {exam.marking_scheme && (
-                    <div className="rounded-lg p-4 mb-4" style={{ backgroundColor: '#192A41' }}>
-                      <div className="flex items-center gap-2 mb-3">
-                        <Award className="h-4 w-4 text-white" />
-                        <span className="text-sm font-bold text-white">Marking Scheme</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <div className="flex items-center gap-2">
-                          <div className="w-4 h-4 rounded-full bg-green-500 flex items-center justify-center">
-                            <Check className="h-3 w-3 text-white" />
-                          </div>
-                          <span className="text-white font-semibold">+{exam.marking_scheme.correct_answer}</span>
-                        </div>
-                        {exam.marking_scheme.negative_marking && (
-                          <div className="flex items-center gap-2">
-                            <div className="w-4 h-4 rounded-full bg-red-500 flex items-center justify-center">
-                              <X className="h-3 w-3 text-white" />
-                            </div>
-                            <span className="text-white font-semibold">-{exam.marking_scheme.negative_marking_value}</span>
-                          </div>
-                        )}
+                    {/* Footer - Always at bottom */}
+                    <div className="mt-3 pt-4 border-t border-gray-200">
+                      {/* CTA */}
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-semibold text-[#C0A063]">
+                          View Details
+                        </span>
+                        <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1 text-[#C0A063]" aria-hidden="true" />
                       </div>
                     </div>
-                  )}
-
-                  <div className="flex items-center justify-end text-sm pt-3 border-t border-gray-100">
-                    <span className="font-semibold flex items-center gap-1" style={{ color: '#C0A063' }}>
-                      View Details <ArrowRight className="h-4 w-4" />
-                    </span>
                   </div>
                 </Link>
               ))}
@@ -249,93 +204,58 @@ export default async function ExamPatterns({ searchParams }: ExamPatternsPagePro
       )}
 
       {/* All Exam Patterns */}
-      <section id="results-section" className="py-10 sm:py-14 scroll-mt-20">
-        <div className="container mx-auto px-4 sm:px-6">
-          <h2 className="text-xl sm:text-2xl font-bold mb-6 text-[#192A41]">All Exam Patterns</h2>
+      <section id="results-section" className="py-12 sm:py-16 lg:py-20 bg-white scroll-mt-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4">
+            <div>
+              <h2 className="text-2xl sm:text-3xl font-bold mb-1 text-[#192A41]">
+                All Exam Patterns
+              </h2>
+              <p className="text-sm text-gray-700">
+                {examPatterns.length} {examPatterns.length === 1 ? 'exam' : 'exams'} available
+              </p>
+            </div>
+          </div>
           
           {examPatterns.length === 0 ? (
             <div className="text-center py-16">
-              <div className="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center" style={{ backgroundColor: '#192A41' }}>
-                <BookOpen className="h-8 w-8" style={{ color: '#C0A063' }} />
+              <div className="w-16 h-16 rounded-xl bg-gray-100 mx-auto mb-4 flex items-center justify-center">
+                <FileText className="w-8 h-8 text-gray-400" aria-hidden="true" />
               </div>
-              <h3 className="text-lg font-bold mb-2 text-[#192A41]">No Exam Patterns Found</h3>
-              <p className="text-gray-600 text-sm">Try adjusting your search or filters</p>
+              <h3 className="text-lg font-semibold mb-2 text-[#192A41]">No Exam Patterns Found</h3>
+              <p className="text-sm text-gray-800">Try adjusting your search or filters</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 max-w-6xl mx-auto">
               {examPatterns.map((exam) => (
                 <Link
                   key={exam._id}
                   href={`/exam-patterns/${exam.slug}`}
-                  className="bg-white rounded-xl shadow-lg p-6 cursor-pointer hover:shadow-xl transition-all duration-300 border border-gray-100 block"
+                  className="group relative bg-white rounded-xl overflow-hidden cursor-pointer transition-all duration-300 hover:-translate-y-0.5 flex flex-col shadow-[0_1px_3px_rgba(0,0,0,0.05)] border border-gray-200 hover:border-[#C0A063] hover:shadow-[0_8px_16px_rgba(0,0,0,0.08)] block"
+                  aria-label={`View exam pattern for ${exam.exam_name}`}
                 >
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex-1">
-                      <h3 className="text-2xl font-bold mb-3 text-[#192A41]">
-                        {exam.exam_name}
-                      </h3>
-                      <div className="flex flex-wrap gap-2">
-                        <span className="px-3 py-1 rounded-full text-sm font-semibold text-white" style={{ backgroundColor: '#C0A063' }}>
-                          {exam.exam_level}
+                  {/* Top accent */}
+                  <div className="absolute top-0 left-0 right-0 h-0.5 bg-[#C0A063]" />
+                  
+                  <div className="p-6 flex flex-col flex-grow min-h-[160px]">
+                    {/* Title */}
+                    <h3 className="text-xl font-bold mb-2 line-clamp-2 text-[#192A41] leading-tight">
+                      {exam.exam_name}
+                    </h3>
+                    <p className="text-sm text-gray-600 mb-auto">
+                      {exam.exam_level} • {exam.exam_mode}
+                    </p>
+
+                    {/* Footer - Always at bottom */}
+                    <div className="mt-3 pt-4 border-t border-gray-200">
+                      {/* CTA */}
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-semibold text-[#C0A063]">
+                          View Details
                         </span>
-                        <span className="px-3 py-1 rounded-full text-sm font-semibold bg-gray-100 text-[#192A41]">
-                          {exam.exam_mode}
-                        </span>
+                        <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1 text-[#C0A063]" aria-hidden="true" />
                       </div>
                     </div>
-                    {exam.featured && (
-                      <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#C0A063' }}>
-                        <Star className="h-5 w-5 fill-current text-white" />
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4 mb-4">
-                    <div className="bg-gray-50 rounded-lg p-4">
-                      <div className="flex items-center gap-2 mb-2">
-                        <BookOpen className="h-4 w-4 text-gray-500" />
-                        <span className="text-sm text-gray-600">Questions</span>
-                      </div>
-                      <div className="text-xl font-bold text-[#192A41]">{exam.total_questions}</div>
-                    </div>
-                    <div className="bg-gray-50 rounded-lg p-4">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Clock className="h-4 w-4 text-gray-500" />
-                        <span className="text-sm text-gray-600">Duration</span>
-                      </div>
-                      <div className="text-xl font-bold text-[#192A41]">{exam.duration}m</div>
-                    </div>
-                  </div>
-
-                  {exam.marking_scheme && (
-                    <div className="rounded-lg p-4 mb-4" style={{ backgroundColor: '#192A41' }}>
-                      <div className="flex items-center gap-2 mb-3">
-                        <Award className="h-4 w-4 text-white" />
-                        <span className="text-sm font-bold text-white">Marking Scheme</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <div className="flex items-center gap-2">
-                          <div className="w-4 h-4 rounded-full bg-green-500 flex items-center justify-center">
-                            <Check className="h-3 w-3 text-white" />
-                          </div>
-                          <span className="text-white font-semibold">+{exam.marking_scheme.correct_answer}</span>
-                        </div>
-                        {exam.marking_scheme.negative_marking && (
-                          <div className="flex items-center gap-2">
-                            <div className="w-4 h-4 rounded-full bg-red-500 flex items-center justify-center">
-                              <X className="h-3 w-3 text-white" />
-                            </div>
-                            <span className="text-white font-semibold">-{exam.marking_scheme.negative_marking_value}</span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="flex items-center justify-end text-sm pt-3 border-t border-gray-100">
-                    <span className="font-semibold flex items-center gap-1" style={{ color: '#C0A063' }}>
-                      Details <ArrowRight className="h-4 w-4" />
-                    </span>
                   </div>
                 </Link>
               ))}
@@ -346,4 +266,5 @@ export default async function ExamPatterns({ searchParams }: ExamPatternsPagePro
     </div>
   );
 }
+
 

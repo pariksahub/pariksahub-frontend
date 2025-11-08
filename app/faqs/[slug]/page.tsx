@@ -120,11 +120,6 @@ export default async function FAQDetail({ params }: FAQDetailPageProps) {
                     Featured
                   </span>
                 )}
-                {faq.views && faq.views > 0 && (
-                  <span className="px-3 py-1 bg-gray-100 rounded-full">
-                    {faq.views} views
-                  </span>
-                )}
                 {questions.length > 0 && (
                   <span className="px-3 py-1 bg-gray-100 rounded-full">
                     {questions.length} {questions.length === 1 ? 'question' : 'questions'}

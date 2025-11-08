@@ -31,23 +31,27 @@ export default function SearchForm({ search, category, categories }: SearchFormP
           method="get" 
           className="bg-white border border-gray-200 rounded-xl shadow-sm focus-within:border-gray-300 transition-colors"
         >
-          <div className="flex items-center px-4 py-3">
-            <Search className="h-5 w-5 text-gray-400 flex-shrink-0" aria-hidden="true" />
+          <div className="relative px-4 py-3">
+            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+              <Search className="h-5 w-5 text-gray-400" aria-hidden="true" />
+            </div>
             <input
               type="text"
               name="search"
               placeholder="Search cheatsheets..."
               defaultValue={search || ''}
-              className="flex-1 px-4 py-1 outline-none text-sm text-gray-900 placeholder-gray-500"
+              className="block w-full pl-10 pr-24 py-2 text-sm text-gray-900 placeholder-gray-500 outline-none"
               aria-label="Search cheatsheets by title, description, or tags"
             />
-            <button
-              type="submit"
-              className="ml-2 px-4 py-2 bg-[#C0A063] text-white rounded-lg hover:bg-opacity-90 transition-colors text-sm font-medium cursor-pointer"
-              aria-label="Search cheatsheets"
-            >
-              Search
-            </button>
+            <div className="absolute inset-y-0 right-0 flex items-center pr-2">
+              <button
+                type="submit"
+                className="px-4 py-2 bg-[#C0A063] text-white rounded-md hover:bg-opacity-90 transition-colors text-sm font-medium cursor-pointer"
+                aria-label="Search cheatsheets"
+              >
+                Search
+              </button>
+            </div>
           </div>
           
           <div className="border-t border-gray-200 p-4">

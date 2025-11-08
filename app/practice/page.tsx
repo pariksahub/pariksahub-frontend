@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { AlertCircle, ArrowRight } from 'lucide-react';
+import { AlertCircle, ArrowRight, FileText, Target } from 'lucide-react';
 import { fetchFromApi } from '../../utils/serverApi';
 import { formatDisplayText } from '../../utils/textUtils';
 
@@ -31,115 +31,123 @@ export default async function Practice() {
 
   if (error) {
     return (
-      <div className="bg-gray-50">
-        <main className="min-h-screen bg-gray-50 flex items-center justify-center">
-          <div className="text-center max-w-md mx-auto px-4">
-            <div className="bg-red-50 border border-red-200 rounded-full p-4 inline-block mb-6">
-              <AlertCircle className="h-12 w-12 text-red-500" />
-            </div>
-            <h1 className="text-2xl font-bold text-[#192A41] mb-3">Oops! Something went wrong</h1>
-            <p className="text-gray-600 mb-8 leading-relaxed">{error}</p>
-            <Link
-              href="/practice"
-              className="bg-[#C0A063] text-white font-semibold px-8 py-3 rounded-full hover:bg-opacity-90 transition duration-300 text-lg shadow-md hover:shadow-xl inline-block"
-              aria-label="Try loading practice topics again"
-            >
-              Try Again
-            </Link>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <main className="text-center max-w-md mx-auto px-4">
+          <div className="bg-red-50 border border-red-200 rounded-full p-4 inline-block mb-6">
+            <AlertCircle className="h-12 w-12 text-red-500" aria-hidden="true" />
           </div>
+          <h1 className="text-2xl font-bold text-[#192A41] mb-3">Oops! Something went wrong</h1>
+          <p className="text-gray-600 mb-8 leading-relaxed">{error}</p>
+          <Link
+            href="/practice"
+            className="bg-[#C0A063] text-white font-semibold px-8 py-3 rounded-full hover:bg-opacity-90 transition duration-300 text-lg shadow-md hover:shadow-xl inline-block"
+            aria-label="Try loading practice topics again"
+          >
+            Try Again
+          </Link>
         </main>
       </div>
     );
   }
 
   return (
-    <div className="bg-gray-50">
-      <main className="bg-white">
-        {/* Hero Section */}
-        <section className="bg-[#192A41] text-white mt-10">
-          <div className="container mx-auto px-3 py-12 text-center">
-            <h1 className="text-4xl md:text-5xl font-bold leading-tight mb-4">
+    <div className="min-h-screen bg-gray-50">
+      {/* Hero Section */}
+      <section className="border-b border-gray-200 bg-white mt-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
+          {/* Header */}
+          <div className="max-w-3xl mb-10">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium mb-6 bg-[#FEF3E2] text-[#C0A063]">
+              <Target className="w-3 h-3" aria-hidden="true" />
+              <span>Practice Resources</span>
+            </div>
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold mb-4 sm:mb-6 leading-tight">
               Practice Questions for Competitive Exams
             </h1>
-            <p className="text-lg text-gray-300 mb-8 max-w-2xl mx-auto">
-              Select a topic to start your practice journey and enhance your skills for competitive exams.
+            <p className="text-base sm:text-lg text-gray-700 leading-relaxed">
+              Free practice questions with detailed solutions. MCQs for aptitude, reasoning, quantitative ability, and technical topics for SSC, RRB, banking exams, and more.
             </p>
           </div>
-        </section>
+        </div>
+      </section>
 
-     
-        {/* Topics Section */}
-        <section className="py-20 bg-gray-50">
-          <div className="container mx-auto px-6">
-            <header className="text-center mb-16">
-              <h2 className="text-3xl font-bold text-[#192A41] mb-3">Available Topics</h2>
-              <p className="text-gray-600 text-lg">Select from our comprehensive collection of practice topics to begin your preparation journey.</p>
-            </header>
-
-            {topics.length === 0 ? (
-              <div className="text-center py-20">
-                <div className="bg-white rounded-2xl p-12 max-w-md mx-auto shadow-lg">
-                  <div className="w-16 h-16 bg-gray-100 rounded-full mx-auto mb-6" aria-hidden="true"></div>
-                  <h3 className="text-2xl font-bold text-[#192A41] mb-4">No Topics Available</h3>
-                  <p className="text-gray-600">Topics will appear here once they are added.</p>
-                </div>
+      {/* Topics Section */}
+      <section id="results-section" className="py-12 sm:py-16 lg:py-20 bg-white scroll-mt-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4">
+            <div>
+              <h2 className="text-2xl sm:text-3xl font-bold mb-1 text-[#192A41]">
+                Available Topics
+              </h2>
+              <p className="text-sm text-gray-700">
+                {topics.length} {topics.length === 1 ? 'topic' : 'topics'} available
+              </p>
+            </div>
+          </div>
+          
+          {topics.length === 0 ? (
+            <div className="text-center py-16">
+              <div className="w-16 h-16 rounded-xl bg-gray-100 mx-auto mb-4 flex items-center justify-center">
+                <FileText className="w-8 h-8 text-gray-400" aria-hidden="true" />
               </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {topics.map((topic) => (
-                  <Link
-                    key={topic._id}
-                    href={`/practice/${topic.topic_name}`}
-                    className="relative group cursor-pointer transition-all duration-300 hover:-translate-y-1 block"
-                    aria-label={`Start practicing ${formatDisplayText(topic.topic_name)} questions`}
-                  >
-                    <div className="bg-white border border-gray-200 rounded-2xl p-6 h-full flex flex-col justify-between hover:border-[#C0A063] hover:shadow-xl transition-all duration-300">
-                      <div className="flex items-start justify-between mb-6">
-                        <div className="flex-1 pr-4">
-                          <h4 className="text-xl font-semibold text-[#192A41] leading-snug">
-                            {formatDisplayText(topic.topic_name)}
-                          </h4>
-                        </div>
-                        <div className="transition-all duration-300 group-hover:transform group-hover:translate-x-1 group-hover:text-[#C0A063] text-gray-400">
-                          <ArrowRight className="h-6 w-6" aria-hidden="true" />
-                        </div>
-                      </div>
+              <h3 className="text-lg font-semibold mb-2 text-[#192A41]">No Topics Available</h3>
+              <p className="text-sm text-gray-800">Topics will appear here once they are added.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 max-w-6xl mx-auto">
+              {topics.map((topic) => (
+                <Link
+                  key={topic._id}
+                  href={`/practice/${topic.topic_name}`}
+                  className="group relative bg-white rounded-xl overflow-hidden cursor-pointer transition-all duration-300 hover:-translate-y-0.5 flex flex-col shadow-[0_1px_3px_rgba(0,0,0,0.05)] border border-gray-200 hover:border-[#C0A063] hover:shadow-[0_8px_16px_rgba(0,0,0,0.08)] block"
+                  aria-label={`Start practicing ${formatDisplayText(topic.topic_name)} questions`}
+                >
+                  {/* Top accent */}
+                  <div className="absolute top-0 left-0 right-0 h-0.5 bg-[#C0A063]" />
+                  
+                  <div className="p-6 flex flex-col flex-grow min-h-[160px]">
+                    {/* Title */}
+                    <h3 className="text-xl font-bold mb-auto line-clamp-3 text-[#192A41] leading-tight">
+                      {formatDisplayText(topic.topic_name)}
+                    </h3>
 
-                      <div className="pt-4 border-t border-gray-100">
-                        <div className="text-sm font-medium transition-all duration-300 group-hover:text-[#C0A063] text-gray-500">
+                    {/* Footer - Always at bottom */}
+                    <div className="mt-3 pt-4 border-t border-gray-200">
+                      {/* CTA */}
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-semibold text-[#C0A063]">
                           Start Practice
-                        </div>
+                        </span>
+                        <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1 text-[#C0A063]" aria-hidden="true" />
                       </div>
-
-                      <div className="absolute inset-0 rounded-2xl transition-all duration-300 pointer-events-none group-hover:bg-gradient-to-br group-hover:from-[#C0A063]/5 group-hover:to-transparent"></div>
                     </div>
-                  </Link>
-                ))}
-              </div>
-            )}
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Introduction Section */}
+      <section className="py-12 bg-gray-50">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="prose prose-lg max-w-none text-gray-800 space-y-4 leading-relaxed">
+            <p>
+              Welcome to PariksaHub's practice section, your only resource for free competitive exam preparation. We have resources for preparing for SSC, RRB, banking exams, or other government competitive tests, we offer a comprehensive collection of practice questions designed to help you succeed.
+            </p>
+            <p>
+              <strong>What you'll find:</strong> Our practice questions cover all major topics including quantitative aptitude, logical reasoning, verbal ability, and technical subjects. Each question comes with detailed explanations to help you understand the concepts and improve your problem-solving skills.
+            </p>
+            <p>
+              <strong>How to use it:</strong> The questions are organized by topics, making it easy to focus on specific areas. You can practice at your own pace, track your progress, and identify areas that need more attention. Whether you want to strengthen your mathematical skills, improve your reasoning abilities, or master technical concepts, you'll find relevant practice material here.
+            </p>
+            <p>
+              <strong>If you think we're helping you, please share your kind words with us — they mean a lot to us 💖💖💖</strong>
+            </p>
           </div>
-        </section>
-
-           {/* Introduction Section */}
-           <section className="py-12 bg-white">
-          <div className="container mx-auto px-6 max-w-4xl">
-            <div className="prose prose-lg max-w-none text-gray-800 space-y-4 leading-relaxed">
-              <p>
-                Welcome to PariksaHub's practice section, your  only  resource for free competitive exam preparation. We have resources for preparing for SSC, RRB, banking exams, or other government competitive tests, we offer a comprehensive collection of practice questions designed to help you succeed.
-              </p>
-              <p>
-                Our practice questions cover all major topics including quantitative aptitude, logical reasoning, verbal ability, and technical subjects. Each question comes with detailed explanations to help you understand the concepts and improve your problem-solving skills. You can practice at your own pace, track your progress, and identify areas that need more attention.
-              </p>
-              <p>
-                The questions are organized by topics, making it easy to focus on specific areas. Whether you want to strengthen your mathematical skills, improve your reasoning abilities, or master technical concepts, you'll find relevant practice material here. Start practicing today and take a step closer to achieving your career goals.
-              </p>
-              <p><strong>If you think we're helping you, please share your kind words with us — they mean a lot to us 💖💖💖</strong></p>
-
-             </div>
-          </div>
-        </section>
-
-      </main>
+        </div>
+      </section>
     </div>
   );
 }
