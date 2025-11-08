@@ -3,8 +3,7 @@ import Link from 'next/link';
 import { AlertCircle, Star, HelpCircle, ArrowRight } from 'lucide-react';
 import { fetchFromApi } from '../../utils/serverApi';
 import SearchForm from './SearchForm';
-import ScrollToTopButton from '../../components/ScrollToTopButton';
-
+ 
 interface FAQ {
   _id: string;
   topic_title: string;
@@ -306,8 +305,7 @@ export default async function FAQs({ searchParams }: FAQsPageProps) {
               </div>
             </div>
           </section>
-
-      <ScrollToTopButton />
+ 
     </div>
   );
 }
