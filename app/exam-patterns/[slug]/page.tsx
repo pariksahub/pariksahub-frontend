@@ -1,7 +1,4 @@
-'use client';
-
-import React, { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+ 
 import Link from 'next/link';
 import { 
   ArrowLeft, 
@@ -17,7 +14,7 @@ import {
   TrendingUp,
   Users
 } from 'lucide-react';
-import axiosInstance from '../../../utils/axiosInstance';
+import { fetchFromApi } from '../../../utils/serverApi';
 
 interface Section {
   section_name: string;
@@ -79,79 +76,62 @@ interface ExamPattern {
   views?: number;
 }
 
-function ExamPatternDetail() {
-  const params = useParams();
-  const router = useRouter();
-  const slug = params.slug as string;
-  const [examPattern, setExamPattern] = useState<ExamPattern | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+interface ExamPatternDetailPageProps {
+  params: Promise<{ slug: string }>;
+}
 
-  useEffect(() => {
-    if (slug) {
-      fetchExamPattern();
+async function getExamPattern(slug: string): Promise<ExamPattern | null> {
+  try {
+    const data = await fetchFromApi(`/api/exam-patterns/slug/${encodeURIComponent(slug)}`) as ExamPattern;
+    return data || null;
+  } catch (error) {
+    console.error('Error fetching exam pattern:', error);
+    return null;
+  }
+}
+
+export default async function ExamPatternDetail({ params }: ExamPatternDetailPageProps) {
+  const { slug } = await params;
+  
+  let examPattern: ExamPattern | null = null;
+  let error: string | null = null;
+
+  try {
+    examPattern = await getExamPattern(slug);
+    if (!examPattern) {
+      error = 'Exam pattern not found';
     }
-  }, [slug]);
-
-  const fetchExamPattern = async () => {
-    try {
-      setLoading(true);
-      const response = await axiosInstance.get(`/api/exam-patterns/slug/${slug}`);
-      setExamPattern(response.data);
-      setError('');
-    } catch (error) {
-      setError('Exam pattern not found');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center pt-20">
-        <div className="text-center">
-          <div 
-            className="rounded-full h-12 w-12 border-3 border-gray-200 border-t-[#C0A063] mx-auto mb-4 animate-spin"
-          ></div>
-          <p className="text-gray-800 text-sm font-semibold">Loading exam details...</p>
-        </div>
-      </div>
-    );
+  } catch (err) {
+    error = 'Failed to load exam pattern';
   }
 
   if (error || !examPattern) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 pt-20">
-        <div className="text-center max-w-md">
+        <main className="text-center max-w-md">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-50 mb-4">
             <AlertCircle className="h-8 w-8 text-red-500" />
           </div>
-          <h2 className="text-xl font-bold text-gray-800 mb-2">Exam Pattern Not Found</h2>
+          <h1 className="text-xl font-bold text-gray-800 mb-2">Exam Pattern Not Found</h1>
           <p className="text-sm text-gray-800 mb-6 font-semibold">
             The exam pattern you're looking for doesn't exist or has been removed.
           </p>
           <Link
             href="/exam-patterns"
-            className="inline-flex items-center px-6 py-2.5 text-sm font-medium text-white rounded-lg transition-colors hover:opacity-90"
+            className="inline-flex items-center px-6 py-2.5 text-sm font-medium text-white rounded-lg transition-colors hover:opacity-90 cursor-pointer"
             style={{ backgroundColor: '#192A41' }}
           >
             Browse All Exam Patterns
           </Link>
-        </div>
+        </main>
       </div>
     );
   }
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <style jsx>{`
-        @media print {
-          .no-print { display: none !important; }
-        }
-      `}</style>
-
       {/* Header Navigation */}
-      <div className="bg-white border-b border-gray-200 no-print" style={{ marginTop: '64px' }}>
+      <div className="bg-white border-b border-gray-200 print:hidden" style={{ marginTop: '64px' }}>
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3">
           <Link
             href="/exam-patterns"
@@ -577,6 +557,4 @@ function ExamPatternDetail() {
     </div>
   );
 }
-
-export default ExamPatternDetail;
 

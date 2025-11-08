@@ -1,73 +1,53 @@
-'use client';
-
-import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import React from 'react';
+import Link from 'next/link';
 import { AlertCircle, ArrowRight } from 'lucide-react';
-import axiosInstance from '../../utils/axiosInstance';
+import { fetchFromApi } from '../../utils/serverApi';
 import { formatDisplayText } from '../../utils/textUtils';
 
-export default function Practice() {
-  const [topics, setTopics] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [hoveredTopic, setHoveredTopic] = useState<string | null>(null);
-  const router = useRouter();
+interface Topic {
+  _id: string;
+  topic_name: string;
+}
 
-  useEffect(() => {
-    fetchTopics();
-  }, []);
+async function getTopics(): Promise<Topic[]> {
+  try {
+    const data = await fetchFromApi('/api/topics/all') as Topic[];
+    return data || [];
+  } catch (error) {
+    console.error('Error fetching topics:', error);
+    throw new Error('Failed to load topics. Please try again later.');
+  }
+}
 
-  const fetchTopics = async () => {
-    setLoading(true);
-    try {
-      const response = await axiosInstance.get('/api/topics/all');
-      setTopics(response.data);
-    } catch (error) {
-      console.error('Error fetching topics:', error);
-      setError('Failed to load topics. Please try again later.');
-    } finally {
-      setLoading(false);
-    }
-  };
+export default async function Practice() {
+  let topics: Topic[] = [];
+  let error: string | null = null;
 
-  const handleTopicClick = (topicId: string, topicName: string) => {
-    router.push(`/practice/${topicName}`);
-  };
-
-  if (loading) {
-    return (
-      <div className="bg-gray-50">
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-          <div className="text-center">
-            <div 
-              className="rounded-full h-16 w-16 border-4 border-gray-200 border-t-[#C0A063] mx-auto mb-6 animate-spin"
-            ></div>
-            <p className="text-[#192A41] text-lg font-semibold">Loading topics...</p>
-            <p className="text-gray-600 text-sm mt-2">Preparing your learning journey</p>
-          </div>
-        </div>
-      </div>
-    );
+  try {
+    topics = await getTopics();
+  } catch (err) {
+    error = err instanceof Error ? err.message : 'Failed to load topics. Please try again later.';
   }
 
   if (error) {
     return (
       <div className="bg-gray-50">
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <main className="min-h-screen bg-gray-50 flex items-center justify-center">
           <div className="text-center max-w-md mx-auto px-4">
             <div className="bg-red-50 border border-red-200 rounded-full p-4 inline-block mb-6">
               <AlertCircle className="h-12 w-12 text-red-500" />
             </div>
-            <h2 className="text-2xl font-bold text-[#192A41] mb-3">Oops! Something went wrong</h2>
+            <h1 className="text-2xl font-bold text-[#192A41] mb-3">Oops! Something went wrong</h1>
             <p className="text-gray-600 mb-8 leading-relaxed">{error}</p>
-            <button
-              onClick={fetchTopics}
-              className="bg-[#C0A063] text-white font-semibold px-8 py-3 rounded-full hover:bg-opacity-90 transition duration-300 text-lg shadow-md hover:shadow-xl"
+            <Link
+              href="/practice"
+              className="bg-[#C0A063] text-white font-semibold px-8 py-3 rounded-full hover:bg-opacity-90 transition duration-300 text-lg shadow-md hover:shadow-xl inline-block"
+              aria-label="Try loading practice topics again"
             >
               Try Again
-            </button>
+            </Link>
           </div>
-        </div>
+        </main>
       </div>
     );
   }
@@ -91,28 +71,27 @@ export default function Practice() {
         {/* Topics Section */}
         <section className="py-20 bg-gray-50">
           <div className="container mx-auto px-6">
-            <div className="text-center mb-16">
+            <header className="text-center mb-16">
               <h2 className="text-3xl font-bold text-[#192A41] mb-3">Available Topics</h2>
               <p className="text-gray-600 text-lg">Select from our comprehensive collection of practice topics to begin your preparation journey.</p>
-            </div>
+            </header>
 
             {topics.length === 0 ? (
               <div className="text-center py-20">
                 <div className="bg-white rounded-2xl p-12 max-w-md mx-auto shadow-lg">
-                  <div className="w-16 h-16 bg-gray-100 rounded-full mx-auto mb-6"></div>
-                  <h2 className="text-2xl font-bold text-[#192A41] mb-4">No Topics Available</h2>
+                  <div className="w-16 h-16 bg-gray-100 rounded-full mx-auto mb-6" aria-hidden="true"></div>
+                  <h3 className="text-2xl font-bold text-[#192A41] mb-4">No Topics Available</h3>
                   <p className="text-gray-600">Topics will appear here once they are added.</p>
                 </div>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {topics.map((topic) => (
-                  <div
+                  <Link
                     key={topic._id}
-                    onClick={() => handleTopicClick(topic._id, topic.topic_name)}
-                    onMouseEnter={() => setHoveredTopic(topic._id)}
-                    onMouseLeave={() => setHoveredTopic(null)}
-                    className="relative group cursor-pointer transition-all duration-300 hover:-translate-y-1"
+                    href={`/practice/${topic.topic_name}`}
+                    className="relative group cursor-pointer transition-all duration-300 hover:-translate-y-1 block"
+                    aria-label={`Start practicing ${formatDisplayText(topic.topic_name)} questions`}
                   >
                     <div className="bg-white border border-gray-200 rounded-2xl p-6 h-full flex flex-col justify-between hover:border-[#C0A063] hover:shadow-xl transition-all duration-300">
                       <div className="flex items-start justify-between mb-6">
@@ -121,32 +100,20 @@ export default function Practice() {
                             {formatDisplayText(topic.topic_name)}
                           </h4>
                         </div>
-                        <div className={`transition-all duration-300 ${
-                          hoveredTopic === topic._id 
-                            ? 'transform translate-x-1 text-[#C0A063]' 
-                            : 'text-gray-400'
-                        }`}>
-                          <ArrowRight className="h-6 w-6" />
+                        <div className="transition-all duration-300 group-hover:transform group-hover:translate-x-1 group-hover:text-[#C0A063] text-gray-400">
+                          <ArrowRight className="h-6 w-6" aria-hidden="true" />
                         </div>
                       </div>
 
                       <div className="pt-4 border-t border-gray-100">
-                        <div className={`text-sm font-medium transition-all duration-300 ${
-                          hoveredTopic === topic._id 
-                            ? 'text-[#C0A063]' 
-                            : 'text-gray-500'
-                        }`}>
+                        <div className="text-sm font-medium transition-all duration-300 group-hover:text-[#C0A063] text-gray-500">
                           Start Practice
                         </div>
                       </div>
 
-                      <div className={`absolute inset-0 rounded-2xl transition-all duration-300 pointer-events-none ${
-                        hoveredTopic === topic._id 
-                          ? 'bg-gradient-to-br from-[#C0A063]/5 to-transparent' 
-                          : ''
-                      }`}></div>
+                      <div className="absolute inset-0 rounded-2xl transition-all duration-300 pointer-events-none group-hover:bg-gradient-to-br group-hover:from-[#C0A063]/5 group-hover:to-transparent"></div>
                     </div>
-                  </div>
+                  </Link>
                 ))}
               </div>
             )}

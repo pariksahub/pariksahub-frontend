@@ -269,6 +269,26 @@ function Dashboard() {
               </button>
             </div>
           </div>
+          {/* FAQ Management */}
+          <div className="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20">
+            <h3 className="text-xl font-semibold text-white mb-4">
+              FAQ Management
+            </h3>
+            <div className="space-y-3">
+              <button 
+                onClick={() => router.push('/admin/create-faq')}
+                className="w-full bg-red-500/20 hover:bg-red-500/30 text-red-200 font-semibold py-3 px-4 rounded-lg transition-all duration-300 border border-red-500/30 flex items-center justify-center"
+              >
+                Create FAQ
+              </button>
+              <button 
+                onClick={() => router.push('/admin/manage-faqs')}
+                className="w-full bg-red-500/20 hover:bg-red-500/30 text-red-200 font-semibold py-3 px-4 rounded-lg transition-all duration-300 border border-red-500/30 flex items-center justify-center"
+              >
+                Manage FAQs
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>

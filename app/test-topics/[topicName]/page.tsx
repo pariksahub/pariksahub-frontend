@@ -1,65 +1,50 @@
-'use client';
-
-import React, { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import React from 'react';
 import Link from 'next/link';
-import { AlertCircle, ArrowLeft, BookOpen, FileText } from 'lucide-react';
-import axiosInstance from '../../../utils/axiosInstance';
+import { AlertCircle, ArrowLeft, BookOpen } from 'lucide-react';
+import { fetchFromApi } from '../../../utils/serverApi';
 import { formatDisplayText } from '../../../utils/textUtils';
+import TestSubtopicCard from './TestSubtopicCard';
 
 interface Subtopic {
   _id: string;
   subtopic_name: string;
 }
 
-function TestSubTopics() {
-  const params = useParams();
-  const router = useRouter();
-  const topicName = params.topicName as string;
-  const [subtopics, setSubtopics] = useState<Subtopic[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+interface TestSubTopicsPageProps {
+  params: Promise<{ topicName: string }>;
+}
 
-  useEffect(() => {
-    if (topicName) {
-      fetchSubtopics();
-    }
-  }, [topicName]);
+async function getSubtopics(topicName: string): Promise<Subtopic[]> {
+  try {
+    const data = await fetchFromApi(`/api/subtopics/topicname/${encodeURIComponent(topicName)}`) as Subtopic[];
+    return data || [];
+  } catch (error) {
+    console.error('Error fetching subtopics:', error);
+    throw new Error('Failed to load subtopics. Please try again later.');
+  }
+}
 
-  const fetchSubtopics = async () => {
-    setLoading(true);
-    try {
-      const response = await axiosInstance.get(`/api/subtopics/topicname/${topicName}`);
-      setSubtopics(response.data);
-    } catch (error) {
-      setError('Failed to load subtopics. Please try again later.');
-    } finally {
-      setLoading(false);
-    }
-  };
+export default async function TestSubTopics({ params }: TestSubTopicsPageProps) {
+  const { topicName } = await params;
+  let subtopics: Subtopic[] = [];
+  let error: string | null = null;
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-orange-50 flex items-center justify-center pt-20">
-        <div className="relative">
-          <div className="w-12 h-12 border-3 border-slate-200 border-t-slate-700 rounded-full animate-spin"></div>
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-6 h-6 bg-orange-400 rounded-full animate-pulse"></div>
-          </div>
-        </div>
-      </div>
-    );
+  try {
+    subtopics = await getSubtopics(topicName);
+  } catch (err) {
+    error = err instanceof Error ? err.message : 'Failed to load subtopics. Please try again later.';
   }
 
   if (error) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-orange-50 flex items-center justify-center p-4 pt-20">
-        <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-slate-200 p-8 text-center max-w-md">
+        <main className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-slate-200 p-8 text-center max-w-md">
           <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
             <AlertCircle className="h-8 w-8 text-red-500" />
           </div>
+          <h1 className="text-xl font-bold text-slate-800 mb-3">Error Loading Subtopics</h1>
           <p className="text-slate-700 text-lg">{error}</p>
-        </div>
+        </main>
       </div>
     );
   }
@@ -85,24 +70,7 @@ function TestSubTopics() {
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {subtopics.map((subtopic) => (
-            <button
-              key={subtopic._id}
-              onClick={() => router.push(`/onlinetest/${subtopic.subtopic_name}`)}
-              className="group relative p-6 bg-white/80 backdrop-blur-sm rounded-xl shadow-sm border border-slate-200 hover:shadow-lg hover:border-orange-300 transition-all duration-300 text-left w-full hover:scale-105"
-            >
-              <div className="absolute inset-0 bg-gradient-to-r from-slate-600/5 to-orange-400/5 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              <div className="relative flex items-start gap-3">
-                <div className="w-10 h-10 bg-gradient-to-r from-slate-600 to-orange-400 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <FileText className="h-5 w-5 text-white" />
-                </div>
-                <div className="flex-1">
-                  <h3 className="text-lg font-semibold text-slate-800 group-hover:text-slate-900 transition-colors">
-                    {formatDisplayText(subtopic.subtopic_name)}
-                  </h3>
-                </div>
-              </div>
-              <div className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-slate-600 to-orange-400 group-hover:w-full transition-all duration-300"></div>
-            </button>
+            <TestSubtopicCard key={subtopic._id} subtopic={subtopic} />
           ))}
         </div>
 
@@ -119,6 +87,4 @@ function TestSubTopics() {
     </div>
   );
 }
-
-export default TestSubTopics;
 

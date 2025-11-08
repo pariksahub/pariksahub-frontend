@@ -1,9 +1,9 @@
-'use client';
-
-import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { AlertCircle, Search, Star, Clock, BookOpen, Award, Check, X, ArrowRight } from 'lucide-react';
-import axiosInstance from '../../utils/axiosInstance';
+ 
+import React from 'react';
+import Link from 'next/link';
+import { AlertCircle, Star, Clock, BookOpen, Award, Check, X, ArrowRight } from 'lucide-react';
+import { fetchFromApi } from '../../utils/serverApi';
+import SearchForm from './SearchForm';
 
 interface ExamPattern {
   _id: string;
@@ -24,141 +24,107 @@ interface ExamPattern {
   description?: string;
 }
 
-function ExamPatterns() {
-  const [examPatterns, setExamPatterns] = useState<ExamPattern[]>([]);
-  const [allExamPatterns, setAllExamPatterns] = useState<ExamPattern[]>([]);
-  const [featuredExams, setFeaturedExams] = useState<ExamPattern[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [searchInput, setSearchInput] = useState('');
-  const [filters, setFilters] = useState({
-    exam_level: '',
-    search: ''
-  });
-  const [filterOptions, setFilterOptions] = useState({
-    examLevels: [] as string[]
-  });
-  const [stats, setStats] = useState({
-    totalExams: 0,
-    featuredCount: 0,
-    avgDifficulty: 0
-  });
-  const router = useRouter();
+interface ExamPatternsPageProps {
+  searchParams: Promise<{ search?: string; exam_level?: string }>;
+}
 
-  useEffect(() => {
-    const loadData = async () => {
-      setLoading(true);
-      setError('');
-      
-      try {
-        await Promise.all([
-          fetchAllExamPatterns(),
-          fetchFeaturedExams(),
-          fetchFilterOptions()
-        ]);
-      } catch (error) {
-        setError('Failed to load exam patterns');
-      } finally {
-        setLoading(false);
-      }
+async function getAllExamPatterns(): Promise<{ examPatterns: ExamPattern[]; total: number }> {
+  try {
+    const data = await fetchFromApi('/api/exam-patterns/all?limit=100') as { examPatterns?: ExamPattern[]; pagination?: { total?: number } };
+    return {
+      examPatterns: data.examPatterns || [],
+      total: data.pagination?.total || 0
     };
-    
-    loadData();
-  }, []);
+  } catch (error) {
+    console.error('Error fetching exam patterns:', error);
+    throw new Error('Failed to load exam patterns');
+  }
+}
 
-  useEffect(() => {
-    filterExamPatterns();
-  }, [filters, allExamPatterns]);
+async function getFeaturedExams(): Promise<ExamPattern[]> {
+  try {
+    const data = await fetchFromApi('/api/exam-patterns/featured/list') as ExamPattern[];
+    return data || [];
+  } catch (error) {
+    console.error('Error fetching featured exams:', error);
+    return [];
+  }
+}
 
-  const filterExamPatterns = () => {
-    let filtered = [...allExamPatterns];
+async function getFilterOptions(): Promise<{ examLevels: string[] }> {
+  try {
+    const data = await fetchFromApi('/api/exam-patterns/meta/filters') as { examLevels?: string[] };
+    return { examLevels: data.examLevels || [] };
+  } catch (error) {
+    console.error('Error fetching filter options:', error);
+    return { examLevels: [] };
+  }
+}
 
-    if (filters.search) {
-      const searchTerm = filters.search.toLowerCase();
-      filtered = filtered.filter(exam => 
-        exam.exam_name.toLowerCase().includes(searchTerm) ||
-        exam.exam_level.toLowerCase().includes(searchTerm) ||
-        exam.exam_mode.toLowerCase().includes(searchTerm) ||
-        (exam.description && exam.description.toLowerCase().includes(searchTerm))
-      );
-    }
+function filterExamPatterns(examPatterns: ExamPattern[], search?: string, exam_level?: string): ExamPattern[] {
+  let filtered = [...examPatterns];
 
-    if (filters.exam_level) {
-      filtered = filtered.filter(exam => exam.exam_level === filters.exam_level);
-    }
-
-    filtered = filtered.slice(0, 12);
-    setExamPatterns(filtered);
-  };
-
-  const fetchAllExamPatterns = async () => {
-    try {
-      const response = await axiosInstance.get('/api/exam-patterns/all?limit=100');
-      setAllExamPatterns(response.data.examPatterns || []);
-      setStats(prev => ({ ...prev, totalExams: response.data.pagination?.total || 0 }));
-    } catch (error) {
-      setError('Failed to load exam patterns');
-    }
-  };
-
-  const fetchFeaturedExams = async () => {
-    try {
-      const response = await axiosInstance.get('/api/exam-patterns/featured/list');
-      setFeaturedExams(response.data || []);
-      setStats(prev => ({ ...prev, featuredCount: response.data?.length || 0 }));
-    } catch (error) {
-      // Silently fail
-    }
-  };
-
-  const fetchFilterOptions = async () => {
-    try {
-      const response = await axiosInstance.get('/api/exam-patterns/meta/filters');
-      setFilterOptions(response.data || { examLevels: [] });
-    } catch (error) {
-      // Silently fail
-    }
-  };
-
-  const handleExamClick = (slug: string) => {
-    if (!slug) {
-      return;
-    }
-    router.push(`/exam-patterns/${slug}`);
-  };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center pt-20">
-        <div className="text-center">
-          <div 
-            className="rounded-full h-16 w-16 border-4 border-gray-200 border-t-[#C0A063] mx-auto mb-6 animate-spin"
-          ></div>
-          <p className="text-[#192A41] text-lg font-semibold">Loading exam patterns...</p>
-          <p className="text-gray-600 text-sm mt-2">Preparing comprehensive guide</p>
-        </div>
-      </div>
+  if (search) {
+    const searchTerm = search.toLowerCase();
+    filtered = filtered.filter(exam => 
+      exam.exam_name.toLowerCase().includes(searchTerm) ||
+      exam.exam_level.toLowerCase().includes(searchTerm) ||
+      exam.exam_mode.toLowerCase().includes(searchTerm) ||
+      (exam.description && exam.description.toLowerCase().includes(searchTerm))
     );
+  }
+
+  if (exam_level) {
+    filtered = filtered.filter(exam => exam.exam_level === exam_level);
+  }
+
+  return filtered.slice(0, 12);
+}
+
+export default async function ExamPatterns({ searchParams }: ExamPatternsPageProps) {
+  const { search, exam_level } = await searchParams;
+
+  let allExamPatterns: ExamPattern[] = [];
+  let featuredExams: ExamPattern[] = [];
+  let filterOptions: { examLevels: string[] } = { examLevels: [] };
+  let stats = { totalExams: 0, featuredCount: 0 };
+  let error: string | null = null;
+
+  try {
+    const [examData, featuredData, filterData] = await Promise.all([
+      getAllExamPatterns(),
+      getFeaturedExams(),
+      getFilterOptions()
+    ]);
+    allExamPatterns = examData.examPatterns;
+    stats.totalExams = examData.total;
+    featuredExams = featuredData;
+    stats.featuredCount = featuredData.length;
+    filterOptions = filterData;
+  } catch (err) {
+    error = err instanceof Error ? err.message : 'Failed to load exam patterns';
   }
 
   if (error) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4 pt-20">
-        <div className="text-center max-w-md">
+        <main className="text-center max-w-md">
           <AlertCircle className="h-16 w-16 mx-auto mb-4 text-red-500" />
-          <h2 className="text-2xl font-bold mb-3 text-[#192A41]">Error Loading Data</h2>
+          <h1 className="text-2xl font-bold mb-3 text-[#192A41]">Error Loading Data</h1>
           <p className="text-gray-600 mb-6">{error}</p>
-          <button
-            onClick={() => window.location.reload()}
-            className="px-6 py-3 rounded-lg font-semibold text-white shadow-md hover:shadow-lg transition-all"
+          <a
+            href="/exam-patterns"
+            className="px-6 py-3 rounded-lg font-semibold text-white shadow-md hover:shadow-lg transition-all inline-block"
             style={{ backgroundColor: '#C0A063' }}
           >
             Retry
-          </button>
-        </div>
+          </a>
+        </main>
       </div>
     );
   }
+
+  const examPatterns = filterExamPatterns(allExamPatterns, search, exam_level);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -174,21 +140,7 @@ function ExamPatterns() {
             </p>
             
             {/* Search Bar */}
-            <div className="max-w-xl mx-auto mb-6">
-              <div className="bg-white rounded-lg shadow-md flex items-center px-4 py-2">
-                <Search className="h-5 w-5 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Search exams..."
-                  className="flex-1 px-3 py-2 outline-none text-sm"
-                  value={searchInput}
-                  onChange={(e) => {
-                    setSearchInput(e.target.value);
-                    setFilters(prev => ({ ...prev, search: e.target.value }));
-                  }}
-                />
-              </div>
-            </div>
+            <SearchForm search={search} examLevels={filterOptions.examLevels} selectedLevel={exam_level} />
 
             {/* Stats */}
             <div className="flex justify-center gap-6 text-sm">
@@ -223,10 +175,10 @@ function ExamPatterns() {
             
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {featuredExams.map((exam) => (
-                <div
+                <Link
                   key={exam._id}
-                  onClick={() => handleExamClick(exam.slug)}
-                  className="bg-white rounded-xl shadow-lg p-6 cursor-pointer hover:shadow-xl transition-all duration-300 border border-gray-100"
+                  href={`/exam-patterns/${exam.slug}`}
+                  className="bg-white rounded-xl shadow-lg p-6 cursor-pointer hover:shadow-xl transition-all duration-300 border border-gray-100 block"
                 >
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex-1">
@@ -289,7 +241,7 @@ function ExamPatterns() {
                       View Details <ArrowRight className="h-4 w-4" />
                     </span>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           </div>
@@ -297,7 +249,7 @@ function ExamPatterns() {
       )}
 
       {/* All Exam Patterns */}
-      <section className="py-10 sm:py-14">
+      <section id="results-section" className="py-10 sm:py-14 scroll-mt-20">
         <div className="container mx-auto px-4 sm:px-6">
           <h2 className="text-xl sm:text-2xl font-bold mb-6 text-[#192A41]">All Exam Patterns</h2>
           
@@ -312,10 +264,10 @@ function ExamPatterns() {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {examPatterns.map((exam) => (
-                <div
+                <Link
                   key={exam._id}
-                  onClick={() => handleExamClick(exam.slug)}
-                  className="bg-white rounded-xl shadow-lg p-6 cursor-pointer hover:shadow-xl transition-all duration-300 border border-gray-100"
+                  href={`/exam-patterns/${exam.slug}`}
+                  className="bg-white rounded-xl shadow-lg p-6 cursor-pointer hover:shadow-xl transition-all duration-300 border border-gray-100 block"
                 >
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex-1">
@@ -385,7 +337,7 @@ function ExamPatterns() {
                       Details <ArrowRight className="h-4 w-4" />
                     </span>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           )}
@@ -394,6 +346,4 @@ function ExamPatterns() {
     </div>
   );
 }
-
-export default ExamPatterns;
 

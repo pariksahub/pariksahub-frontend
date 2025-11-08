@@ -1,90 +1,73 @@
- 
+
 import Link from 'next/link';
-import { AlertCircle, Star, FileText, ArrowRight } from 'lucide-react';
+import { AlertCircle, Star, HelpCircle, ArrowRight } from 'lucide-react';
 import { fetchFromApi } from '../../utils/serverApi';
 import SearchForm from './SearchForm';
+import ScrollToTopButton from '../../components/ScrollToTopButton';
 
-interface Cheatsheet {
+interface FAQ {
   _id: string;
-  title: string;
+  topic_title: string;
   slug: string;
   description?: string;
-  category: string;
   tags?: string[];
-  color?: string;
   featured?: boolean;
+  views?: number;
 }
 
-interface CheatsheetsPageProps {
-  searchParams: Promise<{ search?: string; category?: string }>;
+interface FAQsPageProps {
+  searchParams: Promise<{ search?: string }>;
 }
 
-async function getAllCheatsheets(): Promise<Cheatsheet[]> {
+async function getAllFAQs(): Promise<FAQ[]> {
   try {
-    const data = await fetchFromApi('/api/cheatsheets/all?limit=100') as { cheatsheets?: Cheatsheet[] };
-    return data.cheatsheets || [];
+    const data = await fetchFromApi('/api/faqs/all?limit=100') as { faqs?: FAQ[] };
+    return data.faqs || [];
   } catch (error) {
-    console.error('Error fetching cheatsheets:', error);
-    throw new Error('Failed to load cheatsheets');
+    console.error('Error fetching FAQs:', error);
+    throw new Error('Failed to load FAQs');
   }
 }
 
-async function getFeaturedSheets(): Promise<Cheatsheet[]> {
+async function getFeaturedFAQs(): Promise<FAQ[]> {
   try {
-    const data = await fetchFromApi('/api/cheatsheets/featured/list') as Cheatsheet[];
+    const data = await fetchFromApi('/api/faqs/featured/list') as FAQ[];
     return data || [];
   } catch (error) {
-    console.error('Error fetching featured cheatsheets:', error);
+    console.error('Error fetching featured FAQs:', error);
     return [];
   }
 }
 
-async function getCategories(): Promise<string[]> {
-  try {
-    const data = await fetchFromApi('/api/cheatsheets/categories') as { categories?: string[] };
-    return data.categories || [];
-  } catch (error) {
-    console.error('Error fetching categories:', error);
-    return [];
-  }
-}
-
-function filterCheatsheets(cheatsheets: Cheatsheet[], search?: string, category?: string): Cheatsheet[] {
-  let filtered = [...cheatsheets];
+function filterFAQs(faqs: FAQ[], search?: string): FAQ[] {
+  let filtered = [...faqs];
 
   if (search) {
     const searchTerm = search.toLowerCase();
-    filtered = filtered.filter(sheet => 
-      sheet.title.toLowerCase().includes(searchTerm) ||
-      sheet.description?.toLowerCase().includes(searchTerm) ||
-      sheet.category.toLowerCase().includes(searchTerm) ||
-      sheet.tags?.some(tag => tag.toLowerCase().includes(searchTerm))
+    filtered = filtered.filter(faq => 
+      faq.topic_title.toLowerCase().includes(searchTerm) ||
+      faq.description?.toLowerCase().includes(searchTerm) ||
+      faq.tags?.some(tag => tag.toLowerCase().includes(searchTerm))
     );
-  }
-
-  if (category) {
-    filtered = filtered.filter(sheet => sheet.category === category);
   }
 
   return filtered;
 }
 
-export default async function Cheatsheets({ searchParams }: CheatsheetsPageProps) {
-  const { search, category } = await searchParams;
+export default async function FAQs({ searchParams }: FAQsPageProps) {
+  const { search } = await searchParams;
 
-  let allCheatsheets: Cheatsheet[] = [];
-  let featuredSheets: Cheatsheet[] = [];
-  let categories: string[] = [];
+  let allFAQs: FAQ[] = [];
+  let featuredFAQs: FAQ[] = [];
   let error: string | null = null;
 
   try {
-    [allCheatsheets, featuredSheets, categories] = await Promise.all([
-      getAllCheatsheets(),
-      getFeaturedSheets(),
-      getCategories()
+    [allFAQs, featuredFAQs] = await Promise.all([
+      getAllFAQs(),
+      getFeaturedFAQs()
     ]);
   } catch (err) {
-    error = err instanceof Error ? err.message : 'Failed to load cheatsheets';
+    error = err instanceof Error ? err.message : 'Failed to load FAQs';
   }
 
   if (error) {
@@ -97,9 +80,9 @@ export default async function Cheatsheets({ searchParams }: CheatsheetsPageProps
           <h1 className="text-2xl font-bold text-[#192A41] mb-3">Oops! Something went wrong</h1>
           <p className="text-gray-600 mb-8 leading-relaxed">{error}</p>
           <Link
-            href="/cheatsheets"
+            href="/faqs"
             className="bg-[#C0A063] text-white font-semibold px-8 py-3 rounded-full hover:bg-opacity-90 transition duration-300 text-lg shadow-md hover:shadow-xl inline-block"
-            aria-label="Try loading cheatsheets again"
+            aria-label="Try again to load FAQs"
           >
             Try Again
           </Link>
@@ -108,7 +91,7 @@ export default async function Cheatsheets({ searchParams }: CheatsheetsPageProps
     );
   }
 
-  const cheatsheets = filterCheatsheets(allCheatsheets, search, category);
+  const faqs = filterFAQs(allFAQs, search);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -118,46 +101,43 @@ export default async function Cheatsheets({ searchParams }: CheatsheetsPageProps
           {/* Header */}
           <div className="max-w-3xl mb-10">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium mb-6 bg-[#FEF3E2] text-[#C0A063]">
-              <FileText className="w-3.5 h-3.5" aria-hidden="true" />
-              <span>Study Resources</span>
+              <HelpCircle className="w-3.5 h-3.5" aria-hidden="true" />
+              <span>Help & Support</span>
             </div>
             <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold mb-4 sm:mb-6 leading-tight">
-              Cheatsheets & Quick Reference Guides
+              Frequently Asked Questions
             </h1>
             <p className="text-base sm:text-lg text-gray-700 leading-relaxed">
-              Fast access to formulas, concepts, programming syntax, and essential shortcuts for competitive exams, developer resources, and more. Everything you need in one place.
+              Find answers to common questions about competitive exams, study resources, exam patterns, and preparation strategies. Everything you need to know in one place.
             </p>
           </div>
           
           {/* Search */}
-          <SearchForm search={search} category={category} categories={categories} />
+          <SearchForm search={search} />
         </div>
       </section>
 
    
       {/* Featured Section */}
-      {featuredSheets.length > 0 && !search && (
+      {featuredFAQs.length > 0 && !search && (
         <section className="py-10 bg-gray-50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center gap-3 mb-8">
               <h2 className="text-2xl sm:text-3xl font-bold text-[#192A41]">
-                Featured Cheatsheets
+                Featured FAQs
               </h2>
             </div>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 max-w-6xl mx-auto">
-              {featuredSheets.map((sheet) => (
+              {featuredFAQs.map((faq) => (
                 <Link
-                  key={sheet._id}
-                  href={`/cheatsheets/${sheet.slug}`}
+                  key={faq._id}
+                  href={`/faqs/${faq.slug}`}
                   className="group relative bg-white rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 hover:-translate-y-1 flex flex-col shadow-[0_1px_3px_rgba(0,0,0,0.05)] border border-[rgba(0,0,0,0.06)] hover:shadow-[0_12px_24px_rgba(0,0,0,0.1)] block"
-                  style={{
-                    borderColor: sheet.color ? `${sheet.color}40` : 'rgba(0,0,0,0.06)'
-                  }}
-                  aria-label={`View ${sheet.title} cheatsheet`}
+                  aria-label={`View ${faq.topic_title} FAQ`}
                 >
                   {/* Top accent */}
-                  <div className="absolute top-0 left-0 right-0 h-0.5" style={{ backgroundColor: sheet.color || '#C0A063' }} />
+                  <div className="absolute top-0 left-0 right-0 h-0.5 bg-[#C0A063]" />
                   
                   <div className="p-6 flex flex-col flex-grow">
                     {/* Icon & Badge */}
@@ -170,25 +150,20 @@ export default async function Cheatsheets({ searchParams }: CheatsheetsPageProps
 
                     {/* Title */}
                     <h3 className="text-xl font-bold mb-2 line-clamp-2 transition-colors group-hover:opacity-80 text-[#192A41]">
-                      {sheet.title}
+                      {faq.topic_title}
                     </h3>
 
-                    {/* Category */}
-                    <span className="inline-block px-3 py-1 rounded-lg text-xs font-medium mb-3 max-w-fit bg-gray-100 text-[#192A41]">
-                      {sheet.category}
-                    </span>
-
                     {/* Description */}
-                    {sheet.description && (
-                      <p className="text-sm text-gray-800 mb-4 line-clamp-2 leading-relaxed">{sheet.description}</p>
+                    {faq.description && (
+                      <p className="text-sm text-gray-800 mb-4 line-clamp-2 leading-relaxed">{faq.description}</p>
                     )}
 
                     {/* Footer - Always at bottom */}
                     <div className="mt-auto pt-4">
                       {/* Tags */}
-                      {sheet.tags && sheet.tags.length > 0 ? (
+                      {faq.tags && faq.tags.length > 0 ? (
                         <div className="flex flex-wrap gap-2 mb-4 pb-4 border-b border-gray-100">
-                          {sheet.tags.slice(0, 3).map((tag, idx) => (
+                          {faq.tags.slice(0, 3).map((tag, idx) => (
                             <span key={idx} className="text-xs px-2.5 py-1 rounded-md font-medium bg-gray-50 text-gray-700">
                               {tag}
                             </span>
@@ -198,10 +173,10 @@ export default async function Cheatsheets({ searchParams }: CheatsheetsPageProps
                         <div className="mb-4 pb-4 border-b border-gray-100"></div>
                       )}
 
-                      {/* CTA */}
+                      {/* Views & CTA */}
                       <div className="flex items-center justify-between">
                         <span className="text-sm font-semibold text-[#C0A063]">
-                          View Details
+                          View Answers
                         </span>
                         <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1 text-[#C0A063]" aria-hidden="true" />
                       </div>
@@ -214,88 +189,82 @@ export default async function Cheatsheets({ searchParams }: CheatsheetsPageProps
         </section>
       )}
 
-      {/* All Cheatsheets */}
+      {/* All FAQs */}
       <section id="results-section" className="py-12 sm:py-16 lg:py-20 bg-white scroll-mt-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4">
             <div>
               <h2 className="text-2xl sm:text-3xl font-bold mb-1 text-[#192A41]">
-                All Cheatsheets
+                All FAQs
               </h2>
               <p className="text-sm text-gray-700">
-                {cheatsheets.length} {cheatsheets.length === 1 ? 'result' : 'results'}
+                {faqs.length} {faqs.length === 1 ? 'result' : 'results'}
               </p>
             </div>
             
           </div>
           
-          {cheatsheets.length === 0 ? (
+          {faqs.length === 0 ? (
             <div className="text-center py-16">
               <div className="w-16 h-16 rounded-xl bg-gray-100 mx-auto mb-4 flex items-center justify-center">
-                <FileText className="w-8 h-8 text-gray-400" aria-hidden="true" />
+                <HelpCircle className="w-8 h-8 text-gray-400" aria-hidden="true" />
               </div>
               <h3 className="text-lg font-semibold mb-2 text-[#192A41]">No Results Found</h3>
               <p className="text-sm text-gray-800 mb-6">Try adjusting your search or filters</p>
               <Link
-                href="/cheatsheets"
+                href="/faqs"
                 className="px-6 py-2.5 rounded-lg text-sm font-medium text-white transition-all hover:opacity-90 bg-[#C0A063] inline-block"
+                aria-label="Clear filters and show all FAQs"
               >
                 Clear Filters
               </Link>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 max-w-6xl mx-auto">
-              {cheatsheets.map((sheet) => (
+              {faqs.map((faq) => (
                 <Link
-                  key={sheet._id}
-                  href={`/cheatsheets/${sheet.slug}`}
+                  key={faq._id}
+                  href={`/faqs/${faq.slug}`}
                   className="group relative bg-white rounded-xl overflow-hidden cursor-pointer transition-all duration-300 hover:-translate-y-0.5 flex flex-col shadow-[0_1px_3px_rgba(0,0,0,0.05)] border border-[rgba(0,0,0,0.06)] hover:shadow-[0_8px_16px_rgba(0,0,0,0.08)] block"
-                  style={{
-                    borderColor: sheet.color ? `${sheet.color}40` : 'rgba(0,0,0,0.06)'
-                  }}
-                  aria-label={`View ${sheet.title} cheatsheet`}
+                  aria-label={`View ${faq.topic_title} FAQ`}
                 >
                     {/* Top accent */}
-                    <div className="absolute top-0 left-0 right-0 h-0.5" style={{ backgroundColor: sheet.color || '#C0A063' }} />
+                    <div className="absolute top-0 left-0 right-0 h-0.5 bg-[#C0A063]" />
                     
                     <div className="p-5 flex flex-col flex-grow">
                       {/* Icon */}
                       <div 
-                        className="w-10 h-10 rounded-lg flex items-center justify-center mb-3 transition-transform group-hover:scale-110"
-                        style={{ backgroundColor: `${sheet.color || '#C0A063'}15` }}
+                        className="w-10 h-10 rounded-lg flex items-center justify-center mb-3 transition-transform group-hover:scale-110 bg-[#C0A06315]"
                       >
-                        <FileText className="w-5 h-5" style={{ color: sheet.color || '#C0A063' }} />
+                        <HelpCircle className="w-5 h-5 text-[#C0A063]" />
                       </div>
 
                       {/* Title */}
                       <h3 className="text-base font-bold mb-3 line-clamp-2 transition-colors group-hover:opacity-80 text-[#192A41]">
-                        {sheet.title}
+                        {faq.topic_title}
                       </h3>
                       
-                      {/* Badges */}
-                      <div className="flex flex-wrap gap-2 mb-3">
-                        <span className="px-2.5 py-1 rounded-md text-xs font-medium bg-gray-100 text-[#192A41]">
-                          {sheet.category}
-                        </span>
-                        {sheet.featured && (
+                      {/* Featured Badge */}
+                      {faq.featured && (
+                        <div className="flex flex-wrap gap-2 mb-3">
                           <span className="px-2.5 py-1 rounded-md text-xs font-medium flex items-center gap-1 bg-[#FEF3E2] text-[#C0A063]">
                             <Star className="w-3 h-3" fill="currentColor" aria-hidden="true" />
                             Featured
                           </span>
-                        )}
-                      </div>
+                        </div>
+                      )}
 
                       {/* Description */}
-                      {sheet.description && (
-                        <p className="text-xs text-gray-800 mb-3 line-clamp-2 leading-relaxed">{sheet.description}</p>
+                      {faq.description && (
+                        <p className="text-xs text-gray-800 mb-3 line-clamp-2 leading-relaxed">{faq.description}</p>
                       )}
 
                       {/* Footer - Always at bottom */}
                       <div className="mt-auto pt-4">
                         {/* Tags */}
-                        {sheet.tags && sheet.tags.length > 0 ? (
+                        {faq.tags && faq.tags.length > 0 ? (
                           <div className="flex flex-wrap gap-1.5 mb-4 pb-4 border-b border-gray-100">
-                            {sheet.tags.slice(0, 3).map((tag, idx) => (
+                            {faq.tags.slice(0, 3).map((tag, idx) => (
                               <span key={idx} className="text-xs px-2 py-0.5 rounded font-medium bg-gray-50 text-gray-600">
                                 {tag}
                               </span>
@@ -326,18 +295,19 @@ export default async function Cheatsheets({ searchParams }: CheatsheetsPageProps
             <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="prose prose-lg max-w-none text-gray-800 space-y-4 leading-relaxed">
                 <p>
-                  This page is a fast reference for topics you revisit often. Each cheatsheet is short, scannable, and focused on the exact facts you need during practice or revision.
+                  This page provides answers to the most common questions about competitive exams, study materials, and test preparation. Each FAQ section covers a specific topic with clear, concise answers.
                 </p>
                 <p>
-                 <strong>What you'll find:</strong> common math formulas and identities, quick definitions for OS/DBMS/Networks/Compiler Design, core CS notes, and ready-to-use snippets for Python, C/C++, and Java. Most pages include a minimal example and a short "remember" note to avoid typical mistakes.
+                 <strong>What you'll find:</strong> Questions about exam patterns, syllabus coverage, preparation strategies, time management, study resources, and general guidance for various competitive examinations.
                 </p>
                 <p>
-                 <strong>How to use it:</strong> search for a term, open the sheet, scan the headings, copy what you need, and get back to questions. If a topic is missing or outdated, suggest an update - we keep these pages current based on exam patterns and user requests.
+                 <strong>How to use it:</strong> Browse through the topics or use the search to find specific questions. Click on any FAQ topic to see all the questions and answers related to that subject. If you don't find what you're looking for, feel free to suggest new topics.
                 </p>
               </div>
             </div>
           </section>
 
+      <ScrollToTopButton />
     </div>
   );
 }

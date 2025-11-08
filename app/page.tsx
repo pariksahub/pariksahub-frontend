@@ -1,10 +1,7 @@
-'use client';
-
-import React from 'react';
+ 
 import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowRight, BookOpen, Target, TrendingUp, Check } from 'lucide-react';
-import { useCurrentLocation } from '../utils/useCurrentLocation';
 import JsonLdSchema from '../components/JsonLdSchema';
 
 const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://pariksahub.com';
@@ -22,9 +19,7 @@ const homePageSchema = {
   },
 };
 
-const Home = () => {
-  const [, currentUrl] = useCurrentLocation();
-
+export default function Home() {
   return (
     <>
       <JsonLdSchema schema={homePageSchema} id="home-schema" />
@@ -52,9 +47,10 @@ const Home = () => {
                 <Link 
                   href="/practice"
                   className="bg-[#C0A063] text-white px-8 py-3.5 rounded-lg font-semibold hover:bg-opacity-90 transition-all inline-flex items-center justify-center group"
+                  aria-label="Start practicing free competitive exam questions"
                 >
                   Start Practicing Free
-                  <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" aria-hidden="true" />
                 </Link>
               </div>
             </div>
@@ -159,7 +155,7 @@ const Home = () => {
           
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {/* Topic 1 */}
-            <Link href="/practice/general-aptitude" className="block group">
+            <Link href="/practice/general-aptitude" className="block group" aria-label="Start practicing aptitude questions">
               <div className="bg-white border-2 border-gray-300 p-6 sm:p-8 rounded-lg hover:shadow-lg transition-all">
                 <div className="flex justify-between items-start mb-4">
                   <div className="flex-1">
@@ -168,19 +164,19 @@ const Home = () => {
                       Quantitative reasoning, data interpretation, and logical problem solving
                     </p>
                   </div>
-                  <span className="text-4xl font-bold text-[#C0A063] opacity-20 group-hover:opacity-100 transition-opacity">
+                  <span className="text-4xl font-bold text-[#C0A063] opacity-20 group-hover:opacity-100 transition-opacity" aria-hidden="true">
                     01
                   </span>
                 </div>
                 <div className="flex items-center text-[#C0A063] font-semibold text-sm group-hover:gap-2 transition-all">
                   Start Practice
-                  <ArrowRight className="w-4 h-4 ml-1" />
+                  <ArrowRight className="w-4 h-4 ml-1" aria-hidden="true" />
                 </div>
               </div>
             </Link>
 
             {/* Topic 2 */}
-            <Link href="/practice/logical-reasoning" className="block group">
+            <Link href="/practice/logical-reasoning" className="block group" aria-label="Start practicing reasoning questions">
               <div className="bg-white border-2 border-gray-300 p-6 sm:p-8 rounded-lg hover:shadow-lg transition-all">
                 <div className="flex justify-between items-start mb-4">
                   <div className="flex-1">
@@ -189,19 +185,19 @@ const Home = () => {
                       Logical reasoning, verbal reasoning, and analytical thinking skills
                     </p>
                   </div>
-                  <span className="text-4xl font-bold text-[#C0A063] opacity-20 group-hover:opacity-100 transition-opacity">
+                  <span className="text-4xl font-bold text-[#C0A063] opacity-20 group-hover:opacity-100 transition-opacity" aria-hidden="true">
                     02
                   </span>
                 </div>
                 <div className="flex items-center text-[#C0A063] font-semibold text-sm group-hover:gap-2 transition-all">
                   Start Practice
-                  <ArrowRight className="w-4 h-4 ml-1" />
+                  <ArrowRight className="w-4 h-4 ml-1" aria-hidden="true" />
                 </div>
               </div>
             </Link>
 
             {/* Topic 3 */}
-            <Link href="/practice/computer-science" className="block group">
+            <Link href="/practice/computer-science" className="block group" aria-label="Start practicing computer science questions">
               <div className="bg-white border-2 border-gray-300 p-6 sm:p-8 rounded-lg hover:shadow-lg transition-all">
                 <div className="flex justify-between items-start mb-4">
                   <div className="flex-1">
@@ -210,13 +206,13 @@ const Home = () => {
                       Core CS principles including OS, Compiler Design, DBMS, and algorithms
                     </p>
                   </div>
-                  <span className="text-4xl font-bold text-[#C0A063] opacity-20 group-hover:opacity-100 transition-opacity">
+                  <span className="text-4xl font-bold text-[#C0A063] opacity-20 group-hover:opacity-100 transition-opacity" aria-hidden="true">
                     03
                   </span>
                 </div>
                 <div className="flex items-center text-[#C0A063] font-semibold text-sm group-hover:gap-2 transition-all">
                   Start Practice
-                  <ArrowRight className="w-4 h-4 ml-1" />
+                  <ArrowRight className="w-4 h-4 ml-1" aria-hidden="true" />
                 </div>
               </div>
             </Link>
@@ -238,9 +234,10 @@ const Home = () => {
           <Link 
             href="/practice"
             className="inline-flex items-center justify-center bg-[#C0A063] text-white font-semibold px-10 py-4 rounded-lg hover:bg-opacity-90 transition-all group"
+            aria-label="Start your exam preparation journey"
           >
             Start Your Journey
-            <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" aria-hidden="true" />
           </Link>
         </div>
       </section>
@@ -276,6 +273,4 @@ const Home = () => {
     </div>
     </>
   );
-};
-
-export default Home;
+}

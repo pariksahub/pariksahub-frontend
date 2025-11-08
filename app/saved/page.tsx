@@ -191,9 +191,12 @@ function Saved() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <div className="flex justify-center items-center min-h-screen">
-          <div className="text-lg text-[#192A41]">Loading saved questions...</div>
-        </div>
+        <main className="flex justify-center items-center min-h-screen">
+          <div className="text-center">
+            <h1 className="sr-only">Saved Questions</h1>
+            <div className="text-lg text-[#192A41]">Loading saved questions...</div>
+          </div>
+        </main>
       </div>
     );
   }
@@ -201,9 +204,12 @@ function Saved() {
   if (error) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <div className="flex justify-center items-center min-h-screen">
-          <div className="text-lg text-red-500">{error}</div>
-        </div>
+        <main className="flex justify-center items-center min-h-screen">
+          <div className="text-center">
+            <h1 className="text-xl font-bold text-[#192A41] mb-3">Error Loading Saved Questions</h1>
+            <div className="text-lg text-red-500">{error}</div>
+          </div>
+        </main>
       </div>
     );
   }
@@ -223,7 +229,7 @@ function Saved() {
 
           <div className="text-center py-16">
             <BookmarkCheck className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-[#192A41] mb-2">No Saved Questions</h2>
+            <h1 className="text-2xl font-bold text-[#192A41] mb-2">No Saved Questions</h1>
             <p className="text-gray-500 mb-8">You haven't saved any questions yet. Start practicing and save questions for later review.</p>
             <Link 
               href="/practice" 

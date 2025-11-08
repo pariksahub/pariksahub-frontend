@@ -1,10 +1,8 @@
-'use client';
-
-import React, { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import React from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Copy, Check } from 'lucide-react';
-import axiosInstance from '../../../utils/axiosInstance';
+import { ArrowLeft } from 'lucide-react';
+import { fetchFromApi } from '../../../utils/serverApi';
+import CheatsheetClient from './CheatsheetClient';
 
 interface CheatsheetItem {
   _id?: string;
@@ -38,70 +36,51 @@ interface Cheatsheet {
   updatedAt?: string;
 }
 
-function CheatsheetDetail() {
-  const params = useParams();
-  const router = useRouter();
-  const slug = params.slug as string;
-  const [cheatsheet, setCheatsheet] = useState<Cheatsheet | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [copied, setCopied] = useState<string | null>(null);
-  const [selectedCategory, setSelectedCategory] = useState('all');
+interface CheatsheetDetailPageProps {
+  params: Promise<{ slug: string }>;
+}
 
-  useEffect(() => {
-    if (slug) {
-      fetchCheatsheet();
+async function getCheatsheet(slug: string): Promise<Cheatsheet | null> {
+  try {
+    const data = await fetchFromApi(`/api/cheatsheets/slug/${encodeURIComponent(slug)}`) as Cheatsheet;
+    return data || null;
+  } catch (error) {
+    console.error('Error fetching cheatsheet:', error);
+    return null;
+  }
+}
+
+export default async function CheatsheetDetail({ params }: CheatsheetDetailPageProps) {
+  const { slug } = await params;
+  
+  let cheatsheet: Cheatsheet | null = null;
+  let error: string | null = null;
+
+  try {
+    cheatsheet = await getCheatsheet(slug);
+    if (!cheatsheet) {
+      error = 'Cheatsheet not found';
     }
-  }, [slug]);
-
-  const fetchCheatsheet = async () => {
-    try {
-      setLoading(true);
-      const response = await axiosInstance.get(`/api/cheatsheets/slug/${slug}`);
-      setCheatsheet(response.data);
-      setError('');
-    } catch (error) {
-      setError('Cheatsheet not found');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const copyCode = (code: string, id: string) => {
-    navigator.clipboard.writeText(code);
-    setCopied(id);
-    setTimeout(() => setCopied(null), 2000);
-  };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div 
-            className="rounded-full h-16 w-16 border-4 border-gray-200 border-t-[#C0A063] mx-auto mb-6 animate-spin"
-          ></div>
-          <p className="text-[#192A41] text-lg font-semibold">Loading cheatsheet...</p>
-          <p className="text-gray-600 text-sm mt-2">Preparing your learning journey</p>
-        </div>
-      </div>
-    );
+  } catch (err) {
+    error = 'Failed to load cheatsheet';
   }
 
   if (error || !cheatsheet) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center p-4">
-        <div className="text-center max-w-md mx-auto px-4">
+        <main className="text-center max-w-md mx-auto px-4">
           <div className="bg-red-50 border border-red-200 rounded-full p-4 inline-block mb-6">
-            <h2 className="text-2xl font-bold text-[#192A41] mb-3">Cheatsheet Not Found</h2>
+            <h1 className="text-2xl font-bold text-[#192A41] mb-3">Cheatsheet Not Found</h1>
             <p className="text-gray-600 mb-8 leading-relaxed">The cheatsheet you're looking for doesn't exist.</p>
             <Link
               href="/cheatsheets"
               className="inline-block bg-[#C0A063] text-white font-semibold px-8 py-3 rounded-full hover:bg-opacity-90 transition duration-300 text-lg shadow-md hover:shadow-xl"
+              aria-label="Go back to cheatsheets list"
             >
               Back to Cheatsheets
             </Link>
           </div>
-        </div>
+        </main>
       </div>
     );
   }
@@ -110,79 +89,9 @@ function CheatsheetDetail() {
     ? cheatsheet.items.sort((a, b) => (a.order || 0) - (b.order || 0))
     : [];
 
-  const filteredItems = selectedCategory === 'all' 
-    ? items 
-    : items.filter(item => item.category === selectedCategory);
-
   const itemCategories = items.length > 0 
     ? ['all', ...new Set(items.map(item => item.category).filter(Boolean) as string[])]
     : ['all'];
-
-  const renderItemContent = (item: CheatsheetItem, itemId: string) => {
-    switch (item.content_type) {
-      case 'code':
-        return (
-          <div className="relative">
-            <div className="flex items-center justify-between mb-2 pb-2 border-b border-gray-200">
-              <span className="text-xs font-mono text-gray-500 uppercase">{item.language || 'code'}</span>
-              <button
-                onClick={() => copyCode(item.code || '', itemId)}
-                className="text-xs text-gray-500 hover:text-gray-700 flex items-center gap-1 cursor-pointer transition-colors"
-              >
-                {copied === itemId ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
-                {copied === itemId ? 'Copied' : 'Copy'}
-              </button>
-            </div>
-            <pre className="bg-gray-50 p-4 rounded border border-gray-200 overflow-x-auto text-sm font-mono leading-relaxed">
-              <code className="text-gray-800">{item.code}</code>
-            </pre>
-          </div>
-        );
-
-      case 'text':
-        return (
-          <div 
-            className="prose-custom quill-content"
-            dangerouslySetInnerHTML={{ __html: item.text_content || '' }}
-          />
-        );
-
-      case 'mixed':
-        return (
-          <div className="space-y-4">
-            {item.mixed_content && item.mixed_content.map((block, blockIndex) => (
-              <div key={blockIndex}>
-                {block.type === 'code' ? (
-                  <div className="relative">
-                    <div className="flex items-center justify-between mb-2 pb-2 border-b border-gray-200">
-                      <span className="text-xs font-mono text-gray-500 uppercase">{block.language || 'code'}</span>
-                      <button
-                        onClick={() => copyCode(block.content || '', `${itemId}-${blockIndex}`)}
-                        className="text-xs text-gray-500 hover:text-gray-700 flex items-center gap-1 cursor-pointer transition-colors"
-                      >
-                        {copied === `${itemId}-${blockIndex}` ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
-                        {copied === `${itemId}-${blockIndex}` ? 'Copied' : 'Copy'}
-                      </button>
-                    </div>
-                    <pre className="bg-gray-50 p-4 rounded border border-gray-200 overflow-x-auto text-sm font-mono leading-relaxed">
-                      <code className="text-gray-800">{block.content}</code>
-                    </pre>
-                  </div>
-                ) : (
-                  <div 
-                    className="prose-custom quill-content"
-                    dangerouslySetInnerHTML={{ __html: block.content }}
-                  />
-                )}
-              </div>
-            ))}
-          </div>
-        );
-
-      default:
-        return null;
-    }
-  };
 
   return (
     <div className="min-h-screen bg-white">
@@ -192,8 +101,9 @@ function CheatsheetDetail() {
           <Link
             href="/cheatsheets"
             className="text-sm text-gray-600 hover:text-gray-900 flex items-center gap-2 mb-4 transition-colors"
+            aria-label="Back to cheatsheets list"
           >
-            <ArrowLeft className="h-4 w-4" />
+            <ArrowLeft className="h-4 w-4" aria-hidden="true" />
             Back
           </Link>
         </div>
@@ -222,88 +132,9 @@ function CheatsheetDetail() {
           </div>
         </div>
 
-        {/* Category Filter */}
-        {itemCategories.length > 1 && (
-          <div className="no-print mb-8 pb-6 border-b border-gray-200 print:hidden">
-            <div className="flex flex-wrap gap-2">
-              {itemCategories.map((cat) => (
-                <button
-                  key={cat}
-                  onClick={() => setSelectedCategory(cat)}
-                  className={`px-4 py-2 text-sm font-medium rounded transition ${
-                    selectedCategory === cat
-                      ? 'bg-gray-900 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  {cat === 'all' ? 'All' : cat}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Table of Contents */}
-        {filteredItems.length > 3 && (
-          <div className="mb-8 p-6 bg-gray-50 border border-gray-200 rounded">
-            <h2 className="text-lg font-bold text-gray-900 mb-3">Contents</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-              {filteredItems.map((item, index) => (
-                <a
-                  key={index}
-                  href={`#item-${index}`}
-                  className="text-sm text-gray-700 hover:text-gray-900 underline transition-colors"
-                >
-                  {index + 1}. {item.title}
-                </a>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Items */}
-        <div className="space-y-10">
-          {filteredItems.map((item, index) => (
-            <div 
-              key={index} 
-              id={`item-${index}`}
-              className="scroll-mt-20"
-            >
-              <div className="mb-4 flex items-start gap-4">
-                <span className="text-3xl font-bold text-gray-300 leading-none pt-1">
-                  {index + 1}
-                </span>
-                <div className="flex-1">
-                  <h2 className="text-2xl font-bold text-gray-900 mb-1">
-                    {item.title}
-                  </h2>
-                  {item.description && (
-                    <p className="text-gray-600 text-sm">{item.description}</p>
-                  )}
-                  {item.category && selectedCategory === 'all' && (
-                    <span className="inline-block mt-2 text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded">
-                      {item.category}
-                    </span>
-                  )}
-                </div>
-              </div>
-              
-              <div className="pl-4 border-l-2 border-gray-300">
-                {renderItemContent(item, `item-${index}`)}
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {filteredItems.length === 0 && (
-          <div className="text-center py-12">
-            <p className="text-gray-500">No items found for the selected category.</p>
-          </div>
-        )}
+        <CheatsheetClient items={items} itemCategories={itemCategories} />
       </div>
     </div>
   );
 }
-
-export default CheatsheetDetail;
 

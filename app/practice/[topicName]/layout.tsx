@@ -11,7 +11,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const formattedTopic = formatDisplayText(topicName);
 
   return {
-    title: `${formattedTopic} Subtopics`,
+    title: `${formattedTopic} Subtopics - Practice Questions | PariksaHub`,
     description: `Explore ${formattedTopic} subtopics for competitive exam preparation. Practice MCQs with detailed solutions and explanations.`,
     keywords: [
       `${formattedTopic} subtopics`,
@@ -22,14 +22,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       'subtopics'
     ],
     openGraph: {
-      title: `${formattedTopic} Subtopics`,
+      title: `${formattedTopic} Subtopics - Practice Questions | PariksaHub`,
       description: `Explore ${formattedTopic} subtopics for competitive exam preparation. Practice MCQs with detailed solutions and explanations.`,
       url: `/practice/${topicName}`,
       type: 'website',
     },
     twitter: {
       card: 'summary_large_image',
-      title: `${formattedTopic} Subtopics`,
+      title: `${formattedTopic} Subtopics - Practice Questions | PariksaHub`,
       description: `Explore ${formattedTopic} subtopics for competitive exam preparation. Practice MCQs with detailed solutions and explanations.`,
     },
     alternates: {
