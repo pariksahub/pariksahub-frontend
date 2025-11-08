@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Bookmark, BookmarkCheck, Lightbulb, X, Eye } from 'lucide-react';
+import { Bookmark, BookmarkCheck, Lightbulb, X, Eye, CheckCircle2, XCircle } from 'lucide-react';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import Link from 'next/link';
 
@@ -37,6 +37,7 @@ interface QuestionsClientProps {
 export default function QuestionsClient({ questions, apiUrl, topicName, subTopicName, currentPage, questionsPerPage }: QuestionsClientProps) {
   const [selectedAnswers, setSelectedAnswers] = useState<Record<string, string>>({});
   const [savedQuestions, setSavedQuestions] = useState<Set<string>>(new Set());
+  const [isMounted, setIsMounted] = useState(false);
   
   const [showExplanationModal, setShowExplanationModal] = useState(false);
   const [currentQuestionForExplanation, setCurrentQuestionForExplanation] = useState<QuestionItem | null>(null);
@@ -54,6 +55,7 @@ export default function QuestionsClient({ questions, apiUrl, topicName, subTopic
   const genAI = new GoogleGenerativeAI(API_KEY);
 
   useEffect(() => {
+    setIsMounted(true);
     loadSavedQuestions();
   }, []);
 
@@ -153,12 +155,12 @@ export default function QuestionsClient({ questions, apiUrl, topicName, subTopic
 
     if (isSelected) {
       if (isCorrect) {
-        return 'bg-green-50 border-green-500 ring-2 ring-green-100';
+        return 'bg-emerald-50 border-emerald-500 border-2';
       } else {
-        return 'bg-red-50 border-red-500 ring-2 ring-red-100';
+        return 'bg-amber-50 border-amber-500 border-2';
       }
     }
-    return 'border-gray-200 hover:bg-gray-50 hover:border-[#C0A063]';
+    return 'border-2 border-gray-800 bg-[#0A0E27] hover:bg-[#1a1f3a] hover:border-[#6366F1] text-white/80';
   };
 
   const formatAIResponse = (text: string) => {
@@ -242,41 +244,41 @@ Focus only on helping students understand the concept and reasoning.`;
           return (
             <div
               key={item.question._id}
-              className="bg-white rounded-xl shadow-lg hover:shadow-2xl transition duration-300"
+              className="bg-[#161B33] border border-gray-800 rounded-xl hover:border-[#6366F1] transition duration-300"
             >
               <div className="p-4 sm:p-5">
                 <div className="mb-4">
-                  <div className="bg-[#192A41] rounded-t-xl p-2 sm:p-3 flex justify-between items-center gap-2 sm:gap-3">
+                  <div className="bg-[#161B33] border border-gray-800 rounded-t-xl p-2 sm:p-3 flex justify-between items-center gap-2 sm:gap-3">
                     <div className="flex items-center gap-2 sm:gap-3">
-                      <div className="w-6 h-6 sm:w-8 sm:h-8 bg-[#C0A063] rounded-full flex items-center justify-center">
+                      <div className="w-6 h-6 sm:w-8 sm:h-8 bg-[#6366F1] rounded-full flex items-center justify-center">
                         <span className="text-white font-bold text-sm sm:text-base">{questionNumber}</span>
                       </div>
-                      <div className="text-white">
-                        <div className="text-sm sm:text-base font-medium">Question {questionNumber} of {questions.length}</div>
+                      <div className="text-white text-sm sm:text-base font-medium whitespace-nowrap">
+                        Question {questionNumber} of {questions.length}
                       </div>
                     </div>
                     <button
                       onClick={() => toggleSaveQuestion(item.question._id)}
                       className={`flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1 sm:py-2 rounded-md sm:rounded-lg transition duration-300 cursor-pointer transform hover:scale-105 ${
-                        savedQuestions.has(item.question._id)
-                          ? 'bg-[#C0A063] text-white hover:bg-opacity-90'
-                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border border-gray-300'
+                        isMounted && savedQuestions.has(item.question._id)
+                          ? 'bg-[#6366F1] text-white hover:bg-[#5558E3]'
+                          : 'bg-[#161B33] text-gray-400 hover:bg-[#1a1f3a] border border-gray-800'
                       }`}
-                      aria-label={savedQuestions.has(item.question._id) ? 'Remove question from saved' : 'Save question for later'}
+                      aria-label={isMounted && savedQuestions.has(item.question._id) ? 'Remove question from saved' : 'Save question for later'}
                     >
-                      {savedQuestions.has(item.question._id) ? (
+                      {isMounted && savedQuestions.has(item.question._id) ? (
                         <BookmarkCheck className="h-3 w-3 sm:h-4 sm:w-4" aria-hidden="true" />
                       ) : (
                         <Bookmark className="h-3 w-3 sm:h-4 sm:w-4" aria-hidden="true" />
                       )}
                       <span className="text-sm font-medium">
-                        {savedQuestions.has(item.question._id) ? 'Saved' : 'Save'}
+                        {isMounted && savedQuestions.has(item.question._id) ? 'Saved' : 'Save'}
                       </span>
                     </button>
                   </div>
                   
                   <div
-                    className="quill-content text-base sm:text-lg leading-relaxed bg-gradient-to-r from-blue-50 to-amber-50 p-4 rounded-b-xl border-l-4 border-[#C0A063] shadow-md"
+                    className="quill-content text-base sm:text-lg leading-relaxed bg-[#161B33] border border-gray-800 text-white/80 p-4 rounded-b-xl border-l-4 border-[#6366F1]"
                     dangerouslySetInnerHTML={{ __html: item.question.question }}
                   />
                   {item.question.question_image_url && (
@@ -291,49 +293,85 @@ Focus only on helping students understand the concept and reasoning.`;
                 </div>
                 
                 <div className="space-y-2">
-                  {item.options.map((option) => (
-                    <label
-                      key={option._id}
-                      className={`flex items-start p-2.5 border rounded-lg cursor-pointer transition-all duration-200 transform hover:scale-[1.01] ${getOptionStyling(item, option)}`}
-                    >
-                      <input
-                        type="radio"
-                        name={`question-${item.question._id}`}
-                        value={option._id}
-                        checked={selectedAnswers[item.question._id] === option._id}
-                        onChange={() => handleAnswerSelect(item.question._id, option._id)}
-                        className="h-4 w-4 text-[#C0A063] border-gray-300 focus:ring-[#C0A063] mt-1 mr-3 cursor-pointer"
-                        aria-label={`Select option ${option._id} for question ${questionNumber}`}
-                      />
-                      <div className="flex-1">
-                        {option.option_type === 'text' ? (
-                          <div
-                            className="quill-content text-[#192A41]"
-                            dangerouslySetInnerHTML={{ __html: option.option_text }}
-                          />
-                        ) : (
-                          <div>
-                            {option.option_text && (
-                              <p className="text-[#192A41] font-normal mb-2">{option.option_text}</p>
-                            )}
-                            {option.path_url && (
-                              <img
-                                src={`${apiUrl}/uploads/${option.path_url}`}
-                                alt="Option"
-                                className="max-w-xs h-auto rounded-lg"
+                  {item.options.map((option) => {
+                    const isSelected = selectedAnswers[item.question._id] === option._id;
+                    const correctOption = getCorrectAnswerOption(item);
+                    const isCorrect = correctOption && correctOption._id === option._id;
+                    const showResult = isSelected && (isCorrect || !isCorrect);
+                    
+                    return (
+                      <label
+                        key={option._id}
+                        className={`flex items-start p-2.5 border rounded-lg cursor-pointer transition-all duration-200 ${getOptionStyling(item, option)}`}
+                      >
+                        <input
+                          type="radio"
+                          name={`question-${item.question._id}`}
+                          value={option._id}
+                          checked={isSelected}
+                          onChange={() => handleAnswerSelect(item.question._id, option._id)}
+                          className={`h-4 w-4 mt-1 mr-3 cursor-pointer ${
+                            isSelected && isCorrect
+                              ? 'text-emerald-500 border-emerald-500 focus:ring-emerald-500'
+                              : isSelected && !isCorrect
+                              ? 'text-amber-500 border-amber-500 focus:ring-amber-500'
+                              : 'text-[#6366F1] border-gray-700 focus:ring-[#6366F1]'
+                          }`}
+                          aria-label={`Select option ${option._id} for question ${questionNumber}`}
+                        />
+                        <div className="flex-1 flex items-start justify-between gap-2">
+                          <div className="flex-1">
+                            {option.option_type === 'text' ? (
+                              <div
+                                className={`quill-content ${
+                                  isSelected && isCorrect
+                                    ? 'text-gray-800'
+                                    : isSelected && !isCorrect
+                                    ? 'text-gray-800'
+                                    : 'text-white/80'
+                                }`}
+                                dangerouslySetInnerHTML={{ __html: option.option_text }}
                               />
+                            ) : (
+                              <div>
+                                {option.option_text && (
+                                  <p className={`font-normal mb-2 ${
+                                    isSelected && isCorrect
+                                      ? 'text-gray-800'
+                                      : isSelected && !isCorrect
+                                      ? 'text-gray-800'
+                                      : 'text-white/80'
+                                  }`}>{option.option_text}</p>
+                                )}
+                                {option.path_url && (
+                                  <img
+                                    src={`${apiUrl}/uploads/${option.path_url}`}
+                                    alt="Option"
+                                    className="max-w-xs h-auto rounded-lg"
+                                  />
+                                )}
+                              </div>
                             )}
                           </div>
-                        )}
-                      </div>
-                    </label>
-                  ))}
+                          {showResult && (
+                            <div className="flex-shrink-0 mt-1">
+                              {isCorrect ? (
+                                <CheckCircle2 className="h-5 w-5 text-emerald-500" aria-hidden="true" />
+                              ) : (
+                                <XCircle className="h-5 w-5 text-amber-500" aria-hidden="true" />
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </label>
+                    );
+                  })}
                 </div>
                 
                 <div className="flex flex-col sm:flex-row gap-3 mt-4">
                   <button
                     onClick={() => toggleExplanation(item)}
-                    className="group inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[#C0A063] text-white rounded-full hover:bg-opacity-90 transition-all duration-300 font-semibold cursor-pointer transform hover:scale-105 shadow-md hover:shadow-lg min-w-[140px]"
+                    className="group inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[#6366F1] text-white rounded-xl hover:bg-[#5558E3] transition-all duration-300 font-bold cursor-pointer transform hover:scale-105 min-w-[140px]"
                     aria-label="View explanation for this question"
                   >
                     <Eye className="h-4 w-4 transition-transform group-hover:scale-110" aria-hidden="true" />
@@ -341,7 +379,7 @@ Focus only on helping students understand the concept and reasoning.`;
                   </button>
                   <button
                     onClick={() => handleAIExplanation(item)}
-                    className="px-5 py-2.5 bg-gray-200 text-[#192A41] rounded-full hover:bg-gray-300 transition duration-300 font-semibold flex items-center justify-center gap-2 cursor-pointer transform hover:scale-105"
+                    className="px-5 py-2.5 bg-[#161B33] border border-gray-800 text-white rounded-xl hover:border-[#6366F1] hover:bg-[#1a1f3a] transition duration-300 font-bold flex items-center justify-center gap-2 cursor-pointer transform hover:scale-105"
                     aria-label="Get AI explanation for this question"
                   >
                     <Lightbulb className="h-4 w-4" aria-hidden="true" />
@@ -358,10 +396,10 @@ Focus only on helping students understand the concept and reasoning.`;
         <Link
           href={currentPage > 1 ? `/practice/${topicName}/${subTopicName}?page=${currentPage - 1}` : '#'}
           onClick={() => currentPage > 1 && paginate(currentPage - 1)}
-          className={`px-5 py-2.5 rounded-full font-semibold transition duration-300 transform hover:scale-105 cursor-pointer inline-block ${
+          className={`px-5 py-2.5 rounded-xl font-bold transition duration-300 transform hover:scale-105 cursor-pointer inline-block ${
             currentPage === 1
-              ? 'bg-gray-100 text-gray-400 cursor-not-allowed hover:scale-100 pointer-events-none'
-              : 'bg-gray-200 text-[#192A41] hover:bg-gray-300'
+              ? 'bg-[#161B33] text-gray-600 cursor-not-allowed hover:scale-100 pointer-events-none border border-gray-800'
+              : 'bg-[#161B33] text-white hover:bg-[#1a1f3a] border border-gray-800 hover:border-[#6366F1]'
           }`}
           aria-label={currentPage === 1 ? 'Previous page (disabled)' : `Go to page ${currentPage - 1}`}
           aria-disabled={currentPage === 1}
@@ -371,10 +409,10 @@ Focus only on helping students understand the concept and reasoning.`;
         <Link
           href={currentPage < Math.ceil(questions.length / questionsPerPage) ? `/practice/${topicName}/${subTopicName}?page=${currentPage + 1}` : '#'}
           onClick={() => currentPage < Math.ceil(questions.length / questionsPerPage) && paginate(currentPage + 1)}
-          className={`px-5 py-2.5 rounded-full font-semibold transition duration-300 transform hover:scale-105 cursor-pointer inline-block ${
+          className={`px-5 py-2.5 rounded-xl font-bold transition duration-300 transform hover:scale-105 cursor-pointer inline-block ${
             currentPage === Math.ceil(questions.length / questionsPerPage)
-              ? 'bg-gray-100 text-gray-400 cursor-not-allowed hover:scale-100 pointer-events-none'
-              : 'bg-[#C0A063] text-white hover:bg-opacity-90'
+              ? 'bg-[#161B33] text-gray-600 cursor-not-allowed hover:scale-100 pointer-events-none border border-gray-800'
+              : 'bg-[#6366F1] text-white hover:bg-[#5558E3]'
           }`}
           aria-label={currentPage === Math.ceil(questions.length / questionsPerPage) ? 'Next page (disabled)' : `Go to page ${currentPage + 1}`}
           aria-disabled={currentPage === Math.ceil(questions.length / questionsPerPage)}
@@ -391,8 +429,8 @@ Focus only on helping students understand the concept and reasoning.`;
               onClick={() => currentPage > 1 && paginate(currentPage - 1)}
               className={`p-2 rounded-lg cursor-pointer transform hover:scale-110 transition duration-200 inline-block ${
                 currentPage === 1
-                  ? 'text-gray-400 cursor-not-allowed hover:scale-100 pointer-events-none'
-                  : 'text-[#192A41] hover:text-[#C0A063] hover:bg-gray-100'
+                  ? 'text-gray-600 cursor-not-allowed hover:scale-100 pointer-events-none'
+                  : 'text-white hover:text-[#6366F1] hover:bg-[#161B33]'
               }`}
               aria-label={currentPage === 1 ? 'Previous page (disabled)' : `Go to page ${currentPage - 1}`}
               aria-disabled={currentPage === 1}
@@ -406,8 +444,8 @@ Focus only on helping students understand the concept and reasoning.`;
                   key={index}
                   href={`/practice/${topicName}/${subTopicName}?page=${pageNum}`}
                   onClick={() => paginate(pageNum)}
-                  className={`w-10 h-10 rounded-lg font-medium transition duration-300 cursor-pointer transform hover:scale-110 inline-flex items-center justify-center ${
-                    currentPage === pageNum ? 'bg-[#C0A063] text-white' : 'text-[#192A41] hover:bg-gray-100'
+                  className={`w-10 h-10 rounded-lg font-bold transition duration-300 cursor-pointer transform hover:scale-110 inline-flex items-center justify-center ${
+                    currentPage === pageNum ? 'bg-[#6366F1] text-white' : 'text-white hover:bg-[#161B33] hover:text-[#6366F1]'
                   }`}
                   aria-label={`Go to page ${pageNum}`}
                   aria-current={currentPage === pageNum ? 'page' : undefined}
@@ -421,8 +459,8 @@ Focus only on helping students understand the concept and reasoning.`;
               onClick={() => currentPage < Math.ceil(questions.length / questionsPerPage) && paginate(currentPage + 1)}
               className={`p-2 rounded-lg cursor-pointer transform hover:scale-110 transition duration-200 inline-block ${
                 currentPage === Math.ceil(questions.length / questionsPerPage)
-                  ? 'text-gray-400 cursor-not-allowed hover:scale-100 pointer-events-none'
-                  : 'text-[#192A41] hover:text-[#C0A063] hover:bg-gray-100'
+                  ? 'text-gray-600 cursor-not-allowed hover:scale-100 pointer-events-none'
+                  : 'text-white hover:text-[#6366F1] hover:bg-[#161B33]'
               }`}
               aria-label={currentPage === Math.ceil(questions.length / questionsPerPage) ? 'Next page (disabled)' : `Go to page ${currentPage + 1}`}
               aria-disabled={currentPage === Math.ceil(questions.length / questionsPerPage)}
@@ -439,16 +477,16 @@ Focus only on helping students understand the concept and reasoning.`;
           <div className="relative w-full h-full max-h-screen flex items-center justify-center p-4 sm:p-6">
             <div 
               ref={explanationModalRef}
-              className="relative w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl bg-white rounded-lg shadow-xl transition-all duration-300 ease-out flex flex-col max-h-[90vh] sm:max-h-[85vh]"
+              className="relative w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl bg-[#161B33] border border-gray-800 rounded-xl shadow-xl transition-all duration-300 ease-out flex flex-col max-h-[90vh] sm:max-h-[85vh]"
             >
-              <div className="flex items-center justify-between p-4 pb-3 border-b border-gray-200 flex-shrink-0">
-                <h3 className="text-lg font-bold text-[#192A41] flex items-center gap-2">
-                  <Eye className="h-5 w-5 text-[#C0A063]" />
+              <div className="flex items-center justify-between p-4 pb-3 border-b border-gray-800 flex-shrink-0">
+                <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                  <Eye className="h-5 w-5 text-[#6366F1]" />
                   Explanation
                 </h3>
                 <button
                   onClick={closeExplanationModal}
-                  className="text-gray-500 hover:text-gray-700 transition-colors cursor-pointer transform hover:scale-110"
+                  className="text-gray-400 hover:text-white transition-colors cursor-pointer transform hover:scale-110"
                   aria-label="Close explanation modal"
                 >
                   <X className="h-6 w-6" aria-hidden="true" />
@@ -458,27 +496,27 @@ Focus only on helping students understand the concept and reasoning.`;
               <div className="flex-1 overflow-y-auto px-4 py-3">
                 <div className="space-y-3">
                   {currentQuestionForExplanation.question.explanation && (
-                    <div className="text-gray-700 text-base leading-relaxed">
+                    <div className="text-white/80 text-base leading-relaxed">
                       <div
-                        className="quill-content"
+                        className="quill-content text-white/80"
                         dangerouslySetInnerHTML={{ __html: currentQuestionForExplanation.question.explanation }}
                       />
                     </div>
                   )}
 
                   {!currentQuestionForExplanation.question.explanation && (
-                    <div className="text-gray-500 text-center py-3">
+                    <div className="text-gray-400 text-center py-3">
                       <p>No explanation available for this question.</p>
                     </div>
                   )}
                 </div>
               </div>
               
-              <div className="p-4 pt-3 border-t border-gray-200 flex-shrink-0">
+              <div className="p-4 pt-3 border-t border-gray-800 flex-shrink-0">
                 <div className="flex justify-end">
                   <button
                     onClick={closeExplanationModal}
-                    className="px-5 py-2.5 bg-[#C0A063] text-white rounded-full hover:bg-opacity-90 transition duration-300 font-semibold cursor-pointer transform hover:scale-105"
+                    className="px-5 py-2.5 bg-[#6366F1] text-white rounded-xl hover:bg-[#5558E3] transition duration-300 font-bold cursor-pointer transform hover:scale-105"
                     aria-label="Close explanation modal"
                   >
                     Close
@@ -496,16 +534,16 @@ Focus only on helping students understand the concept and reasoning.`;
           <div className="relative w-full h-full max-h-screen flex items-center justify-center p-4 sm:p-6">
             <div 
               ref={modalRef}
-              className="relative w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl bg-white rounded-lg shadow-xl transition-all duration-300 ease-out flex flex-col max-h-[90vh] sm:max-h-[85vh]"
+              className="relative w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl bg-[#161B33] border border-gray-800 rounded-xl shadow-xl transition-all duration-300 ease-out flex flex-col max-h-[90vh] sm:max-h-[85vh]"
             >
-              <div className="flex items-center justify-between p-4 pb-3 border-b border-gray-200 flex-shrink-0">
-                <h3 className="text-lg font-bold text-[#192A41] flex items-center gap-2">
-                  <Lightbulb className="h-5 w-5 text-[#C0A063]" />
+              <div className="flex items-center justify-between p-4 pb-3 border-b border-gray-800 flex-shrink-0">
+                <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                  <Lightbulb className="h-5 w-5 text-[#6366F1]" />
                   Owl AI Explanation
                 </h3>
                 <button
                   onClick={closeAIModal}
-                  className="text-gray-500 hover:text-gray-700 transition-colors cursor-pointer transform hover:scale-110"
+                  className="text-gray-400 hover:text-white transition-colors cursor-pointer transform hover:scale-110"
                   aria-label="Close AI explanation modal"
                 >
                   <X className="h-6 w-6" aria-hidden="true" />
@@ -513,37 +551,37 @@ Focus only on helping students understand the concept and reasoning.`;
               </div>
               
               <div className="flex-1 overflow-y-auto px-4 py-3">
-                <div className="text-gray-700 text-base leading-relaxed">
+                <div className="text-white/80 text-base leading-relaxed">
                   {isGeneratingAIExplanation ? (
                     <div className="flex flex-col items-center justify-center py-6">
                       <div 
-                        className="w-10 h-10 border-4 border-[#C0A063] border-t-transparent rounded-full mb-4 animate-spin"
+                        className="w-10 h-10 border-4 border-[#6366F1] border-t-transparent rounded-full mb-4 animate-spin"
                       ></div>
-                      <p className="text-[#192A41] font-medium">Generating explanation...</p>
+                      <p className="text-white/80 font-bold">Generating explanation...</p>
                     </div>
                   ) : aiExplanationError ? (
-                    <div className="text-red-500 text-center py-6">
-                      <p className="text-sm text-gray-500 mt-2">
+                    <div className="text-red-400 text-center py-6">
+                      <p className="text-sm text-gray-400 mt-2">
                         Please Try Again 
                       </p>
                     </div>
                   ) : (
                     <div 
-                      className="quill-content" 
+                      className="quill-content text-white/80" 
                       dangerouslySetInnerHTML={{ __html: aiExplanation }} 
                     />
                   )}
                 </div>
               </div>
               
-              <div className="p-4 pt-3 border-t border-gray-200 flex-shrink-0">
+              <div className="p-4 pt-3 border-t border-gray-800 flex-shrink-0">
                 <div className="flex justify-end flex-col md:flex-row gap-3">
-                  <p className="text-sm md:text-base">
-                    <strong>Note: </strong>AI might give uncertain answers sometimes - either try again or understand the fault, so please consider our explanation for more clarity.
+                  <p className="text-sm md:text-base text-gray-400">
+                    <strong className="text-white">Note: </strong>AI might give uncertain answers sometimes - either try again or understand the fault, so please consider our explanation for more clarity.
                   </p>
                   <button
                     onClick={closeAIModal}
-                    className="px-5 py-2.5 bg-gray-200 text-[#192A41] rounded-full hover:bg-gray-300 transition duration-300 font-semibold cursor-pointer transform hover:scale-105 whitespace-nowrap"
+                    className="px-5 py-2.5 bg-[#161B33] border border-gray-800 text-white rounded-xl hover:border-[#6366F1] hover:bg-[#1a1f3a] transition duration-300 font-bold cursor-pointer transform hover:scale-105 whitespace-nowrap"
                     aria-label="Close AI explanation modal"
                   >
                     Close

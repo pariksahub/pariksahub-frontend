@@ -38,6 +38,7 @@ interface QuestionsClientProps {
 export default function QuestionsClient({ questions, apiUrl, topicName, subTopicName, examTypeName, currentPage, questionsPerPage }: QuestionsClientProps) {
   const [selectedAnswers, setSelectedAnswers] = useState<Record<string, string>>({});
   const [savedQuestions, setSavedQuestions] = useState<Set<string>>(new Set());
+  const [isMounted, setIsMounted] = useState(false);
   
   const [showAIExplanationModal, setShowAIExplanationModal] = useState(false);
   const [aiExplanation, setAiExplanation] = useState('');
@@ -55,6 +56,7 @@ export default function QuestionsClient({ questions, apiUrl, topicName, subTopic
   const genAI = new GoogleGenerativeAI(API_KEY);
 
   useEffect(() => {
+    setIsMounted(true);
     loadSavedQuestions();
   }, []);
 
@@ -244,19 +246,19 @@ Focus only on helping students understand the concept and reasoning.`;
                     <button
                       onClick={() => toggleSaveQuestion(item.question._id)}
                       className={`flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1 sm:py-2 rounded-md sm:rounded-lg transition duration-300 cursor-pointer transform hover:scale-105 ${
-                        savedQuestions.has(item.question._id)
+                        isMounted && savedQuestions.has(item.question._id)
                           ? 'bg-[#C0A063] text-white hover:bg-opacity-90'
                           : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border border-gray-300'
                       }`}
-                      aria-label={savedQuestions.has(item.question._id) ? 'Remove question from saved' : 'Save question for later'}
+                      aria-label={isMounted && savedQuestions.has(item.question._id) ? 'Remove question from saved' : 'Save question for later'}
                     >
-                      {savedQuestions.has(item.question._id) ? (
+                      {isMounted && savedQuestions.has(item.question._id) ? (
                         <BookmarkCheck className="h-3 w-3 sm:h-4 sm:w-4" aria-hidden="true" />
                       ) : (
                         <Bookmark className="h-3 w-3 sm:h-4 sm:w-4" aria-hidden="true" />
                       )}
                       <span className="text-sm font-medium">
-                        {savedQuestions.has(item.question._id) ? 'Saved' : 'Save'}
+                        {isMounted && savedQuestions.has(item.question._id) ? 'Saved' : 'Save'}
                       </span>
                     </button>
                   </div>

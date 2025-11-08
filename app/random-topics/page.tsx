@@ -1,6 +1,6 @@
  
 import Link from 'next/link';
-import { AlertCircle, ArrowRight, RefreshCw } from 'lucide-react';
+import { AlertCircle, ArrowUpRight, RefreshCw } from 'lucide-react';
 import { fetchFromApi } from '../../utils/serverApi';
 import { formatDisplayText } from '../../utils/textUtils';
 import CountSelect from './CountSelect';
@@ -59,16 +59,16 @@ export default async function RandomTopics({ searchParams }: RandomTopicsPagePro
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-[#0A0E27] flex items-center justify-center p-4">
         <main className="text-center max-w-md mx-auto px-4">
-          <div className="bg-red-50 border border-red-200 rounded-full p-4 inline-block mb-6">
-            <AlertCircle className="h-12 w-12 text-red-500" aria-hidden="true" />
+          <div className="bg-red-500 bg-opacity-10 border border-red-500 rounded-2xl p-4 inline-block mb-4">
+            <AlertCircle className="h-10 w-10 text-red-500" aria-hidden="true" />
           </div>
-          <h1 className="text-2xl font-bold text-[#192A41] mb-3">Oops! Something went wrong</h1>
-          <p className="text-gray-600 mb-8 leading-relaxed">{error}</p>
+          <h1 className="text-2xl font-bold text-white mb-2">Something Went Wrong</h1>
+          <p className="text-gray-400 mb-6">{error}</p>
           <Link
             href="/random-topics"
-            className="bg-[#C0A063] text-white font-semibold px-8 py-3 rounded-full hover:bg-opacity-90 transition duration-300 text-lg shadow-md hover:shadow-xl inline-block"
+            className="bg-[#6366F1] text-white font-bold px-6 py-3 rounded-xl hover:bg-[#5558E3] transition duration-300 inline-block"
             aria-label="Try loading random topics again"
           >
             Try Again
@@ -79,90 +79,104 @@ export default async function RandomTopics({ searchParams }: RandomTopicsPagePro
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#0A0E27] text-white">
       {/* Hero Section */}
-      <section className="border-b border-gray-200 bg-white mt-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
-          {/* Header */}
-          <div className="max-w-3xl mb-10">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium mb-6 bg-[#FEF3E2] text-[#C0A063]">
-              <span>Random Practice</span>
-            </div>
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold mb-4 sm:mb-6 leading-tight">
-              Random <span className="text-[#C0A063]">Practice Topics</span>
-            </h1>
-            <p className="text-base sm:text-lg text-gray-700 leading-relaxed mb-6">
-              Discover random topics from all subjects and practice diverse questions across multiple areas for comprehensive exam preparation.
-            </p>
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
-              {/* Count Filter */}
-              <form action="/random-topics" method="get" className="inline-block">
-                <CountSelect defaultValue={validCount.toString()} />
-              </form>
-              
-              {/* Refresh Button */}
-              <Link
-                href={`/random-topics${validCount !== 5 ? `?count=${validCount}` : ''}`}
-                className="inline-flex items-center gap-2 px-4 py-2 bg-[#C0A063] text-white rounded-lg hover:bg-opacity-90 transition-colors text-sm font-medium max-w-fit"
-                aria-label="Refresh random topics"
-              >
-                <RefreshCw className="w-4 h-4" aria-hidden="true" />
-                Refresh
-              </Link>
-            </div>
+      <section className="relative pt-12 sm:pt-20 pb-6 sm:pb-10 overflow-hidden">
+        {/* Subtle Background Pattern */}
+        <div className="absolute inset-0 opacity-5" style={{
+          backgroundImage: `radial-gradient(circle at 2px 2px, rgb(99, 102, 241) 1px, transparent 0)`,
+          backgroundSize: '40px 40px'
+        }}></div>
+        
+        {/* Gradient Glow */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-gradient-to-b from-[#6366F1] to-transparent rounded-full blur-[100px] opacity-20"></div>
+        
+        <div className="relative max-w-6xl mx-auto px-6 text-center z-10">
+          <div className="inline-block mb-5 px-4 py-1.5 bg-[#6366F1] bg-opacity-10 backdrop-blur-sm border border-[#6366F1] border-opacity-30 rounded-full">
+            <span className="text-xs font-bold text-white tracking-wider uppercase">Random Practice</span>
+          </div>
+          
+          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black mb-5 leading-[1.1] tracking-tight">
+            Random <span className="bg-gradient-to-r from-[#6366F1] via-[#8B5CF6] to-[#EC4899] text-transparent bg-clip-text">Practice Topics</span>
+          </h1>
+          
+          <p className="text-base sm:text-lg text-gray-400 max-w-2xl mx-auto mb-8">
+            Discover random topics from all subjects and practice diverse questions across multiple areas for comprehensive exam preparation.
+          </p>
+          
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            {/* Count Filter */}
+            <form action="/random-topics" method="get" className="inline-block">
+              <CountSelect defaultValue={validCount.toString()} />
+            </form>
+            
+            {/* Refresh Button */}
+            <Link
+              href={`/random-topics${validCount !== 5 ? `?count=${validCount}` : ''}`}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-[#6366F1] text-white rounded-xl hover:bg-[#5558E3] transition-colors text-sm font-bold max-w-fit"
+              aria-label="Refresh random topics"
+            >
+              <RefreshCw className="w-4 h-4 text-white" aria-hidden="true" />
+              Refresh
+            </Link>
           </div>
         </div>
       </section>
 
       {/* Topics Section */}
-      <section id="results-section" className="py-12 sm:py-16 lg:py-20 bg-white scroll-mt-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4">
+      <section id="results-section" className="relative py-12 bg-gradient-to-b from-[#0A0E27] to-[#1a1f3a]">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="flex items-end justify-between mb-8">
             <div>
-              <h2 className="text-2xl sm:text-3xl font-bold mb-1 text-[#192A41]">
-                Random Practice Topics
+              <div className="text-xs font-bold text-[#6366F1] mb-2 tracking-widest uppercase">Available Now</div>
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight">
+                {subtopics.length} {subtopics.length === 1 ? 'Topic' : 'Topics'} Ready
               </h2>
-              <p className="text-sm text-gray-700">
-                {subtopics.length} {subtopics.length === 1 ? 'topic' : 'topics'} available
-              </p>
             </div>
           </div>
           
           {subtopics.length === 0 ? (
-            <div className="text-center py-16">
-              <div className="w-16 h-16 rounded-xl bg-gray-100 mx-auto mb-4" aria-hidden="true"></div>
-              <h3 className="text-lg font-semibold mb-2 text-[#192A41]">No Topics Available</h3>
-              <p className="text-sm text-gray-800">Topics will appear here once they are added to the system.</p>
+            <div className="text-center py-20 border-2 border-dashed border-gray-800 rounded-2xl bg-[#161B33]">
+              <div className="w-16 h-16 rounded-xl bg-[#0A0E27] border border-gray-800 mx-auto mb-4" aria-hidden="true"></div>
+              <h3 className="text-xl font-bold mb-2 text-white">No Topics Available</h3>
+              <p className="text-sm text-gray-400">Topics will appear here once they are added to the system.</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 max-w-6xl mx-auto">
-              {subtopics.map((subtopic) => (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+              {subtopics.map((subtopic, index) => (
                 <Link
                   key={subtopic._id}
                   href={`/practice/${subtopic.topic_id.topic_name}/${subtopic.subtopic_name}`}
-                  className="group relative bg-white rounded-xl overflow-hidden cursor-pointer transition-all duration-300 hover:-translate-y-0.5 flex flex-col shadow-[0_1px_3px_rgba(0,0,0,0.05)] border border-gray-200 hover:border-[#C0A063] hover:shadow-[0_8px_16px_rgba(0,0,0,0.08)] block"
+                  className="group relative bg-[#161B33] rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 hover:scale-[1.03] flex flex-col border border-gray-800 hover:border-[#6366F1] hover:shadow-lg hover:shadow-[#6366F1]/20 min-h-[200px]"
                   aria-label={`Start practicing ${formatDisplayText(subtopic.subtopic_name)} from ${formatDisplayText(subtopic.topic_id.topic_name)}`}
                 >
-                  {/* Top accent */}
-                  <div className="absolute top-0 left-0 right-0 h-0.5 bg-[#C0A063]" />
+                  {/* Gradient Overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-[#6366F1]/10 via-transparent to-[#EC4899]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   
-                  <div className="p-6 flex flex-col flex-grow min-h-[160px]">
+                  <div className="relative p-6 flex flex-col flex-grow">
+                    {/* Index Number */}
+                    <div className="absolute top-4 right-4 text-5xl font-black text-white opacity-40 group-hover:opacity-50 transition-opacity">
+                      {String(index + 1).padStart(2, '0')}
+                    </div>
+                    
                     {/* Title */}
-                    <h3 className="text-xl font-bold mb-2 line-clamp-2 text-[#192A41] leading-tight">
+                    <h3 className="text-xl font-bold mb-3 line-clamp-2 leading-snug relative z-10 pr-8">
                       {formatDisplayText(subtopic.subtopic_name)}
                     </h3>
-                    <p className="text-sm text-gray-600 mb-auto">
+                    <p className="text-sm text-gray-400 mb-auto relative z-10">
                       from {formatDisplayText(subtopic.topic_id.topic_name)}
                     </p>
 
-                    {/* Footer - Always at bottom */}
-                    <div className="mt-3 pt-4 border-t border-gray-200">
+                    {/* Footer */}
+                    <div className="mt-5 pt-4 border-t border-gray-800 relative z-10">
                       {/* CTA */}
                       <div className="flex items-center justify-between">
-                        <span className="text-sm font-semibold text-[#C0A063]">
+                        <span className="text-sm font-bold text-[#6366F1] group-hover:text-[#8B5CF6] transition-colors">
                           Start Practice
                         </span>
-                        <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1 text-[#C0A063]" aria-hidden="true" />
+                        <div className="w-10 h-10 bg-[#6366F1] group-hover:bg-gradient-to-br group-hover:from-[#6366F1] group-hover:to-[#8B5CF6] flex items-center justify-center transition-all duration-300 group-hover:rotate-45 rounded-lg">
+                          <ArrowUpRight className="w-5 h-5 text-white transition-all duration-300" aria-hidden="true" />
+                        </div>
                       </div>
                     </div>
                   </div>

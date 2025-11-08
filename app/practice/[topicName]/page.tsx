@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { AlertCircle, ArrowRight, Search, X, ChevronDown } from 'lucide-react';
+import { AlertCircle, ArrowUpRight, Search, X, ChevronDown } from 'lucide-react';
 import { fetchFromApi } from '../../../utils/serverApi';
 import { formatDisplayText } from '../../../utils/textUtils';
 
@@ -80,16 +80,16 @@ export default async function SubTopics({ params, searchParams }: PracticeSubtop
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-[#0A0E27] flex items-center justify-center p-4">
         <main className="text-center max-w-md mx-auto px-4">
-          <div className="bg-red-50 border border-red-200 rounded-full p-4 inline-block mb-6">
-            <AlertCircle className="h-12 w-12 text-red-500" aria-hidden="true" />
+          <div className="bg-red-500 bg-opacity-10 border border-red-500 rounded-2xl p-4 inline-block mb-4">
+            <AlertCircle className="h-10 w-10 text-red-500" aria-hidden="true" />
           </div>
-          <h1 className="text-2xl font-bold text-[#192A41] mb-3">Oops! Something went wrong</h1>
-          <p className="text-gray-600 mb-8 leading-relaxed">{error}</p>
+          <h1 className="text-2xl font-bold text-white mb-2">Something Went Wrong</h1>
+          <p className="text-gray-400 mb-6">{error}</p>
           <Link
             href={`/practice/${topicName}`}
-            className="bg-[#C0A063] text-white font-semibold px-8 py-3 rounded-full hover:bg-opacity-90 transition duration-300 text-lg shadow-md hover:shadow-xl inline-block"
+            className="bg-[#6366F1] text-white font-bold px-6 py-3 rounded-xl hover:bg-[#5558E3] transition duration-300 inline-block"
             aria-label="Try loading subtopics again"
           >
             Try Again
@@ -103,28 +103,38 @@ export default async function SubTopics({ params, searchParams }: PracticeSubtop
   const groupedSubtopics = groupSubtopics(filteredSubtopics);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#0A0E27] text-white">
       {/* Hero Section */}
-      <section className="border-b border-gray-200 bg-white mt-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
+      <section className="relative pt-20 pb-10 overflow-hidden">
+        {/* Subtle Background Pattern */}
+        <div className="absolute inset-0 opacity-5" style={{
+          backgroundImage: `radial-gradient(circle at 2px 2px, rgb(99, 102, 241) 1px, transparent 0)`,
+          backgroundSize: '40px 40px'
+        }}></div>
+        
+        {/* Gradient Glow */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-gradient-to-b from-[#6366F1] to-transparent rounded-full blur-[100px] opacity-20"></div>
+        
+        <div className="relative max-w-6xl mx-auto px-6 text-center z-10">
           {/* Breadcrumb */}
-          <nav className="mb-6 text-sm text-gray-600" aria-label="Breadcrumb navigation">
-            <Link href="/practice" className="hover:text-gray-900 transition-colors" aria-label="Go to practice topics">Practice</Link>
+          <nav className="mb-6 text-sm text-gray-400" aria-label="Breadcrumb navigation">
+            <Link href="/practice" className="hover:text-white transition-colors" aria-label="Go to practice topics">Practice</Link>
             <span className="mx-2" aria-hidden="true">/</span>
-            <span className="text-[#C0A063] font-medium">{formatDisplayText(topicName)}</span>
+            <span className="text-[#6366F1] font-medium">{formatDisplayText(topicName)}</span>
           </nav>
 
-          {/* Header */}
-          <div className="max-w-3xl mb-10">
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold mb-4 sm:mb-6 leading-tight">
-              {formatDisplayText(topicName)} <span className="text-[#C0A063]">Subtopics</span>
-            </h1>
-            <p className="text-base sm:text-lg text-gray-700 leading-relaxed mb-8">
-              Choose a specific subtopic to practice and master your skills. Select from the available subtopics below to start practicing.
-            </p>
-            
-            {/* Search and Filter */}
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+           
+          
+          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black mb-5 leading-[1.1] tracking-tight">
+            <span>{formatDisplayText(topicName)}  <span className="block bg-gradient-to-r from-[#6366F1] via-[#8B5CF6] to-[#EC4899] text-transparent bg-clip-text pb-3">Practice Topics</span></span>
+          </h1>
+          
+          <p className="text-base sm:text-lg text-gray-400 max-w-2xl mx-auto mb-8">
+            Choose a specific topic to practice and master your skills. Select from the available topics below to start practicing.
+          </p>
+          
+          {/* Search and Filter */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 justify-center max-w-2xl mx-auto">
               {/* Exam Filter */}
               <div className="relative">
                 <form action={`/practice/${topicName}`} method="get" className="inline-block">
@@ -133,13 +143,13 @@ export default async function SubTopics({ params, searchParams }: PracticeSubtop
                     <select
                       name="exam"
                       defaultValue={selectedExam}
-                      className="bg-white border border-gray-300 rounded-lg px-4 py-2.5 min-w-[180px] text-left text-gray-900 text-sm appearance-none cursor-pointer hover:border-gray-400 transition-colors pr-8 focus:outline-none focus:ring-2 focus:ring-[#C0A063] focus:border-transparent"
+                      className="bg-[#161B33] border border-gray-800 rounded-lg px-4 py-2.5 min-w-[180px] text-left text-white text-sm appearance-none cursor-pointer hover:border-[#6366F1] transition-colors pr-8 focus:outline-none focus:ring-2 focus:ring-[#6366F1] focus:border-transparent"
                       aria-label="Filter subtopics by exam type"
                     >
                       <option value="">All Exams</option>
                       {exams.map((exam) => (
                         <option key={exam._id} value={exam.exam_name}>
-                          {formatDisplayText(exam.exam_name)}
+                          {formatDisplayText(exam.exam_name).toUpperCase()}
                         </option>
                       ))}
                     </select>
@@ -153,8 +163,8 @@ export default async function SubTopics({ params, searchParams }: PracticeSubtop
               <div className="relative flex-1 sm:max-w-md">
                 <form action={`/practice/${topicName}`} method="get" className="relative">
                   <input type="hidden" name="exam" value={selectedExam} />
-                  <div className={`relative bg-white border rounded-lg transition-all duration-300 ${
-                    search ? 'border-[#C0A063] ring-2 ring-[#C0A063]/20' : 'border-gray-300'
+                  <div className={`relative bg-[#161B33] border rounded-lg transition-all duration-300 ${
+                    search ? 'border-[#6366F1] ring-2 ring-[#6366F1]/20' : 'border-gray-800'
                   }`}>
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                       <Search className="h-5 w-5 text-gray-400" aria-hidden="true" />
@@ -164,13 +174,13 @@ export default async function SubTopics({ params, searchParams }: PracticeSubtop
                       name="search"
                       defaultValue={search || ''}
                       placeholder="Search subtopics..."
-                      className="block w-full pl-10 pr-10 py-2.5 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-0 text-sm"
+                      className="block w-full pl-10 pr-10 py-2.5 text-white placeholder-gray-500 bg-transparent focus:outline-none focus:ring-0 text-sm"
                       aria-label="Search subtopics by name"
                     />
                     {search && (
                       <Link
                         href={`/practice/${topicName}${selectedExam ? `?exam=${encodeURIComponent(selectedExam)}` : ''}`}
-                        className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
+                        className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-white transition-colors"
                         aria-label="Clear search"
                       >
                         <X className="h-4 w-4" aria-hidden="true" />
@@ -181,62 +191,56 @@ export default async function SubTopics({ params, searchParams }: PracticeSubtop
                 </form>
                 
                 {search && (
-                  <div className="absolute top-full left-0 mt-2 text-sm text-gray-600">
+                  <div className="absolute top-full left-0 mt-2 text-sm text-gray-400">
                     {filteredSubtopics.length} subtopic{filteredSubtopics.length !== 1 ? 's' : ''} found
                   </div>
                 )}
               </div>
             </div>
-          </div>
         </div>
       </section>
 
       {/* Subtopics Section */}
-      <section id="results-section" className="py-12 sm:py-16 lg:py-20 bg-white scroll-mt-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section id="results-section" className="relative py-12 bg-gradient-to-b from-[#0A0E27] to-[#1a1f3a]">
+        <div className="max-w-6xl mx-auto px-6">
           {search && filteredSubtopics.length === 0 ? (
-            <div className="text-center py-16">
-              <div className="w-16 h-16 rounded-xl bg-gray-100 mx-auto mb-4 flex items-center justify-center">
+            <div className="text-center py-20 border-2 border-dashed border-gray-700 rounded-2xl bg-white bg-opacity-5">
+              <div className="w-16 h-16 rounded-xl bg-[#161B33] border border-gray-800 mx-auto mb-4 flex items-center justify-center">
                 <Search className="w-8 h-8 text-gray-400" aria-hidden="true" />
               </div>
-              <h3 className="text-lg font-semibold mb-2 text-[#192A41]">No Results Found</h3>
-              <p className="text-sm text-gray-800 mb-6">
+              <h3 className="text-xl font-bold mb-2 text-white">No Results Found</h3>
+              <p className="text-sm text-gray-400 mb-6">
                 No subtopics match your search for "{search}". Try a different search term.
               </p>
               <Link
                 href={`/practice/${topicName}${selectedExam ? `?exam=${encodeURIComponent(selectedExam)}` : ''}`}
-                className="px-6 py-2.5 rounded-lg text-sm font-medium text-white transition-all hover:opacity-90 bg-[#C0A063] inline-block"
+                className="px-6 py-2.5 rounded-xl text-sm font-bold text-white transition-all hover:bg-[#5558E3] bg-[#6366F1] inline-block"
                 aria-label="Clear search and show all subtopics"
               >
                 Clear Search
               </Link>
             </div>
           ) : Object.keys(groupedSubtopics).length === 0 && !search ? (
-            <div className="text-center py-16">
-              <div className="w-16 h-16 rounded-xl bg-gray-100 mx-auto mb-4" aria-hidden="true"></div>
-              <h3 className="text-lg font-semibold mb-2 text-[#192A41]">No Subtopics Available</h3>
-              <p className="text-sm text-gray-800">Subtopics will appear here once they are added for this topic.</p>
+            <div className="text-center py-20 border-2 border-dashed border-gray-700 rounded-2xl bg-white bg-opacity-5">
+              <div className="w-16 h-16 rounded-xl bg-[#161B33] border border-gray-800 mx-auto mb-4" aria-hidden="true"></div>
+              <h3 className="text-xl font-bold mb-2 text-white">No Subtopics Available</h3>
+              <p className="text-sm text-gray-400">Subtopics will appear here once they are added for this topic.</p>
             </div>
           ) : (
             <div className="space-y-12">
               {Object.entries(groupedSubtopics).map(([category, categorySubtopics]) => (
                 <div key={category}>
                   <div className="mb-8">
-                    <h2 className="text-2xl sm:text-3xl font-bold mb-1 text-[#192A41]">
-                      {category}
-                      {search && (
-                        <span className="text-base font-normal text-gray-500 ml-2">
-                          ({categorySubtopics.length} result{categorySubtopics.length !== 1 ? 's' : ''})
-                        </span>
-                      )}
-                    </h2>
-                    <p className="text-sm text-gray-700">
-                      {categorySubtopics.length} {categorySubtopics.length === 1 ? 'subtopic' : 'subtopics'} available
+                  <div className="text-xs font-bold text-[#6366F1] mb-2 tracking-widest uppercase">Available Now</div>
+                  <p className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight">
+                      {categorySubtopics.length} {categorySubtopics.length === 1 ? 'topic' : 'topics'} available
                     </p>
+
+
                   </div>
                   
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 max-w-6xl mx-auto">
-                    {categorySubtopics.map((subtopic) => {
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                    {categorySubtopics.map((subtopic, index) => {
                       const targetRoute = selectedExam 
                         ? `/practice/${topicName}/${subtopic.subtopic_name}/${selectedExam}`
                         : `/practice/${topicName}/${subtopic.subtopic_name}`;
@@ -244,26 +248,30 @@ export default async function SubTopics({ params, searchParams }: PracticeSubtop
                         <Link
                           key={subtopic._id}
                           href={targetRoute}
-                          className="group relative bg-white rounded-xl overflow-hidden cursor-pointer transition-all duration-300 hover:-translate-y-0.5 flex flex-col shadow-[0_1px_3px_rgba(0,0,0,0.05)] border border-gray-200 hover:border-[#C0A063] hover:shadow-[0_8px_16px_rgba(0,0,0,0.08)] block"
+                          className="group relative bg-[#161B33] rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 hover:scale-[1.03] flex flex-col border border-gray-800 hover:border-[#6366F1] hover:shadow-lg hover:shadow-[#6366F1]/20 min-h-[200px]"
                           aria-label={`Start practicing ${formatDisplayText(subtopic.subtopic_name)}`}
                         >
-                          {/* Top accent */}
-                          <div className="absolute top-0 left-0 right-0 h-0.5 bg-[#C0A063]" />
+                          {/* Gradient Overlay */}
+                          <div className="absolute inset-0 bg-gradient-to-br from-[#6366F1]/10 via-transparent to-[#EC4899]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                           
-                          <div className="p-6 flex flex-col flex-grow min-h-[160px]">
+                          <div className="relative p-6 flex flex-col flex-grow">
+                            {/* Index Number */}
+                            <div className="absolute top-4 right-4 text-5xl font-black text-white opacity-5 group-hover:opacity-10 transition-opacity">
+                              {String(index + 1).padStart(2, '0')}
+                            </div>
+                            
                             {/* Title */}
-                            <h3 className="text-xl font-bold mb-auto line-clamp-3 text-[#192A41] leading-tight">
+                            <h3 className="text-xl font-bold mb-auto line-clamp-3 leading-snug relative z-10 pr-8">
                               {formatDisplayText(subtopic.subtopic_name)}
                             </h3>
 
-                            {/* Footer - Always at bottom */}
-                            <div className="mt-3 pt-4 border-t border-gray-200">
-                              {/* CTA */}
-                              <div className="flex items-center justify-between">
-                                <span className="text-sm font-semibold text-[#C0A063]">
-                                  Start Practice
-                                </span>
-                                <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1 text-[#C0A063]" aria-hidden="true" />
+                            {/* Footer */}
+                            <div className="mt-5 flex justify-between items-center relative z-10">
+                              <span className="text-sm font-bold text-[#6366F1] group-hover:text-[#8B5CF6] transition-colors">
+                                Start Practice
+                              </span>
+                              <div className="w-10 h-10 bg-[#6366F1] group-hover:bg-gradient-to-br group-hover:from-[#6366F1] group-hover:to-[#8B5CF6] flex items-center justify-center transition-all duration-300 group-hover:rotate-45 rounded-lg">
+                                <ArrowUpRight className="w-5 h-5 text-white transition-all duration-300" aria-hidden="true" />
                               </div>
                             </div>
                           </div>

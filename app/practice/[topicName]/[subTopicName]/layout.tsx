@@ -12,7 +12,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const displaySubTopicName = formatDisplayText(subTopicName);
 
   return {
-    title: `${displaySubTopicName} Questions - ${displayTopicName}`,
+    title: `Practice ${displaySubTopicName} Questions - ${displayTopicName}`,
     description: `Practice ${displaySubTopicName} questions from ${displayTopicName}. Free MCQs with detailed explanations and step-by-step solutions for competitive exam preparation.`,
     keywords: [
       `${displaySubTopicName} questions`,

@@ -43,7 +43,7 @@ export default function FAQClient({ questions }: FAQClientProps) {
           
           .faq-content strong {
             font-weight: 600;
-            color: #192A41;
+            color: #ffffff;
           }
           
           .faq-content em {
@@ -55,16 +55,28 @@ export default function FAQClient({ questions }: FAQClientProps) {
           }
           
           .faq-content a {
-            color: #C0A063;
+            color: #6366F1;
             text-decoration: underline;
+          }
+          
+          .faq-content a:hover {
+            color: #8B5CF6;
           }
           
           .faq-content h1,
           .faq-content h2,
           .faq-content h3 {
             font-weight: 700;
-            color: #192A41;
+            color: #ffffff;
             margin: 1rem 0 0.5rem 0;
+          }
+          
+          .faq-content p {
+            color: rgba(255, 255, 255, 0.8);
+          }
+          
+          .faq-content li {
+            color: rgba(255, 255, 255, 0.8);
           }
         `
       }} />
@@ -72,17 +84,17 @@ export default function FAQClient({ questions }: FAQClientProps) {
       {questions.map((q, index) => (
         <article
           key={q._id || index}
-          className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 sm:p-8"
+          className="bg-[#161B33] rounded-xl border border-gray-800 p-6 sm:p-8 hover:border-[#6366F1] transition-all"
           aria-labelledby={`faq-question-${index}`}
           role="article"
         >
           <div className="mb-4">
             <h3 
               id={`faq-question-${index}`}
-              className="text-lg sm:text-xl font-bold text-[#192A41] leading-snug"
+              className="text-lg sm:text-xl font-bold text-white leading-snug"
             >
               <span 
-                className="inline-flex items-center justify-center w-6 h-6 bg-[#C0A063] text-white font-bold text-sm rounded-full align-middle mr-3 md:mr-2"
+                className="inline-flex items-center justify-center w-6 h-6 bg-[#6366F1] text-white font-bold text-sm rounded-full align-middle mr-3 md:mr-2"
                 aria-label={`Question number ${index + 1}`}
               >
                 {index + 1}
@@ -97,7 +109,7 @@ export default function FAQClient({ questions }: FAQClientProps) {
             aria-label="Answer"
           >
             <div 
-              className="faq-content text-gray-700"
+              className="faq-content text-white/80"
               dangerouslySetInnerHTML={{ __html: q.answer }}
             />
           </div>

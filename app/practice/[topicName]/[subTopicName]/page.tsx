@@ -62,19 +62,20 @@ export default async function SubTopicQuestions({ params, searchParams }: SubTop
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <main className="flex justify-center items-center min-h-screen">
-          <div className="text-center max-w-md mx-auto px-4">
-            <h1 className="text-2xl font-bold text-[#192A41] mb-3">Error Loading Questions</h1>
-            <p className="text-lg text-red-500 mb-6">{error}</p>
-            <Link
-              href={`/practice/${topicName}/${subTopicName}`}
-              className="bg-[#C0A063] text-white font-semibold px-8 py-3 rounded-full hover:bg-opacity-90 transition duration-300 text-lg shadow-md hover:shadow-xl inline-block"
-              aria-label="Try loading questions again"
-            >
-              Try Again
-            </Link>
+      <div className="min-h-screen bg-[#0A0E27] flex items-center justify-center p-4">
+        <main className="text-center max-w-md mx-auto px-4">
+          <div className="bg-red-500 bg-opacity-10 border border-red-500 rounded-2xl p-4 inline-block mb-4">
+            <div className="h-10 w-10 text-red-500" aria-hidden="true" />
           </div>
+          <h1 className="text-2xl font-bold text-white mb-2">Something Went Wrong</h1>
+          <p className="text-gray-400 mb-6">{error}</p>
+          <Link
+            href={`/practice/${topicName}/${subTopicName}`}
+            className="bg-[#6366F1] text-white font-bold px-6 py-3 rounded-xl hover:bg-[#5558E3] transition duration-300 inline-block"
+            aria-label="Try loading questions again"
+          >
+            Try Again
+          </Link>
         </main>
       </div>
     );
@@ -82,78 +83,115 @@ export default async function SubTopicQuestions({ params, searchParams }: SubTop
 
   if (questions.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4 mt-4">
-          <nav className="mb-4 text-sm text-gray-500 mt-5">
-            <Link href="/practice" className="hover:text-[#C0A063] cursor-pointer" aria-label="Go to practice topics">
-              Practice
-            </Link>
-            <span className="mx-2" aria-hidden="true">/</span>
-            <Link href={`/practice/${topicName}`} className="hover:text-[#C0A063] cursor-pointer" aria-label={`Go to ${displayTopicName} topic`}>
-              {displayTopicName}
-            </Link>
-            <span className="mx-2" aria-hidden="true">/</span>
-            <span className="text-[#192A41] font-medium">{displaySubTopicName}</span>
-          </nav>
+      <div className="min-h-screen bg-[#0A0E27] text-white">
+        {/* Hero Section */}
+        <section className="relative pt-20 pb-10 overflow-hidden">
+          {/* Subtle Background Pattern */}
+          <div className="absolute inset-0 opacity-5" style={{
+            backgroundImage: `radial-gradient(circle at 2px 2px, rgb(99, 102, 241) 1px, transparent 0)`,
+            backgroundSize: '40px 40px'
+          }}></div>
           
-          <div className="mb-4">
-            <h1 className="text-2xl sm:text-3xl font-bold text-[#192A41] mb-2">
-              {displaySubTopicName} Practice Questions with Detailed and AI Explanations
+          {/* Gradient Glow */}
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-gradient-to-b from-[#6366F1] to-transparent rounded-full blur-[100px] opacity-20"></div>
+          
+          <div className="relative max-w-6xl mx-auto px-6 text-center z-10">
+            <div className="hidden md:block">
+              <FloatingNotes />
+            </div>
+            
+            <nav className="mb-6 text-sm text-gray-400" aria-label="Breadcrumb navigation">
+              <Link href="/practice" className="hover:text-white transition-colors" aria-label="Go to practice topics">Practice</Link>
+              <span className="mx-2" aria-hidden="true">/</span>
+              <Link href={`/practice/${topicName}`} className="hover:text-white transition-colors" aria-label={`Go to ${displayTopicName} topic`}>
+                {displayTopicName}
+              </Link>
+              <span className="mx-2" aria-hidden="true">/</span>
+              <span className="text-[#6366F1] font-medium">{displaySubTopicName}</span>
+            </nav>
+            
+            <div className="inline-block mb-5 px-4 py-1.5 bg-[#6366F1] bg-opacity-10 backdrop-blur-sm border border-[#6366F1] border-opacity-30 rounded-full">
+              <span className="text-xs font-bold text-[#ffffff] tracking-wider uppercase">Practice Questions</span>
+            </div>
+            
+            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black mb-5 leading-[1.1] tracking-tight">
+              <span className="block">{displaySubTopicName}</span>
+              <span className="block bg-gradient-to-r from-[#6366F1] via-[#8B5CF6] to-[#EC4899] text-transparent bg-clip-text pb-3">Practice Questions</span>
             </h1>
-            <p className="text-base sm:text-lg text-gray-600">
-              Improve your understanding of {displaySubTopicName} with comprehensive practice questions, clear explanations, and AI-powered guidance from {displayTopicName}.
+            
+            <p className="text-base sm:text-lg text-gray-400 max-w-2xl mx-auto mb-8">
+              Improve your understanding of {displaySubTopicName} with comprehensive practice questions, clear explanations, and AI-powered guidance from {displayTopicName} Topic.
             </p>
           </div>
-          
-          <div className="text-center py-12">
-            <div className="bg-white rounded-2xl p-6 max-w-md mx-auto shadow-lg">
-              <div className="w-16 h-16 bg-gray-100 rounded-full mx-auto mb-4"></div>
-              <h2 className="text-xl font-bold text-[#192A41] mb-2">No Questions Available</h2>
-              <p className="text-gray-600">No questions available for this subtopic.</p>
+        </section>
+
+        {/* Empty State Section */}
+        <section className="relative py-12 bg-gradient-to-b from-[#0A0E27] to-[#1a1f3a]">
+          <div className="max-w-6xl mx-auto px-6">
+            <div className="text-center py-20 border-2 border-dashed border-gray-700 rounded-2xl bg-white bg-opacity-5">
+              <div className="w-16 h-16 rounded-xl bg-[#161B33] border border-gray-800 mx-auto mb-4" aria-hidden="true"></div>
+              <h2 className="text-xl font-bold mb-2">No Questions Yet</h2>
+              <p className="text-gray-400">Check back soon for practice materials</p>
             </div>
           </div>
-        </main>
+        </section>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4 mt-4">
-        <div className="hidden md:block">
-          <FloatingNotes />
-        </div>
+    <div className="min-h-screen bg-[#0A0E27] text-white">
+      {/* Hero Section */}
+      <section className="relative pt-20 pb-10 overflow-hidden">
+        {/* Subtle Background Pattern */}
+        <div className="absolute inset-0 opacity-5" style={{
+          backgroundImage: `radial-gradient(circle at 2px 2px, rgb(99, 102, 241) 1px, transparent 0)`,
+          backgroundSize: '40px 40px'
+        }}></div>
         
-        <nav className="mb-4 text-sm text-gray-500 mt-5">
-          <Link href="/practice" className="hover:text-[#C0A063] cursor-pointer" aria-label="Go to practice topics">
-            Practice
-          </Link>
-          <span className="mx-2" aria-hidden="true">/</span>
-          <Link href={`/practice/${topicName}`} className="hover:text-[#C0A063] cursor-pointer" aria-label={`Go to ${displayTopicName} topic`}>
-            {displayTopicName}
-          </Link>
-          <span className="mx-2" aria-hidden="true">/</span>
-          <span className="text-[#192A41] font-medium">{displaySubTopicName}</span>
-        </nav>
+        {/* Gradient Glow */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-gradient-to-b from-[#6366F1] to-transparent rounded-full blur-[100px] opacity-20"></div>
         
-        <div className="mb-4">
-          <h1 className="text-2xl sm:text-3xl font-bold text-[#192A41] mb-2">
-            {displaySubTopicName} Practice Questions with Detailed and AI Explanations
+        <div className="relative max-w-6xl mx-auto px-6 text-center z-10">
+          <div className="hidden md:block">
+            <FloatingNotes />
+          </div>
+          
+          <nav className="mb-6 text-sm text-gray-400" aria-label="Breadcrumb navigation">
+            <Link href="/practice" className="hover:text-white transition-colors" aria-label="Go to practice topics">Practice</Link>
+            <span className="mx-2" aria-hidden="true">/</span>
+            <Link href={`/practice/${topicName}`} className="hover:text-white transition-colors" aria-label={`Go to ${displayTopicName} topic`}>
+              {displayTopicName}
+            </Link>
+            <span className="mx-2" aria-hidden="true">/</span>
+            <span className="text-[#6366F1] font-medium">{displaySubTopicName}</span>
+          </nav>
+          
+      
+          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black mb-2 leading-[1.1] tracking-tight">
+            <span className="block">{displaySubTopicName}</span>
+            <span className="block bg-gradient-to-r from-[#6366F1] via-[#8B5CF6] to-[#EC4899] text-transparent bg-clip-text pb-3">Practice Questions</span>
           </h1>
-          <p className="text-base sm:text-lg text-gray-600">
-            Improve your understanding of {displaySubTopicName} with comprehensive practice questions, clear explanations, and AI-powered guidance from {displayTopicName}.
+          
+          <p className="text-base sm:text-lg text-gray-400 max-w-2xl mx-auto mb-0">
+            Improve your understanding of {displaySubTopicName} with comprehensive practice questions, clear explanations, and AI-powered guidance from {displayTopicName} Topic.
           </p>
         </div>
-        
-        <QuestionsClient 
-          questions={questions} 
-          apiUrl={API_URL} 
-          topicName={topicName}
-          subTopicName={subTopicName}
-          currentPage={currentPage}
-          questionsPerPage={questionsPerPage}
-        />
-      </main>
+      </section>
+
+      {/* Questions Section */}
+      <section className="relative py-12 bg-gradient-to-b from-[#0A0E27] to-[#1a1f3a]">
+        <div className="max-w-6xl mx-auto px-6">
+          <QuestionsClient 
+            questions={questions} 
+            apiUrl={API_URL} 
+            topicName={topicName}
+            subTopicName={subTopicName}
+            currentPage={currentPage}
+            questionsPerPage={questionsPerPage}
+          />
+        </div>
+      </section>
     </div>
   );
 }

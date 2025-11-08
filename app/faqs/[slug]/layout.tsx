@@ -14,7 +14,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const faq = response.data;
 
     if (faq) {
-      const pageTitle = `${faq.topic_title} - Frequently Asked Questions`;
+      const pageTitle = `${faq.topic_title}`;
       const description = faq.description || `Find answers to common questions about ${faq.topic_title}. Clear and comprehensive answers to help with your queries.`;
       const keywords = `${faq.topic_title.toLowerCase()}, FAQ, frequently asked questions, ${faq.topic_title.toLowerCase()} questions${faq.tags ? ', ' + faq.tags.join(', ') : ''}`;
 

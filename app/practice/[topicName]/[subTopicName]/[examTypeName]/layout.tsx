@@ -13,7 +13,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const displayTopicName = formatDisplayText(topicName);
 
   return {
-    title: `${displayExamName.toUpperCase()} ${displaySubTopicName} Questions - ${displayTopicName}`,
+    title: `Practice ${displayExamName.toUpperCase()} ${displaySubTopicName} Questions - ${displayTopicName}`,
     description: `Practice ${displayExamName.toUpperCase()} ${displaySubTopicName} questions from ${displayTopicName}. Free MCQs with detailed solutions and previous year questions for competitive exam preparation.`,
     keywords: [
       `${displayExamName} questions`,

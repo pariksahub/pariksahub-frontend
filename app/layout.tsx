@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import CustomNavbar from "../components/CustomNavbar";
 import Footer from "../components/Footer";
@@ -41,11 +41,6 @@ export const metadata: Metadata = {
     shortcut: '/favicon.png',
     apple: '/favicon.png',
   },
-  themeColor: '#192A41',
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-  },
   openGraph: {
     type: "website",
     locale: "en_US",
@@ -86,6 +81,12 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "/",
   },
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  themeColor: '#192A41',
 };
 
 const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://pariksahub.com';

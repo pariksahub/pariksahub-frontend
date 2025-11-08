@@ -67,14 +67,14 @@ export default async function CheatsheetDetail({ params }: CheatsheetDetailPageP
 
   if (error || !cheatsheet) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center p-4">
+      <div className="min-h-screen bg-[#0A0E27] flex items-center justify-center p-4">
         <main className="text-center max-w-md mx-auto px-4">
-          <div className="bg-red-50 border border-red-200 rounded-full p-4 inline-block mb-6">
-            <h1 className="text-2xl font-bold text-[#192A41] mb-3">Cheatsheet Not Found</h1>
-            <p className="text-gray-600 mb-8 leading-relaxed">The cheatsheet you're looking for doesn't exist.</p>
+          <div className="bg-red-500 bg-opacity-10 border border-red-500 rounded-2xl p-4 inline-block mb-4">
+            <h1 className="text-2xl font-bold text-white mb-2">Cheatsheet Not Found</h1>
+            <p className="text-gray-400 mb-6">The cheatsheet you're looking for doesn't exist.</p>
             <Link
               href="/cheatsheets"
-              className="inline-block bg-[#C0A063] text-white font-semibold px-8 py-3 rounded-full hover:bg-opacity-90 transition duration-300 text-lg shadow-md hover:shadow-xl"
+              className="inline-block bg-[#6366F1] text-white font-bold px-6 py-3 rounded-xl hover:bg-[#5558E3] transition duration-300"
               aria-label="Go back to cheatsheets list"
             >
               Back to Cheatsheets
@@ -94,43 +94,60 @@ export default async function CheatsheetDetail({ params }: CheatsheetDetailPageP
     : ['all'];
 
   return (
-    <div className="min-h-screen bg-white">
-      <div className="max-w-4xl mx-auto px-6 py-8 mt-16 print:[&_.no-print]:hidden [&_.prose-custom]:leading-[1.7] [&_.prose-custom]:text-gray-900 [&_.prose-custom_h1]:text-2xl [&_.prose-custom_h1]:font-bold [&_.prose-custom_h1]:my-6 [&_.prose-custom_h1]:mt-6 [&_.prose-custom_h1]:mb-3 [&_.prose-custom_h1]:text-gray-900 [&_.prose-custom_h2]:text-xl [&_.prose-custom_h2]:font-bold [&_.prose-custom_h2]:my-5 [&_.prose-custom_h2]:mt-5 [&_.prose-custom_h2]:mb-2 [&_.prose-custom_h2]:text-gray-900 [&_.prose-custom_h3]:text-lg [&_.prose-custom_h3]:font-semibold [&_.prose-custom_h3]:my-4 [&_.prose-custom_h3]:mt-4 [&_.prose-custom_h3]:mb-2 [&_.prose-custom_h3]:text-gray-900 [&_.prose-custom_p]:my-3 [&_.prose-custom_p]:text-gray-900 [&_.prose-custom_p]:bg-yellow-100 [&_.prose-custom_p]:py-2 [&_.prose-custom_p]:px-3 [&_.prose-custom_p]:rounded [&_.prose-custom_p]:border-l-2 [&_.prose-custom_p]:border-amber-500 [&_.prose-custom_code]:bg-gray-100 [&_.prose-custom_code]:px-1.5 [&_.prose-custom_code]:py-0.5 [&_.prose-custom_code]:rounded [&_.prose-custom_code]:font-mono [&_.prose-custom_code]:text-sm [&_.prose-custom_code]:text-red-500 [&_.prose-custom_pre]:bg-gray-50 [&_.prose-custom_pre]:border [&_.prose-custom_pre]:border-gray-200 [&_.prose-custom_pre]:p-4 [&_.prose-custom_pre]:rounded-md [&_.prose-custom_pre]:overflow-x-auto [&_.prose-custom_pre]:my-4 [&_.prose-custom_pre_code]:bg-transparent [&_.prose-custom_pre_code]:text-gray-900 [&_.prose-custom_pre_code]:p-0 [&_.prose-custom_ul]:my-3 [&_.prose-custom_ul]:pl-6 [&_.prose-custom_ul]:text-gray-900 [&_.prose-custom_ol]:my-3 [&_.prose-custom_ol]:pl-6 [&_.prose-custom_ol]:text-gray-900 [&_.prose-custom_li]:my-1.5 [&_.prose-custom_li]:text-gray-900 [&_.prose-custom_a]:text-blue-600 [&_.prose-custom_a]:underline [&_.prose-custom_strong]:font-semibold [&_.prose-custom_strong]:text-gray-900 [&_.prose-custom_div]:text-gray-900 [&_.prose-custom_span]:text-gray-900">
-        {/* Header */}
-        <div className="no-print mb-6 print:hidden">
-          <Link
-            href="/cheatsheets"
-            className="text-sm text-gray-600 hover:text-gray-900 flex items-center gap-2 mb-4 transition-colors"
-            aria-label="Back to cheatsheets list"
-          >
-            <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-            Back
-          </Link>
-        </div>
+    <div className="min-h-screen bg-[#0A0E27] text-white">
+      {/* Hero Section */}
+      <section className="relative pt-12 sm:pt-20 pb-6 sm:pb-10 overflow-hidden">
+        {/* Subtle Background Pattern */}
+        <div className="absolute inset-0 opacity-5" style={{
+          backgroundImage: `radial-gradient(circle at 2px 2px, rgb(99, 102, 241) 1px, transparent 0)`,
+          backgroundSize: '40px 40px'
+        }}></div>
+        
+        {/* Gradient Glow */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-gradient-to-b from-[#6366F1] to-transparent rounded-full blur-[100px] opacity-20"></div>
+        
+        <div className="relative max-w-6xl mx-auto px-6 z-10">
+          {/* Header */}
+          <div className="no-print mb-3 sm:mb-6 print:hidden">
+            <Link
+              href="/cheatsheets"
+              className="text-sm text-gray-400 hover:text-white flex items-center gap-2 mb-2 sm:mb-4 transition-colors"
+              aria-label="Back to cheatsheets list"
+            >
+              <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+              Back
+            </Link>
+          </div>
 
-        {/* Title Section */}
-        <div className="border-b-4 border-gray-900 pb-6 mb-8">
-          <div className="flex items-start justify-between">
-            <div className="flex-1">
-              <h1 className="text-4xl font-bold text-gray-900 mb-2">
-                {cheatsheet.title}
-              </h1>
-              {cheatsheet.description && (
-                <p className="text-gray-600 text-lg mt-3 leading-relaxed">
-                  {cheatsheet.description}
-                </p>
-              )}
-              <div className="flex items-center gap-4 mt-4 text-sm text-gray-500">
-                <span className="px-3 py-1 bg-gray-100 rounded">
-                  {cheatsheet.category}
-                </span>
+          {/* Title Section */}
+          <div className="border-b-4 border-[#6366F1] pb-1 sm:pb-2 mb-1 sm:mb-2">
+            <div className="flex items-start justify-between">
+              <div className="flex-1">
+                <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white mb-1 sm:mb-2">
+                  {cheatsheet.title}
+                </h1>
+                {cheatsheet.description && (
+                  <p className="text-gray-400 text-base sm:text-lg mt-2 sm:mt-3 leading-relaxed">
+                    {cheatsheet.description}
+                  </p>
+                )}
+                <div className="flex items-center gap-4 mt-2 sm:mt-4 text-sm">
+                  <span className="px-3 py-1 bg-[#161B33] text-white border border-gray-700 rounded">
+                    {cheatsheet.category}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
         </div>
+      </section>
 
-        <CheatsheetClient items={items} itemCategories={itemCategories} />
-      </div>
+      {/* Content Section */}
+      <section className="relative pt-1 sm:pt-2 pb-4 sm:pb-6 bg-gradient-to-b from-[#0A0E27] to-[#1a1f3a]">
+        <div className="max-w-4xl mx-auto px-6 print:[&_.no-print]:hidden [&_.prose-custom]:leading-[1.7] [&_.prose-custom]:text-white/80 [&_.prose-custom_h1]:text-2xl [&_.prose-custom_h1]:font-bold [&_.prose-custom_h1]:my-6 [&_.prose-custom_h1]:mt-6 [&_.prose-custom_h1]:mb-3 [&_.prose-custom_h1]:text-white/80 [&_.prose-custom_h2]:text-xl [&_.prose-custom_h2]:font-bold [&_.prose-custom_h2]:my-5 [&_.prose-custom_h2]:mt-5 [&_.prose-custom_h2]:mb-2 [&_.prose-custom_h2]:text-white/80 [&_.prose-custom_h3]:text-lg [&_.prose-custom_h3]:font-semibold [&_.prose-custom_h3]:my-4 [&_.prose-custom_h3]:mt-4 [&_.prose-custom_h3]:mb-2 [&_.prose-custom_h3]:text-white/80 [&_.prose-custom_p]:my-3 [&_.prose-custom_p]:text-white/80 [&_.prose-custom_p]:bg-[#161B33] [&_.prose-custom_p]:py-2 [&_.prose-custom_p]:px-3 [&_.prose-custom_p]:rounded [&_.prose-custom_p]:border-l-2 [&_.prose-custom_p]:border-[#6366F1] [&_.prose-custom_code]:bg-[#161B33] [&_.prose-custom_code]:px-1.5 [&_.prose-custom_code]:py-0.5 [&_.prose-custom_code]:rounded [&_.prose-custom_code]:font-mono [&_.prose-custom_code]:text-sm [&_.prose-custom_code]:text-[#EC4899] [&_.prose-custom_pre]:bg-[#161B33] [&_.prose-custom_pre]:border [&_.prose-custom_pre]:border-gray-800 [&_.prose-custom_pre]:p-4 [&_.prose-custom_pre]:rounded-md [&_.prose-custom_pre]:overflow-x-auto [&_.prose-custom_pre]:my-4 [&_.prose-custom_pre_code]:bg-transparent [&_.prose-custom_pre_code]:text-white/80 [&_.prose-custom_pre_code]:p-0 [&_.prose-custom_ul]:my-3 [&_.prose-custom_ul]:pl-6 [&_.prose-custom_ul]:text-white/80 [&_.prose-custom_ol]:my-3 [&_.prose-custom_ol]:pl-6 [&_.prose-custom_ol]:text-white/80 [&_.prose-custom_li]:my-1.5 [&_.prose-custom_li]:text-white/80 [&_.prose-custom_a]:text-[#6366F1] [&_.prose-custom_a]:underline [&_.prose-custom_strong]:font-semibold [&_.prose-custom_strong]:text-white/80 [&_.prose-custom_div]:text-white/80 [&_.prose-custom_span]:text-white/80">
+          <CheatsheetClient items={items} itemCategories={itemCategories} />
+        </div>
+      </section>
     </div>
   );
 }

@@ -56,16 +56,14 @@ export default async function FAQDetail({ params }: FAQDetailPageProps) {
 
   if (error || !faq) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center p-4">
+      <div className="min-h-screen bg-[#0A0E27] flex items-center justify-center p-4">
         <main className="text-center max-w-md mx-auto px-4">
-          <div className="bg-red-50 border border-red-200 rounded-full p-4 inline-block mb-6">
-            <HelpCircle className="h-12 w-12 text-red-500" aria-hidden="true" />
-          </div>
-          <h1 className="text-2xl font-bold text-[#192A41] mb-3">FAQ Not Found</h1>
-          <p className="text-gray-600 mb-8 leading-relaxed">The FAQ you're looking for doesn't exist.</p>
+       
+          <h1 className="text-2xl font-bold text-white mb-2">FAQ Not Found</h1>
+          <p className="text-gray-400 mb-6">The FAQ you're looking for doesn't exist.</p>
           <Link
             href="/faqs"
-            className="inline-block bg-[#C0A063] text-white font-semibold px-8 py-3 rounded-full hover:bg-opacity-90 transition duration-300 text-lg shadow-md hover:shadow-xl"
+            className="inline-block bg-[#6366F1] text-white font-bold px-6 py-3 rounded-xl hover:bg-[#5558E3] transition duration-300"
             aria-label="Back to FAQs"
           >
             Back to FAQs
@@ -81,91 +79,104 @@ export default async function FAQDetail({ params }: FAQDetailPageProps) {
     : [];
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24">
-        {/* Header */}
-        <div className="mb-6">
-          <nav aria-label="Breadcrumb navigation">
+    <div className="min-h-screen bg-[#0A0E27] text-white">
+      {/* Hero Section */}
+      <section className="relative pt-12 sm:pt-20 pb-6 sm:pb-10 overflow-hidden">
+        {/* Subtle Background Pattern */}
+        <div className="absolute inset-0 opacity-5" style={{
+          backgroundImage: `radial-gradient(circle at 2px 2px, rgb(99, 102, 241) 1px, transparent 0)`,
+          backgroundSize: '40px 40px'
+        }}></div>
+        
+        {/* Gradient Glow */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-gradient-to-b from-[#6366F1] to-transparent rounded-full blur-[100px] opacity-20"></div>
+        
+        <div className="relative max-w-4xl mx-auto px-6 z-10">
+          {/* Header */}
+          <div className="mb-3 sm:mb-6">
+            <nav aria-label="Breadcrumb navigation">
+              <Link
+                href="/faqs"
+                className="text-sm text-gray-400 hover:text-white flex items-center gap-2 mb-2 sm:mb-4 transition-colors"
+                aria-label="Back to FAQs"
+              >
+                <ArrowLeft className="h-4 w-4 text-gray-400" aria-hidden="true" />
+                Back to FAQs
+              </Link>
+            </nav>
+          </div>
+
+          {/* Title Section */}
+          <div className="border-b-4 border-[#6366F1] pb-2 mb-2">
+            <div className="flex items-start gap-4">
+               
+              <div className="flex-1">
+                <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white mb-2">
+                  {faq.topic_title}
+                </h1>
+                {faq.description && (
+                  <p className="text-base sm:text-lg text-gray-400 leading-relaxed mb-3">
+                    {faq.description}
+                  </p>
+                )}
+                <div className="flex flex-wrap items-center gap-3 text-sm">
+                  {faq.featured && (
+                    <span className="px-3 py-1 bg-[#6366F1] text-white rounded-full font-bold">
+                      Featured
+                    </span>
+                  )}
+                  {questions.length > 0 && (
+                    <span className="px-3 py-1 bg-[#161B33] text-white border border-gray-700 rounded-full">
+                      {questions.length} {questions.length === 1 ? 'question' : 'questions'}
+                    </span>
+                  )}
+                </div>
+                {faq.tags && faq.tags.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mt-3">
+                    {faq.tags.map((tag, idx) => (
+                      <span key={idx} className="text-xs px-2.5 py-1 rounded-md font-semibold bg-[#0A0E27] text-white border border-gray-700">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Content Section */}
+      <section className="relative pt-2 pb-6 bg-gradient-to-b from-[#0A0E27] to-[#1a1f3a]">
+        <div className="max-w-4xl mx-auto px-6">
+          {/* Questions */}
+          {questions.length > 0 ? (
+            <div className="space-y-4">
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white mb-6">
+                Questions & Answers
+              </h2>
+              <FAQClient questions={questions} />
+            </div>
+          ) : (
+            <div className="bg-[#161B33] border border-gray-800 rounded-2xl p-8 text-center">
+              <HelpCircle className="w-12 h-12 text-gray-400 mx-auto mb-3" aria-hidden="true" />
+              <p className="text-gray-400">No questions available yet.</p>
+            </div>
+          )}
+
+          {/* Back to FAQs */}
+          <div className="mt-12 pt-8 border-t border-gray-800">
             <Link
               href="/faqs"
-              className="text-sm text-gray-600 hover:text-gray-900 flex items-center gap-2 mb-4 transition-colors"
-              aria-label="Back to FAQs"
+              className="inline-flex items-center gap-2 text-[#6366F1] hover:text-[#8B5CF6] font-bold transition-colors"
+              aria-label="See other FAQs"
             >
-              <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-              Back to FAQs
+              <ArrowLeft className="h-4 w-4 text-[#6366F1]" aria-hidden="true" />
+              See Other FAQs
             </Link>
-          </nav>
-        </div>
-
-        {/* Title Section */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 sm:p-8 mb-8">
-          <div className="flex items-start gap-4">
-            <div className="flex-shrink-0">
-              <div className="w-12 h-12 rounded-xl bg-[#FEF3E2] flex items-center justify-center">
-                <HelpCircle className="w-6 h-6 text-[#C0A063]" aria-hidden="true" />
-              </div>
-            </div>
-            <div className="flex-1">
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#192A41] mb-3">
-                {faq.topic_title}
-              </h1>
-              {faq.description && (
-                <p className="text-gray-700 text-base sm:text-lg leading-relaxed mb-4">
-                  {faq.description}
-                </p>
-              )}
-              <div className="flex flex-wrap items-center gap-3 text-sm text-gray-600">
-                {faq.featured && (
-                  <span className="px-3 py-1 bg-[#FEF3E2] text-[#C0A063] rounded-full font-medium">
-                    Featured
-                  </span>
-                )}
-                {questions.length > 0 && (
-                  <span className="px-3 py-1 bg-gray-100 rounded-full">
-                    {questions.length} {questions.length === 1 ? 'question' : 'questions'}
-                  </span>
-                )}
-              </div>
-              {faq.tags && faq.tags.length > 0 && (
-                <div className="flex flex-wrap gap-2 mt-4">
-                  {faq.tags.map((tag, idx) => (
-                    <span key={idx} className="text-xs px-2.5 py-1 rounded-md font-medium bg-gray-100 text-gray-700">
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              )}
-            </div>
           </div>
         </div>
-
-        {/* Questions */}
-        {questions.length > 0 ? (
-          <div className="space-y-4">
-            <h2 className="text-xl sm:text-2xl font-bold text-[#192A41] mb-6">
-              Questions & Answers
-            </h2>
-            <FAQClient questions={questions} />
-          </div>
-        ) : (
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 text-center">
-            <HelpCircle className="w-12 h-12 text-gray-400 mx-auto mb-3" aria-hidden="true" />
-            <p className="text-gray-600">No questions available yet.</p>
-          </div>
-        )}
-
-        {/* Back to FAQs */}
-        <div className="mt-12 pt-8 border-t border-gray-200">
-          <Link
-            href="/faqs"
-            className="inline-flex items-center gap-2 text-[#C0A063] hover:text-[#192A41] font-medium transition-colors"
-            aria-label="See other FAQs"
-          >
-            <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-            See Other FAQs
-          </Link>
-        </div>
-      </div>
+      </section>
       <ScrollToTopButton />
     </div>
   );
