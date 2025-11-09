@@ -237,21 +237,33 @@ export default async function TopicDetail({ params }: TopicDetailPageProps) {
                 </h3>
                 <nav aria-label="Table of contents">
                   <ol className="space-y-2">
-                    {sortedQuestions.map((question, index) => (
-                      <li key={question._id || index}>
-                        <a
-                          href={`#question-${index}`}
-                          className="flex items-center gap-3 text-gray-300 hover:text-white transition-colors group"
-                        >
-                          <span className="text-sm font-bold text-[#6366F1] flex-shrink-0">
-                            {index + 1}.
-                          </span>
-                          <span className="flex-1 group-hover:text-[#6366F1] transition-colors">
-                            {question.title}
-                          </span>
-                        </a>
-                      </li>
-                    ))}
+                    {sortedQuestions.map((question, index) => {
+                      // Strip HTML from title to prevent unwanted highlighting and decode entities
+                      let plainTitle = question.title.replace(/<[^>]*>/g, '');
+                      plainTitle = plainTitle
+                        .replace(/&lt;/g, '<')
+                        .replace(/&gt;/g, '>')
+                        .replace(/&amp;/g, '&')
+                        .replace(/&quot;/g, '"')
+                        .replace(/&#39;/g, "'")
+                        .replace(/&nbsp;/g, ' ');
+                      
+                      return (
+                        <li key={question._id || index}>
+                          <a
+                            href={`#question-${index}`}
+                            className="flex items-start gap-2 sm:gap-3 text-gray-300 hover:text-white transition-colors group"
+                          >
+                            <span className="text-sm font-bold text-[#6366F1] flex-shrink-0 mt-0.5">
+                              {index + 1}.
+                            </span>
+                            <span className="flex-1 group-hover:text-[#6366F1] transition-colors leading-relaxed">
+                              {plainTitle}
+                            </span>
+                          </a>
+                        </li>
+                      );
+                    })}
                   </ol>
                 </nav>
               </div>

@@ -253,30 +253,26 @@ export default function QuestionClient({ questions }: QuestionClientProps) {
             role="article"
           >
             <div className="mb-6">
-              <div className="flex items-start gap-3 mb-3">
+              <h2 
+                id={`question-title-${index}`}
+                className="text-xl sm:text-2xl font-bold text-white leading-relaxed mb-3"
+              >
                 <span 
-                  className="inline-flex items-center justify-center w-8 h-8 bg-[#6366F1] text-white font-bold text-sm rounded-full flex-shrink-0"
+                  className="inline-flex items-center justify-center w-8 h-8 bg-[#6366F1] text-white font-bold text-sm rounded-full align-middle mr-3 md:mr-2"
                   aria-label={`Question number ${index + 1}`}
                 >
                   {index + 1}
                 </span>
-                <div className="flex-1">
-                  <h2 
-                    id={`question-title-${index}`}
-                    className="text-xl sm:text-2xl font-bold text-white leading-snug mb-2"
-                  >
-                    {question.title}
-                  </h2>
-                  {question.difficulty && (
-                    <span className="inline-block px-3 py-1 text-xs font-medium bg-[#0A0E27] border border-gray-700 rounded-lg text-white">
-                      {question.difficulty}
-                    </span>
-                  )}
-                </div>
-              </div>
+                {question.title.replace(/<[^>]*>/g, '')}
+              </h2>
+              {question.difficulty && (
+                <span className="inline-block px-3 py-1 text-xs font-medium bg-[#0A0E27] border border-gray-700 rounded-lg text-white mb-4">
+                  {question.difficulty}
+                </span>
+              )}
               
               {question.description && (
-                <div className="ml-11 mb-4">
+                <div className="sm:ml-11 mb-4">
                   {parseDescriptionWithSyntaxHighlighting(question.description)}
                 </div>
               )}
@@ -284,7 +280,7 @@ export default function QuestionClient({ questions }: QuestionClientProps) {
             
             {/* Content Blocks */}
             {sortedBlocks.length > 0 && (
-              <div className="ml-11 space-y-4">
+              <div className="sm:ml-11 space-y-4">
                 {sortedBlocks.map((block, blockIndex) => {
                   if (block.type === 'code') {
                     const codeLanguage = detectLanguage(block.code || '', block.language);
