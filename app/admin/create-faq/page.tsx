@@ -2,17 +2,15 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Plus, Trash2, AlertCircle, CheckCircle, ChevronUp, ChevronDown } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, AlertCircle, CheckCircle, ChevronUp, ChevronDown, FileText } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import axiosInstance from '@/utils/axiosInstance';
+import 'react-quill-new/dist/quill.snow.css';
 
 // Dynamically import ReactQuill to avoid SSR issues
 const ReactQuill = dynamic(
   () => import('react-quill-new'),
-  { 
-    ssr: false,
-    loading: () => <div className="h-[200px] bg-gray-50 rounded-lg animate-pulse" />
-  }
+  { ssr: false }
 );
 
 interface Question {
@@ -46,32 +44,20 @@ function CreateFAQ() {
 
   const quillModules = {
     toolbar: [
-      [{ 'header': [1, 2, 3, false] }],
-      ['bold', 'italic', 'underline'],
-      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-      ['link'],
+      [{ header: [1, 2, 3, false] }],
+      ['bold', 'italic', 'underline', 'strike'],
+      [{ color: [] }, { background: [] }],
+      [{ list: 'ordered' }, { list: 'bullet' }],
+      ['link', 'image', 'video'],
       ['code-block'],
       ['clean']
     ],
   };
 
-  const quillFormats = ['header', 'bold', 'italic', 'underline', 'list', 'link', 'code-block'];
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const link = document.createElement('link');
-      link.rel = 'stylesheet';
-      link.href = 'https://cdn.quilljs.com/1.3.6/quill.snow.css';
-      document.head.appendChild(link);
-      
-      return () => {
-        const existingLink = document.querySelector('link[href="https://cdn.quilljs.com/1.3.6/quill.snow.css"]');
-        if (existingLink) {
-          existingLink.remove();
-        }
-      };
-    }
-  }, []);
+  const quillFormats = [
+    'header', 'bold', 'italic', 'underline', 'strike',
+    'color', 'background', 'list', 'link', 'image', 'video', 'code-block'
+  ];
 
   useEffect(() => {
     if (!slugManuallyEdited && formData.topic_title) {
@@ -205,223 +191,200 @@ function CreateFAQ() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <style>{`
-        .ql-toolbar {
-          background: white !important;
-          border: 1px solid #e5e7eb !important;
-          border-radius: 6px 6px 0 0 !important;
-        }
-        .ql-container {
-          border: 1px solid #e5e7eb !important;
-          border-top: none !important;
-          border-radius: 0 0 6px 6px !important;
-          background: white !important;
-        }
-        .ql-editor {
-          color: #111827 !important;
-          font-size: 14px !important;
-          min-height: 100px !important;
-        }
-        .ql-editor.ql-blank::before {
-          color: #9ca3af !important;
-        }
-        .ql-editor pre.ql-syntax,
-        .ql-editor pre[class*="ql-syntax"] {
-          background-color: #000000 !important;
-          color: #ffffff !important;
-          border-radius: 4px !important;
-          padding: 12px !important;
-          margin: 8px 0 !important;
-          overflow-x: auto !important;
-          font-family: 'Courier New', Courier, monospace !important;
-          font-size: 13px !important;
-          line-height: 1.5 !important;
-        }
-        .ql-editor pre.ql-syntax code,
-        .ql-editor pre[class*="ql-syntax"] code {
-          background: transparent !important;
-          color: #ffffff !important;
-          padding: 0 !important;
-          border: none !important;
-        }
-        .ql-editor code:not(pre code) {
-          background-color: #f1f5f9 !important;
-          color: #e11d48 !important;
-          padding: 2px 6px !important;
-          border-radius: 3px !important;
-          font-family: 'Courier New', Courier, monospace !important;
-          font-size: 13px !important;
-        }
-      `}</style>
-
-      <main className="max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
-        <button
-          onClick={() => router.push('/admin/dashboard')}
-          className="text-sm text-gray-600 hover:text-gray-900 flex items-center gap-1 mb-4 mt-20"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back
-        </button>
-
-        <div className="mb-6">
-          <h2 className="text-2xl font-bold text-gray-900 mb-1">Create FAQ</h2>
-          <p className="text-sm text-gray-600">Create a new FAQ for topics or exams</p>
+    <div className="min-h-screen bg-slate-50 p-4 sm:p-6 mt-5">
+      <div className="max-w-5xl mx-auto">
+        {/* Header */}
+        <div className="flex items-center gap-4 mb-6">
+          <button
+            onClick={() => router.push('/admin/dashboard')}
+            className="p-2 hover:bg-gray-200 rounded-lg transition-colors"
+            aria-label="Go back"
+          >
+            <ArrowLeft className="w-5 h-5 text-slate-900" />
+          </button>
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold text-slate-900">Create FAQ</h1>
+            <p className="text-slate-600 text-sm mt-1">Create a new FAQ for topics or exams</p>
+          </div>
         </div>
 
+        {/* Messages */}
         {success && (
-          <div className="mb-4 bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg flex items-center gap-2 text-sm">
-            <CheckCircle className="h-4 w-4 flex-shrink-0" />
-            <span>FAQ created successfully!</span>
+          <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-xl flex items-start gap-3">
+            <CheckCircle className="w-5 h-5 text-green-700 flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="font-semibold text-green-700">Success!</p>
+              <p className="text-sm text-green-600">FAQ created successfully!</p>
+            </div>
           </div>
         )}
 
         {error && (
-          <div className="mb-4 bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg flex items-center gap-2 text-sm">
-            <AlertCircle className="h-4 w-4 flex-shrink-0" />
-            <span>{error}</span>
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3">
+            <AlertCircle className="w-5 h-5 text-red-700 flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="font-semibold text-red-700">Error</p>
+              <p className="text-sm text-red-600">{error}</p>
+            </div>
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-5">
-          <div className="bg-white rounded-lg border border-gray-200 p-4 sm:p-6 space-y-5">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Topic Title *</label>
-              <input
-                type="text"
-                value={formData.topic_title}
-                onChange={(e) => setFormData(prev => ({ ...prev, topic_title: e.target.value }))}
-                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="e.g., Python Programming FAQ"
-                required
-              />
+        <form onSubmit={handleSubmit} className="space-y-8">
+          {/* Basic Info Card */}
+          <div className="bg-white rounded-2xl border border-slate-200 p-8 shadow-sm">
+            <div className="flex items-center gap-3 mb-6">
+              <FileText className="text-indigo-600" />
+              <h2 className="text-xl font-semibold text-slate-900">Basic Information</h2>
             </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Slug</label>
-              <input
-                type="text"
-                value={formData.slug || ''}
-                onChange={(e) => {
-                  setSlugManuallyEdited(true);
-                  setFormData(prev => ({ ...prev, slug: e.target.value }));
-                }}
-                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="python-programming-faq"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
-              <textarea
-                value={formData.description}
-                onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                rows={3}
-                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Brief description of this FAQ..."
-              />
-            </div>
-
-            <div className="flex items-center gap-4">
-              <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+            
+            <div className="space-y-6">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  Topic Title <span className="text-red-500">*</span>
+                </label>
                 <input
-                  type="checkbox"
-                  checked={formData.is_active}
-                  onChange={(e) => setFormData(prev => ({ ...prev, is_active: e.target.checked }))}
-                  className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                  type="text"
+                  value={formData.topic_title}
+                  onChange={(e) => setFormData(prev => ({ ...prev, topic_title: e.target.value }))}
+                  className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
+                  placeholder="e.g., Python Programming FAQ"
+                  required
                 />
-                Active
-              </label>
-              
-              <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={formData.featured}
-                  onChange={(e) => setFormData(prev => ({ ...prev, featured: e.target.checked }))}
-                  className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                />
-                Featured
-              </label>
-            </div>
-
-            <div>
-              <div className="flex items-center justify-between mb-3">
-                <label className="block text-sm font-medium text-gray-700">Tags</label>
-                <button
-                  type="button"
-                  onClick={addTag}
-                  className="text-xs bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded flex items-center gap-1"
-                >
-                  <Plus className="h-3 w-3" />
-                  Add Tag
-                </button>
               </div>
-              <div className="space-y-2">
-                {formData.tags.map((tag, i) => (
-                  <div key={i} className="flex gap-2">
-                    <input
-                      type="text"
-                      value={tag}
-                      onChange={(e) => updateTag(i, e.target.value)}
-                      className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="Enter tag"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => removeTag(i)}
-                      className="text-red-600 hover:text-red-700"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
-                  </div>
-                ))}
-                {formData.tags.length === 0 && (
-                  <p className="text-xs text-gray-500">No tags added</p>
-                )}
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Slug</label>
+                <input
+                  type="text"
+                  value={formData.slug || ''}
+                  onChange={(e) => {
+                    setSlugManuallyEdited(true);
+                    setFormData(prev => ({ ...prev, slug: e.target.value }));
+                  }}
+                  className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
+                  placeholder="python-programming-faq"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Description</label>
+                <textarea
+                  value={formData.description}
+                  onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                  rows={3}
+                  className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
+                  placeholder="Brief description of this FAQ..."
+                />
+              </div>
+
+              <div className="flex items-center gap-6">
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={formData.is_active}
+                    onChange={(e) => setFormData(prev => ({ ...prev, is_active: e.target.checked }))}
+                    className="w-5 h-5 rounded border-slate-300 text-indigo-600 focus:ring-2 focus:ring-indigo-500"
+                  />
+                  <span className="text-sm font-medium text-slate-700">Active</span>
+                </label>
+                
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={formData.featured}
+                    onChange={(e) => setFormData(prev => ({ ...prev, featured: e.target.checked }))}
+                    className="w-5 h-5 rounded border-slate-300 text-indigo-600 focus:ring-2 focus:ring-indigo-500"
+                  />
+                  <span className="text-sm font-medium text-slate-700">Featured</span>
+                </label>
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <label className="block text-sm font-medium text-slate-700">Tags</label>
+                  <button
+                    type="button"
+                    onClick={addTag}
+                    className="px-4 py-2 bg-indigo-600 text-white hover:bg-indigo-700 rounded-xl transition-colors text-sm flex items-center gap-2"
+                  >
+                    <Plus className="h-4 w-4" />
+                    Add Tag
+                  </button>
+                </div>
+                <div className="space-y-2">
+                  {formData.tags.map((tag, i) => (
+                    <div key={i} className="flex gap-2">
+                      <input
+                        type="text"
+                        value={tag}
+                        onChange={(e) => updateTag(i, e.target.value)}
+                        className="flex-1 px-4 py-2 rounded-lg border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition text-sm"
+                        placeholder="Enter tag"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeTag(i)}
+                        className="p-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
+                  ))}
+                  {formData.tags.length === 0 && (
+                    <p className="text-xs text-slate-500">No tags added</p>
+                  )}
+                </div>
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-lg border border-gray-200 p-4 sm:p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-semibold text-gray-900">Questions & Answers</h3>
+          {/* Questions & Answers Card */}
+          <div className="bg-white rounded-2xl border border-slate-200 p-8 shadow-sm">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <FileText className="text-indigo-600" />
+                <h2 className="text-xl font-semibold text-slate-900">Questions & Answers</h2>
+              </div>
               <button
                 type="button"
                 onClick={addQuestion}
-                className="text-xs bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded flex items-center gap-1"
+                className="px-4 py-2 bg-indigo-600 text-white hover:bg-indigo-700 rounded-xl transition-colors text-sm flex items-center gap-2"
               >
-                <Plus className="h-3 w-3" />
+                <Plus className="h-4 w-4" />
                 Add Question
               </button>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-6">
               {formData.questions.map((q, index) => (
-                <div key={q._id} className="border border-gray-200 rounded-lg p-4 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-gray-700">Question {index + 1}</span>
+                <div key={q._id} className="bg-slate-50 rounded-xl border border-slate-200 p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="text-sm font-semibold text-slate-700">Question {index + 1}</span>
                     <div className="flex items-center gap-2">
                       <button
                         type="button"
                         onClick={() => moveQuestion(index, 'up')}
                         disabled={index === 0}
-                        className="text-gray-400 hover:text-gray-600 disabled:opacity-30"
+                        className="p-1.5 hover:bg-slate-200 rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        title="Move up"
                       >
-                        <ChevronUp className="h-4 w-4" />
+                        <ChevronUp className="h-4 w-4 text-slate-700" />
                       </button>
                       <button
                         type="button"
                         onClick={() => moveQuestion(index, 'down')}
                         disabled={index === formData.questions.length - 1}
-                        className="text-gray-400 hover:text-gray-600 disabled:opacity-30"
+                        className="p-1.5 hover:bg-slate-200 rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        title="Move down"
                       >
-                        <ChevronDown className="h-4 w-4" />
+                        <ChevronDown className="h-4 w-4 text-slate-700" />
                       </button>
                       {formData.questions.length > 1 && (
                         <button
                           type="button"
                           onClick={() => removeQuestion(index)}
-                          className="text-red-600 hover:text-red-700"
+                          className="p-1.5 hover:bg-red-100 rounded text-red-600 transition-colors"
+                          title="Remove question"
                         >
                           <Trash2 className="h-4 w-4" />
                         </button>
@@ -429,53 +392,70 @@ function CreateFAQ() {
                     </div>
                   </div>
 
-                  <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1">Question *</label>
-                    <input
-                      type="text"
-                      value={q.question}
-                      onChange={(e) => updateQuestion(index, 'question', e.target.value)}
-                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="Enter question..."
-                      required
-                    />
-                  </div>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 mb-2">
+                        Question <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        value={q.question}
+                        onChange={(e) => updateQuestion(index, 'question', e.target.value)}
+                        className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
+                        placeholder="Enter question..."
+                        required
+                      />
+                    </div>
 
-                  <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1">Answer *</label>
-                    <ReactQuill
-                      value={q.answer}
-                      onChange={(content) => updateQuestion(index, 'answer', content)}
-                      modules={quillModules}
-                      formats={quillFormats}
-                      theme="snow"
-                      placeholder="Enter answer..."
-                    />
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 mb-2">
+                        Answer <span className="text-red-500">*</span>
+                      </label>
+                      <ReactQuill
+                        value={q.answer}
+                        onChange={(content) => updateQuestion(index, 'answer', content)}
+                        modules={quillModules}
+                        formats={quillFormats}
+                        theme="snow"
+                        className="h-64 mb-12"
+                        placeholder="Enter answer..."
+                      />
+                    </div>
                   </div>
                 </div>
               ))}
             </div>
           </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-medium py-2.5 rounded-lg transition-colors flex items-center justify-center gap-2"
-          >
-            {loading ? (
-              <>
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                Creating...
-              </>
-            ) : (
-              <>
-                <Plus className="h-4 w-4" />
-                Create FAQ
-              </>
-            )}
-          </button>
+          {/* Submit Button */}
+          <div className="flex gap-3 justify-end">
+            <button
+              type="button"
+              onClick={() => router.push('/admin/dashboard')}
+              className="px-6 py-3 border border-slate-300 hover:bg-slate-50 rounded-xl transition-colors text-slate-700 font-medium"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="px-6 py-3 bg-[#EB5A3C] text-white hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl transition-colors font-medium flex items-center gap-2"
+            >
+              {loading ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                  Creating...
+                </>
+              ) : (
+                <>
+                  <Plus className="h-4 w-4" />
+                  Create FAQ
+                </>
+              )}
+            </button>
+          </div>
         </form>
-      </main>
+      </div>
     </div>
   );
 }

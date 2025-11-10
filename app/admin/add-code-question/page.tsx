@@ -5,14 +5,12 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { ArrowLeft, Trash2, AlertCircle, CheckCircle, ChevronUp, ChevronDown, Code, FileText } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import axiosInstance from '@/utils/axiosInstance';
+import 'react-quill-new/dist/quill.snow.css';
 
 // Dynamically import ReactQuill to avoid SSR issues
 const ReactQuill = dynamic(
   () => import('react-quill-new'),
-  { 
-    ssr: false,
-    loading: () => <div className="h-[200px] bg-gray-50 rounded-lg animate-pulse" />
-  }
+  { ssr: false }
 );
 
 interface ContentBlock {
@@ -40,6 +38,7 @@ function AddCodeQuestionContent() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const [topics, setTopics] = useState<ProgrammingTopic[]>([]);
+  const [mounted, setMounted] = useState(false);
 
   const [formData, setFormData] = useState({
     topic_id: topicIdParam || '',
@@ -59,82 +58,23 @@ function AddCodeQuestionContent() {
 
   const quillModules = {
     toolbar: [
-      [{ 'header': [1, 2, 3, false] }],
-      ['bold', 'italic', 'underline'],
-      [{ 'list': 'bullet' }, { 'list': 'ordered' }],  // Swap order: bullet first
-      ['link'],
+      [{ header: [1, 2, 3, false] }],
+      ['bold', 'italic', 'underline', 'strike'],
+      [{ color: [] }, { background: [] }],
+      [{ list: 'ordered' }, { list: 'bullet' }],
+      ['link', 'image', 'video'],
       ['code-block'],
       ['clean']
     ],
   };
 
-  const quillFormats = ['header', 'bold', 'italic', 'underline', 'list', 'link', 'code-block'];
+  const quillFormats = [
+    'header', 'bold', 'italic', 'underline', 'strike',
+    'color', 'background', 'list', 'link', 'image', 'video', 'code-block'
+  ];
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const link = document.createElement('link');
-      link.rel = 'stylesheet';
-      link.href = 'https://cdn.quilljs.com/1.3.6/quill.snow.css';
-      document.head.appendChild(link);
-      
-      // Fix list styles function
-      const fixListStyles = () => {
-        const editors = document.querySelectorAll('.ql-editor');
-        editors.forEach(editor => {
-          const uls = editor.querySelectorAll('ul');
-          const ols = editor.querySelectorAll('ol');
-          uls.forEach(ul => {
-            ul.style.listStyleType = 'disc';
-            ul.setAttribute('data-list-type', 'bullet');
-          });
-          ols.forEach(ol => {
-            ol.style.listStyleType = 'decimal';
-            ol.setAttribute('data-list-type', 'ordered');
-          });
-        });
-      };
-
-      // Use MutationObserver to watch for DOM changes
-      const observer = new MutationObserver(() => {
-        fixListStyles();
-      });
-
-      // Observe all Quill editors
-      const observeEditors = () => {
-        const editors = document.querySelectorAll('.ql-editor');
-        editors.forEach(editor => {
-          observer.observe(editor, {
-            childList: true,
-            subtree: true,
-            attributes: true,
-            attributeFilter: ['class']
-          });
-        });
-      };
-
-      // Initial fix
-      setTimeout(() => {
-        fixListStyles();
-        observeEditors();
-      }, 100);
-
-      // Fix on any content change
-      const interval = setInterval(() => {
-        fixListStyles();
-      }, 500);
-      
-      return () => {
-        const existingLink = document.querySelector('link[href="https://cdn.quilljs.com/1.3.6/quill.snow.css"]');
-        if (existingLink) {
-          existingLink.remove();
-        }
-        observer.disconnect();
-        clearInterval(interval);
-      };
-    }
-  }, []);
-
-  useEffect(() => {
+    setMounted(true);
     fetchTopics();
   }, []);
 
@@ -162,7 +102,6 @@ function AddCodeQuestionContent() {
       return;
     }
 
-    // Validate content blocks
     const hasContent = formData.content_blocks.some(block => {
       if (block.type === 'code') {
         return block.code && block.code.trim().length > 0;
@@ -188,6 +127,16 @@ function AddCodeQuestionContent() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleDescriptionChange = (value: string) => {
+    setFormData(prev => ({ ...prev, description: value }));
+  };
+
+  const handleTextBlockChange = (index: number, value: string) => {
+    const updated = [...formData.content_blocks];
+    updated[index] = { ...updated[index], text_content: value };
+    setFormData({ ...formData, content_blocks: updated });
   };
 
   const addContentBlock = (type: 'code' | 'text') => {
@@ -225,7 +174,6 @@ function AddCodeQuestionContent() {
     const newIndex = direction === 'up' ? index - 1 : index + 1;
     [updated[index], updated[newIndex]] = [updated[newIndex], updated[index]];
     
-    // Update orders
     updated.forEach((block, i) => {
       block.order = i;
     });
@@ -233,208 +181,128 @@ function AddCodeQuestionContent() {
     setFormData({ ...formData, content_blocks: updated });
   };
 
+  const insertBlockAfter = (index: number, type: 'code' | 'text') => {
+    const newOrder = Math.max(...formData.content_blocks.map(b => b.order), -1) + 1;
+    const newBlock: ContentBlock = type === 'code' 
+      ? { type: 'code', code: '', language: 'python', order: newOrder, label: '' }
+      : { type: 'text', text_content: '', order: newOrder };
+    
+    const updated = [...formData.content_blocks];
+    updated.splice(index + 1, 0, newBlock);
+    setFormData({ ...formData, content_blocks: updated });
+  };
+
+  if (!mounted) {
+    return (
+      <div className="min-h-screen bg-slate-50 p-4 sm:p-6 mt-5 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
+          <p className="text-slate-600">Loading editor...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-[#0A0E27] text-white p-4 sm:p-6 mt-5">
-      <style>{`
-        .ql-toolbar {
-          background: #161B33 !important;
-          border: 1px solid #374151 !important;
-          border-radius: 6px 6px 0 0 !important;
-        }
-        .ql-container {
-          border: 1px solid #374151 !important;
-          border-top: none !important;
-          border-radius: 0 0 6px 6px !important;
-          background: #0A0E27 !important;
-        }
-        .ql-editor {
-          color: #ffffff !important;
-          font-size: 14px !important;
-          min-height: 150px !important;
-        }
-        .ql-editor.ql-blank::before {
-          color: #6b7280 !important;
-        }
-        .ql-snow .ql-stroke {
-          stroke: #ffffff !important;
-        }
-        .ql-snow .ql-fill {
-          fill: #ffffff !important;
-        }
-        .ql-snow .ql-picker-label {
-          color: #ffffff !important;
-        }
-        .ql-snow .ql-picker-options {
-          background: #161B33 !important;
-          border: 1px solid #374151 !important;
-        }
-        .ql-snow .ql-picker-item {
-          color: #ffffff !important;
-        }
-        .ql-snow .ql-picker-item:hover {
-          background: #0A0E27 !important;
-        }
-        .ql-toolbar button:hover,
-        .ql-toolbar button:focus,
-        .ql-toolbar button.ql-active {
-          color: #6366F1 !important;
-        }
-        .ql-toolbar button:hover .ql-stroke,
-        .ql-toolbar button:focus .ql-stroke,
-        .ql-toolbar button.ql-active .ql-stroke {
-          stroke: #6366F1 !important;
-        }
-        .ql-toolbar button:hover .ql-fill,
-        .ql-toolbar button:focus .ql-fill,
-        .ql-toolbar button.ql-active .ql-fill {
-          fill: #6366F1 !important;
-        }
-        
-        /* Styling for formatted content in editor */
-        .ql-editor strong {
-          font-weight: 700;
-          color: #ffffff;
-        }
-        .ql-editor em {
-          font-style: italic;
-        }
-        .ql-editor u {
-          text-decoration: underline;
-        }
-        .ql-editor code {
-          background: #374151;
-          padding: 2px 6px;
-          border-radius: 4px;
-          font-family: 'Courier New', monospace;
-          color: #fbbf24;
-          font-size: 0.9em;
-        }
-        .ql-editor pre {
-          background: #1f2937;
-          padding: 12px;
-          border-radius: 6px;
-          overflow-x: auto;
-          color: #e5e7eb;
-          font-family: 'Courier New', monospace;
-        }
-        .ql-editor pre.ql-syntax {
-          background: #1f2937;
-          color: #e5e7eb;
-        }
-        .ql-editor ul {
-          padding-left: 1.5em;
-          list-style-type: disc !important;
-        }
-        .ql-editor ol {
-          padding-left: 1.5em;
-          list-style-type: decimal !important;
-        }
-        .ql-editor li {
-          margin: 0.5em 0;
-          display: list-item !important;
-        }
-        .ql-editor h1 {
-          font-size: 2em;
-          font-weight: bold;
-          margin: 0.67em 0;
-        }
-        .ql-editor h2 {
-          font-size: 1.5em;
-          font-weight: bold;
-          margin: 0.75em 0;
-        }
-        .ql-editor h3 {
-          font-size: 1.17em;
-          font-weight: bold;
-          margin: 0.83em 0;
-        }
-        .ql-editor a {
-          color: #6366F1;
-          text-decoration: underline;
-        }
-        .ql-snow .ql-picker-options {
-          background: #161B33 !important;
-          border: 1px solid #374151 !important;
-        }
-        .ql-snow .ql-picker-item {
-          color: #ffffff !important;
-        }
-        .ql-snow .ql-picker-item:hover {
-          background: #0A0E27 !important;
-        }
-        .ql-toolbar button:hover,
-        .ql-toolbar button:focus,
-        .ql-toolbar button.ql-active {
-          color: #6366F1 !important;
-        }
-        .ql-toolbar button:hover .ql-stroke,
-        .ql-toolbar button:focus .ql-stroke,
-        .ql-toolbar button.ql-active .ql-stroke {
-          stroke: #6366F1 !important;
-        }
-        .ql-toolbar button:hover .ql-fill,
-        .ql-toolbar button:focus .ql-fill,
-        .ql-toolbar button.ql-active .ql-fill {
-          fill: #6366F1 !important;
-        }
-      `}</style>
-
+    <div className="min-h-screen bg-slate-50 p-4 sm:p-6 mt-5">
+      <style dangerouslySetInnerHTML={{
+        __html: `
+          .ql-editor img {
+            max-width: 100% !important;
+            max-height: 400px !important;
+            width: auto !important;
+            height: auto !important;
+            display: block !important;
+            margin: 0.75rem auto !important;
+            border-radius: 0.5rem;
+            object-fit: contain;
+          }
+          
+          .ql-editor img[style*="width"],
+          .ql-editor img[style*="Width"] {
+            max-width: 100% !important;
+            width: auto !important;
+          }
+          
+          .ql-editor img[style*="height"],
+          .ql-editor img[style*="Height"] {
+            max-height: 400px !important;
+            height: auto !important;
+          }
+          
+          @media (min-width: 768px) {
+            .ql-editor img {
+              max-width: 600px !important;
+              max-height: 350px !important;
+            }
+          }
+          
+          @media (min-width: 1024px) {
+            .ql-editor img {
+              max-width: 700px !important;
+              max-height: 400px !important;
+            }
+          }
+        `
+      }} />
       <div className="max-w-5xl mx-auto">
         {/* Header */}
         <div className="flex items-center gap-4 mb-6">
           <button
             onClick={() => router.back()}
-            className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+            className="p-2 hover:bg-gray-200 rounded-lg transition-colors"
             aria-label="Go back"
           >
-            <ArrowLeft className="w-5 h-5" />
+            <ArrowLeft className="w-5 h-5 text-slate-900" />
           </button>
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold">Add Code Question</h1>
-            <p className="text-gray-400 text-sm mt-1">Create a new code question with multiple code blocks and explanations</p>
+            <h1 className="text-2xl sm:text-3xl font-bold text-slate-900">Add Code Question</h1>
+            <p className="text-slate-600 text-sm mt-1">Create a new code question with multiple code blocks and explanations</p>
           </div>
         </div>
 
         {/* Messages */}
         {error && (
-          <div className="mb-6 p-4 bg-red-500/10 border border-red-500/50 rounded-xl flex items-start gap-3">
-            <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3">
+            <AlertCircle className="w-5 h-5 text-red-700 flex-shrink-0 mt-0.5" />
             <div>
-              <p className="font-semibold text-red-500">Error</p>
-              <p className="text-sm text-red-400">{error}</p>
+              <p className="font-semibold text-red-700">Error</p>
+              <p className="text-sm text-red-600">{error}</p>
             </div>
           </div>
         )}
 
         {success && (
-          <div className="mb-6 p-4 bg-green-500/10 border border-green-500/50 rounded-xl flex items-start gap-3">
-            <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+          <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-xl flex items-start gap-3">
+            <CheckCircle className="w-5 h-5 text-green-700 flex-shrink-0 mt-0.5" />
             <div>
-              <p className="font-semibold text-green-500">Success!</p>
-              <p className="text-sm text-green-400">Question created successfully. Redirecting...</p>
+              <p className="font-semibold text-green-700">Success!</p>
+              <p className="text-sm text-green-600">Question created successfully. Redirecting...</p>
             </div>
           </div>
         )}
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-8">
           {/* Basic Info Card */}
-          <div className="bg-[#161B33] rounded-xl border border-gray-800 p-6">
-            <h2 className="text-xl font-bold mb-4">Basic Information</h2>
+          <div className="bg-white rounded-2xl border border-slate-200 p-8 shadow-sm">
+            <div className="flex items-center gap-3 mb-6">
+              <FileText className="text-indigo-600" />
+              <h2 className="text-xl font-semibold text-slate-900">Basic Information</h2>
+            </div>
             
-            <div className="space-y-4">
+            <div className="space-y-6">
               <div>
-                <label className="block text-sm font-medium mb-2">
+                <label className="block text-sm font-medium text-slate-700 mb-2">
                   Topic <span className="text-red-500">*</span>
                 </label>
                 {fetchingTopics ? (
-                  <div className="text-gray-400 text-sm">Loading topics...</div>
+                  <div className="text-slate-600 text-sm">Loading topics...</div>
                 ) : (
                   <select
                     value={formData.topic_id}
                     onChange={(e) => setFormData({ ...formData, topic_id: e.target.value })}
-                    className="w-full bg-[#0A0E27] border border-gray-700 rounded-lg px-4 py-2.5 focus:outline-none focus:border-[#6366F1]"
+                    className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
                     required
                   >
                     <option value="">Select a topic</option>
@@ -446,55 +314,39 @@ function AddCodeQuestionContent() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">
+                <label className="block text-sm font-medium text-slate-700 mb-2">
                   Title <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  className="w-full bg-[#0A0E27] border border-gray-700 rounded-lg px-4 py-2.5 focus:outline-none focus:border-[#6366F1]"
+                  className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
                   placeholder="e.g., Reverse a String"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">Description</label>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Description</label>
                 <ReactQuill
                   theme="snow"
                   value={formData.description}
-                  onChange={(value) => {
-                    setFormData({ ...formData, description: value });
-                    // Fix list styles after update
-                    setTimeout(() => {
-                      const editors = document.querySelectorAll('.ql-editor');
-                      editors.forEach(editor => {
-                        const uls = editor.querySelectorAll('ul');
-                        const ols = editor.querySelectorAll('ol');
-                        uls.forEach(ul => {
-                          ul.style.listStyleType = 'disc';
-                        });
-                        ols.forEach(ol => {
-                          ol.style.listStyleType = 'decimal';
-                        });
-                      });
-                    }, 0);
-                  }}
+                  onChange={handleDescriptionChange}
                   modules={quillModules}
                   formats={quillFormats}
-                  className="bg-[#0A0E27]"
-                  placeholder="Brief description of the question (can include code snippets)..."
+                  className="h-64 mb-12"
+                  placeholder="Brief description of the question..."
                 />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium mb-2">Difficulty</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">Difficulty</label>
                   <select
                     value={formData.difficulty}
                     onChange={(e) => setFormData({ ...formData, difficulty: e.target.value })}
-                    className="w-full bg-[#0A0E27] border border-gray-700 rounded-lg px-4 py-2.5 focus:outline-none focus:border-[#6366F1]"
+                    className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
                   >
                     <option value="Easy">Easy</option>
                     <option value="Medium">Medium</option>
@@ -503,12 +355,12 @@ function AddCodeQuestionContent() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-2">Order</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">Order</label>
                   <input
                     type="number"
                     value={formData.order}
                     onChange={(e) => setFormData({ ...formData, order: parseInt(e.target.value) || 0 })}
-                    className="w-full bg-[#0A0E27] border border-gray-700 rounded-lg px-4 py-2.5 focus:outline-none focus:border-[#6366F1]"
+                    className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
                     min="0"
                   />
                 </div>
@@ -517,14 +369,17 @@ function AddCodeQuestionContent() {
           </div>
 
           {/* Content Blocks Card */}
-          <div className="bg-[#161B33] rounded-xl border border-gray-800 p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold">Content Blocks</h2>
+          <div className="bg-white rounded-2xl border border-slate-200 p-8 shadow-sm">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <Code className="text-indigo-600" />
+                <h2 className="text-xl font-semibold text-slate-900">Content Blocks</h2>
+              </div>
               <div className="flex gap-2">
                 <button
                   type="button"
                   onClick={() => addContentBlock('code')}
-                  className="px-3 py-1.5 bg-[#6366F1] hover:bg-[#5558E3] rounded-lg transition-colors text-sm flex items-center gap-2"
+                  className="px-4 py-2 bg-indigo-600 text-white hover:bg-indigo-700 rounded-xl transition-colors text-sm flex items-center gap-2"
                 >
                   <Code className="w-4 h-4" />
                   Add Code
@@ -532,7 +387,7 @@ function AddCodeQuestionContent() {
                 <button
                   type="button"
                   onClick={() => addContentBlock('text')}
-                  className="px-3 py-1.5 bg-[#6366F1] hover:bg-[#5558E3] rounded-lg transition-colors text-sm flex items-center gap-2"
+                  className="px-4 py-2 bg-indigo-600 text-white hover:bg-indigo-700 rounded-xl transition-colors text-sm flex items-center gap-2"
                 >
                   <FileText className="w-4 h-4" />
                   Add Text
@@ -540,40 +395,40 @@ function AddCodeQuestionContent() {
               </div>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-6">
               {formData.content_blocks.map((block, index) => (
-                <div key={index} className="bg-[#0A0E27] rounded-lg border border-gray-700 p-4">
-                  <div className="flex items-center justify-between mb-3">
+                <div key={index} className="bg-slate-50 rounded-xl border border-slate-200 p-6">
+                  <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-2">
-                      <span className="px-2 py-1 bg-[#6366F1] text-white text-xs font-bold rounded">
+                      <span className="px-3 py-1 bg-indigo-600 text-white text-xs font-semibold rounded-lg">
                         {block.type === 'code' ? 'CODE' : 'TEXT'}
                       </span>
-                      <span className="text-xs text-gray-400">Block {index + 1}</span>
+                      <span className="text-xs text-slate-500">Block {index + 1}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <button
                         type="button"
                         onClick={() => moveBlock(index, 'up')}
                         disabled={index === 0}
-                        className="p-1 hover:bg-white/10 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="p-1.5 hover:bg-slate-200 rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                         title="Move up"
                       >
-                        <ChevronUp className="w-4 h-4" />
+                        <ChevronUp className="w-4 h-4 text-slate-700" />
                       </button>
                       <button
                         type="button"
                         onClick={() => moveBlock(index, 'down')}
                         disabled={index === formData.content_blocks.length - 1}
-                        className="p-1 hover:bg-white/10 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="p-1.5 hover:bg-slate-200 rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                         title="Move down"
                       >
-                        <ChevronDown className="w-4 h-4" />
+                        <ChevronDown className="w-4 h-4 text-slate-700" />
                       </button>
                       {formData.content_blocks.length > 1 && (
                         <button
                           type="button"
                           onClick={() => removeContentBlock(index)}
-                          className="p-1 hover:bg-red-500/20 rounded text-red-500"
+                          className="p-1.5 hover:bg-red-100 rounded text-red-600 transition-colors"
                           title="Remove block"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -583,105 +438,66 @@ function AddCodeQuestionContent() {
                   </div>
 
                   {block.type === 'code' ? (
-                    <div className="space-y-3">
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                          <label className="block text-xs font-medium mb-1">Language</label>
+                          <label className="block text-sm font-medium text-slate-700 mb-2">Language</label>
                           <input
                             type="text"
                             value={block.language || ''}
                             onChange={(e) => updateContentBlock(index, { language: e.target.value })}
-                            className="w-full bg-[#161B33] border border-gray-700 rounded px-3 py-1.5 text-sm focus:outline-none focus:border-[#6366F1]"
-                            placeholder="e.g., python, javascript, java, cpp, etc."
+                            className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition text-sm"
+                            placeholder="e.g., python, javascript, java"
                           />
                         </div>
                         <div>
-                          <label className="block text-xs font-medium mb-1">Label (optional)</label>
+                          <label className="block text-sm font-medium text-slate-700 mb-2">Label (optional)</label>
                           <input
                             type="text"
                             value={block.label || ''}
                             onChange={(e) => updateContentBlock(index, { label: e.target.value })}
-                            className="w-full bg-[#161B33] border border-gray-700 rounded px-3 py-1.5 text-sm focus:outline-none focus:border-[#6366F1]"
+                            className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition text-sm"
                             placeholder="e.g., Solution 1, Optimized"
                           />
                         </div>
                       </div>
                       <div>
-                        <label className="block text-xs font-medium mb-1">Code</label>
+                        <label className="block text-sm font-medium text-slate-700 mb-2">Code</label>
                         <textarea
                           value={block.code || ''}
                           onChange={(e) => updateContentBlock(index, { code: e.target.value })}
-                          className="w-full bg-[#161B33] border border-gray-700 rounded px-3 py-2 text-sm font-mono focus:outline-none focus:border-[#6366F1] min-h-[200px]"
+                          className="w-full px-4 py-3 rounded-lg border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition text-sm font-mono min-h-[200px]"
                           placeholder="Enter your code here..."
                         />
                       </div>
                     </div>
                   ) : (
                     <div>
-                      <label className="block text-xs font-medium mb-1">Text Content (Explanation)</label>
+                      <label className="block text-sm font-medium text-slate-700 mb-2">Text Content (Explanation)</label>
                       <ReactQuill
                         theme="snow"
                         value={block.text_content || ''}
-                        onChange={(value) => {
-                          updateContentBlock(index, { text_content: value });
-                          // Fix list styles after update
-                          setTimeout(() => {
-                            const editor = document.querySelector(`.ql-editor`);
-                            if (editor) {
-                              const uls = editor.querySelectorAll('ul');
-                              const ols = editor.querySelectorAll('ol');
-                              uls.forEach(ul => {
-                                ul.style.listStyleType = 'disc';
-                              });
-                              ols.forEach(ol => {
-                                ol.style.listStyleType = 'decimal';
-                              });
-                            }
-                          }, 0);
-                        }}
+                        onChange={(value) => handleTextBlockChange(index, value)}
                         modules={quillModules}
                         formats={quillFormats}
-                        className="bg-[#0A0E27]"
+                        className="h-64 mb-12"
                       />
                     </div>
                   )}
                   
-                  {/* Add buttons after each block */}
-                  <div className="flex gap-2 mt-4 pt-4 border-t border-gray-700">
+                  <div className="flex gap-2 mt-6 pt-4 border-t border-slate-200">
                     <button
                       type="button"
-                      onClick={() => {
-                        const newOrder = Math.max(...formData.content_blocks.map(b => b.order), -1) + 1;
-                        const newBlock: ContentBlock = { 
-                          type: 'code', 
-                          code: '', 
-                          language: 'python', 
-                          order: newOrder, 
-                          label: '' 
-                        };
-                        const updated = [...formData.content_blocks];
-                        updated.splice(index + 1, 0, newBlock);
-                        setFormData({ ...formData, content_blocks: updated });
-                      }}
-                      className="px-3 py-1.5 bg-[#6366F1] hover:bg-[#5558E3] rounded-lg transition-colors text-sm flex items-center gap-2"
+                      onClick={() => insertBlockAfter(index, 'code')}
+                      className="px-3 py-1.5 bg-indigo-600 text-white hover:bg-indigo-700 rounded-lg transition-colors text-sm flex items-center gap-2"
                     >
                       <Code className="w-4 h-4" />
                       Add Code
                     </button>
                     <button
                       type="button"
-                      onClick={() => {
-                        const newOrder = Math.max(...formData.content_blocks.map(b => b.order), -1) + 1;
-                        const newBlock: ContentBlock = { 
-                          type: 'text', 
-                          text_content: '', 
-                          order: newOrder 
-                        };
-                        const updated = [...formData.content_blocks];
-                        updated.splice(index + 1, 0, newBlock);
-                        setFormData({ ...formData, content_blocks: updated });
-                      }}
-                      className="px-3 py-1.5 bg-[#6366F1] hover:bg-[#5558E3] rounded-lg transition-colors text-sm flex items-center gap-2"
+                      onClick={() => insertBlockAfter(index, 'text')}
+                      className="px-3 py-1.5 bg-indigo-600 text-white hover:bg-indigo-700 rounded-lg transition-colors text-sm flex items-center gap-2"
                     >
                       <FileText className="w-4 h-4" />
                       Add Text
@@ -693,19 +509,19 @@ function AddCodeQuestionContent() {
           </div>
 
           {/* Settings Card */}
-          <div className="bg-[#161B33] rounded-xl border border-gray-800 p-6">
-            <h2 className="text-xl font-bold mb-4">Settings</h2>
+          <div className="bg-white rounded-2xl border border-slate-200 p-8 shadow-sm">
+            <h2 className="text-xl font-semibold text-slate-900 mb-4">Settings</h2>
             
             <label className="flex items-center gap-3 cursor-pointer">
               <input
                 type="checkbox"
                 checked={formData.is_active}
                 onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
-                className="w-5 h-5 rounded border-gray-700 bg-[#0A0E27] checked:bg-[#6366F1] focus:ring-2 focus:ring-[#6366F1] focus:ring-offset-0"
+                className="w-5 h-5 rounded border-slate-300 text-indigo-600 focus:ring-2 focus:ring-indigo-500"
               />
               <div>
-                <span className="font-medium">Active</span>
-                <p className="text-sm text-gray-400">Make this question publicly visible</p>
+                <span className="font-medium text-slate-900">Active</span>
+                <p className="text-sm text-slate-600">Make this question publicly visible</p>
               </div>
             </label>
           </div>
@@ -715,14 +531,14 @@ function AddCodeQuestionContent() {
             <button
               type="button"
               onClick={() => router.back()}
-              className="px-6 py-2.5 border border-gray-700 hover:bg-white/5 rounded-lg transition-colors"
+              className="px-6 py-3 border border-slate-300 hover:bg-slate-50 rounded-xl transition-colors text-slate-700 font-medium"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="px-6 py-2.5 bg-[#6366F1] hover:bg-[#5558E3] disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-colors font-medium"
+              className="px-6 py-3 bg-[#EB5A3C] text-white hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl transition-colors font-medium"
             >
               {loading ? 'Creating...' : 'Create Question'}
             </button>
@@ -736,10 +552,10 @@ function AddCodeQuestionContent() {
 function AddCodeQuestion() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-[#0A0E27] text-white p-4 sm:p-6 mt-5 flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 p-4 sm:p-6 mt-5 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#6366F1] mx-auto mb-4"></div>
-          <p className="text-gray-400">Loading...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
+          <p className="text-slate-600">Loading...</p>
         </div>
       </div>
     }>

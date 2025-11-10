@@ -2,18 +2,16 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { Save, ArrowLeft, AlertCircle, CheckCircle, ChevronDown, Upload, X, Trash2, Plus } from 'lucide-react';
+import { Save, ArrowLeft, AlertCircle, CheckCircle, ChevronDown, Upload, X, Trash2, Plus, BookOpen } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import axiosInstance from '@/utils/axiosInstance';
 import { AxiosError } from 'axios';
+import 'react-quill-new/dist/quill.snow.css';
 
 // Dynamically import ReactQuill to avoid SSR issues
 const ReactQuill = dynamic(
   () => import('react-quill-new'),
-  { 
-    ssr: false,
-    loading: () => <div className="h-[200px] bg-gray-50 rounded-lg animate-pulse" />
-  }
+  { ssr: false }
 );
 
 interface UserData {
@@ -79,44 +77,20 @@ function EditQuestion() {
   // Enhanced Quill configuration with all features including code
   const quillModules = {
     toolbar: [
-      [{ 'header': [1, 2, 3, false] }],
+      [{ header: [1, 2, 3, false] }],
       ['bold', 'italic', 'underline', 'strike'],
-      [{ 'color': [] }, { 'background': [] }],
-      [{ 'script': 'sub'}, { 'script': 'super' }],
-      [{ 'list': 'ordered'}, { 'list': 'bullet' }, { 'indent': '-1'}, { 'indent': '+1' }],
-      ['blockquote', 'code-block'],
-      ['link', 'image', 'formula'],
+      [{ color: [] }, { background: [] }],
+      [{ list: 'ordered' }, { list: 'bullet' }],
+      ['link', 'image', 'video'],
+      ['code-block'],
       ['clean']
     ],
   };
 
   const quillFormats = [
-    'header',
-    'bold', 'italic', 'underline', 'strike',
-    'color', 'background',
-    'script',
-    'list', 'indent',
-    'blockquote', 'code-block',
-    'link', 'image', 'formula'
+    'header', 'bold', 'italic', 'underline', 'strike',
+    'color', 'background', 'list', 'link', 'image', 'video', 'code-block'
   ];
-
-  useEffect(() => {
-    // Load Quill CSS on client side
-    if (typeof window !== 'undefined') {
-      const link = document.createElement('link');
-      link.rel = 'stylesheet';
-      link.href = 'https://cdn.quilljs.com/1.3.6/quill.snow.css';
-      document.head.appendChild(link);
-      
-      return () => {
-        // Cleanup
-        const existingLink = document.querySelector('link[href="https://cdn.quilljs.com/1.3.6/quill.snow.css"]');
-        if (existingLink) {
-          existingLink.remove();
-        }
-      };
-    }
-  }, []);
 
   useEffect(() => {
     checkAuthStatus();
@@ -487,10 +461,10 @@ function EditQuestion() {
 
   if (loading || isLoadingQuestion) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 p-4 sm:p-6 mt-5 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600 mx-auto mb-3"></div>
-          <p className="text-gray-600">Loading...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
+          <p className="text-slate-600">Loading...</p>
         </div>
       </div>
     );
@@ -498,166 +472,155 @@ function EditQuestion() {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 p-4 sm:p-6 mt-5 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600 mx-auto mb-3"></div>
-          <p className="text-gray-600">Authenticating...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
+          <p className="text-slate-600">Authenticating...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <style>{`
-        .ql-toolbar {
-          background: white !important;
-          border: 1px solid #e5e7eb !important;
-          border-radius: 6px 6px 0 0 !important;
-        }
-        .ql-container {
-          border: 1px solid #e5e7eb !important;
-          border-top: none !important;
-          border-radius: 0 0 6px 6px !important;
-          background: white !important;
-        }
-        .ql-editor {
-          color: #111827 !important;
-          font-size: 14px !important;
-          min-height: 100px !important;
-        }
-        .ql-editor.ql-blank::before {
-          color: #9ca3af !important;
-        }
-      `}</style>
-
-      {/* Main Content */}
-      <main className="max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
-        {/* Back Button */}
-        <button
-          onClick={() => router.push('/admin/dashboard')}
-          className="text-sm text-gray-600 hover:text-gray-900 flex items-center gap-1 mb-4 mt-20"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back
-        </button>
-
-        {/* Page Title */}
-        <div className="mb-6">
-          <h2 className="text-2xl font-bold text-gray-900 mb-1">Edit Question</h2>
-          <p className="text-sm text-gray-600">Update question details and options</p>
+    <div className="min-h-screen bg-slate-50 p-4 sm:p-6 mt-5">
+      <div className="max-w-5xl mx-auto">
+        {/* Header */}
+        <div className="flex items-center gap-4 mb-6">
+          <button
+            onClick={() => router.push('/admin/dashboard')}
+            className="p-2 hover:bg-gray-200 rounded-lg transition-colors"
+            aria-label="Go back"
+          >
+            <ArrowLeft className="w-5 h-5 text-slate-900" />
+          </button>
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold text-slate-900">Edit Question</h1>
+            <p className="text-slate-600 text-sm mt-1">Update question details and options</p>
+          </div>
         </div>
 
-        {/* Alert Messages */}
+        {/* Messages */}
         {error && (
-          <div className="mb-4 bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg flex items-start gap-2 text-sm">
-            <AlertCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
-            <p>{error}</p>
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3">
+            <AlertCircle className="w-5 h-5 text-red-700 flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="font-semibold text-red-700">Error</p>
+              <p className="text-sm text-red-600">{error}</p>
+            </div>
           </div>
         )}
 
         {successMessage && (
-          <div className="mb-4 bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg flex items-start gap-2 text-sm">
-            <CheckCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
-            <p>{successMessage}</p>
+          <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-xl flex items-start gap-3">
+            <CheckCircle className="w-5 h-5 text-green-700 flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="font-semibold text-green-700">Success!</p>
+              <p className="text-sm text-green-600">{successMessage}</p>
+            </div>
           </div>
         )}
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-5">
-          <div className="bg-white rounded-lg border border-gray-200 p-4 sm:p-6 space-y-5">
-            {/* Question Type */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Question Type</label>
-              <div className="flex gap-4">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="radio"
-                    value="text"
-                    checked={questionType === 'text'}
-                    onChange={(e) => setQuestionType(e.target.value)}
-                    className="text-blue-600"
-                  />
-                  <span className="text-sm text-gray-700">Text</span>
-                </label>
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="radio"
-                    value="image"
-                    checked={questionType === 'image'}
-                    onChange={(e) => setQuestionType(e.target.value)}
-                    className="text-blue-600"
-                  />
-                  <span className="text-sm text-gray-700">Image</span>
-                </label>
-              </div>
+        <form onSubmit={handleSubmit} className="space-y-8">
+          {/* Basic Info Card */}
+          <div className="bg-white rounded-2xl border border-slate-200 p-8 shadow-sm">
+            <div className="flex items-center gap-3 mb-6">
+              <BookOpen className="text-indigo-600" />
+              <h2 className="text-xl font-semibold text-slate-900">Question Details</h2>
             </div>
-
-            {/* Question Text */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Question</label>
-              <ReactQuill
-                value={questionText}
-                onChange={setQuestionText}
-                modules={quillModules}
-                formats={quillFormats}
-                theme="snow"
-                placeholder="Enter your question..."
-              />
-            </div>
-
-            {/* Question Image */}
-            {questionType === 'image' && (
+            
+            <div className="space-y-6">
+              {/* Question Type */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Question Image</label>
-                {!imagePreview ? (
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
+                <label className="block text-sm font-medium text-slate-700 mb-2">Question Type</label>
+                <div className="flex gap-4">
+                  <label className="flex items-center gap-2 cursor-pointer">
                     <input
-                      type="file"
-                      id="questionImage"
-                      accept="image/*"
-                      onChange={handleImageUpload}
-                      className="hidden"
+                      type="radio"
+                      value="text"
+                      checked={questionType === 'text'}
+                      onChange={(e) => setQuestionType(e.target.value)}
+                      className="text-indigo-600"
                     />
-                    <label htmlFor="questionImage" className="cursor-pointer">
-                      <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-                      <p className="text-sm text-gray-600">Click to upload</p>
-                      <p className="text-xs text-gray-500 mt-1">PNG, JPG up to 5MB</p>
-                    </label>
-                  </div>
-                ) : (
-                  <div className="relative inline-block">
-                    <img
-                      src={imagePreview}
-                      alt="Question preview"
-                      className="max-w-full h-auto rounded-lg border border-gray-200"
+                    <span className="text-sm text-slate-700">Text</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      value="image"
+                      checked={questionType === 'image'}
+                      onChange={(e) => setQuestionType(e.target.value)}
+                      className="text-indigo-600"
                     />
-                    <button
-                      type="button"
-                      onClick={removeImage}
-                      className="absolute top-2 right-2 bg-white rounded-full p-1 shadow-lg hover:bg-gray-100"
-                    >
-                      <X className="h-4 w-4 text-gray-600" />
-                    </button>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Subtopic */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Subtopic</label>
-              {loadingSubtopics ? (
-                <div className="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg flex items-center text-sm text-gray-500">
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-2"></div>
-                  Loading...
+                    <span className="text-sm text-slate-700">Image</span>
+                  </label>
                 </div>
-              ) : (
-                <div className="relative">
+              </div>
+
+              {/* Question Text */}
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Question</label>
+                <ReactQuill
+                  value={questionText}
+                  onChange={setQuestionText}
+                  modules={quillModules}
+                  formats={quillFormats}
+                  theme="snow"
+                  className="h-64 mb-12"
+                  placeholder="Enter your question..."
+                />
+              </div>
+
+              {/* Question Image */}
+              {questionType === 'image' && (
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">Question Image</label>
+                  {!imagePreview ? (
+                    <div className="border-2 border-dashed border-slate-300 rounded-xl p-6 text-center hover:border-slate-400 transition-colors">
+                      <input
+                        type="file"
+                        id="questionImage"
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                        className="hidden"
+                      />
+                      <label htmlFor="questionImage" className="cursor-pointer">
+                        <Upload className="h-8 w-8 text-slate-400 mx-auto mb-2" />
+                        <p className="text-sm text-slate-600">Click to upload</p>
+                        <p className="text-xs text-slate-500 mt-1">PNG, JPG up to 5MB</p>
+                      </label>
+                    </div>
+                  ) : (
+                    <div className="relative inline-block">
+                      <img
+                        src={imagePreview}
+                        alt="Question preview"
+                        className="max-w-full h-auto rounded-xl border border-slate-200"
+                      />
+                      <button
+                        type="button"
+                        onClick={removeImage}
+                        className="absolute top-2 right-2 bg-white rounded-full p-1 shadow-lg hover:bg-gray-100"
+                      >
+                        <X className="h-4 w-4 text-slate-600" />
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Subtopic */}
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  Subtopic <span className="text-red-500">*</span>
+                </label>
+                {loadingSubtopics ? (
+                  <div className="text-slate-600 text-sm">Loading subtopics...</div>
+                ) : (
                   <select
                     value={selectedSubtopicId}
                     onChange={(e) => setSelectedSubtopicId(e.target.value)}
-                    className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none"
+                    className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
                     required
                   >
                     <option value="">Select subtopic</option>
@@ -667,76 +630,74 @@ function EditQuestion() {
                       </option>
                     ))}
                   </select>
-                  <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
-                </div>
-              )}
-            </div>
-
-            {/* Exams */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Exams (optional)</label>
-              {loadingExams ? (
-                <div className="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg flex items-center text-sm text-gray-500">
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-2"></div>
-                  Loading...
-                </div>
-              ) : (
-                <div className="max-h-32 overflow-y-auto bg-gray-50 border border-gray-300 rounded-lg p-3 space-y-2">
-                  {exams.map((exam) => (
-                    <label key={exam._id} className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={selectedExamIds.includes(exam._id)}
-                        onChange={() => handleExamSelection(exam._id)}
-                        className="text-blue-600 rounded"
-                      />
-                      <span className="text-sm text-gray-700">{exam.exam_name}</span>
-                    </label>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Options */}
-            <div>
-              <div className="flex items-center justify-between mb-3">
-                <label className="text-sm font-medium text-gray-700">Options (min. 2)</label>
-                <button
-                  type="button"
-                  onClick={addOption}
-                  className="text-xs bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded flex items-center gap-1"
-                >
-                  <Plus className="h-3 w-3" />
-                  Add
-                </button>
+                )}
               </div>
-              <div className="space-y-3">
-                {options.map((option, index) => (
-                  <div key={index} className="flex gap-2">
-                    <span className="text-sm font-medium text-gray-500 mt-2 min-w-[20px]">
-                      {String.fromCharCode(65 + index)}
+
+              {/* Exams */}
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Exams (optional)</label>
+                {loadingExams ? (
+                  <div className="text-slate-600 text-sm">Loading exams...</div>
+                ) : (
+                  <div className="max-h-32 overflow-y-auto bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-2">
+                    {exams.map((exam) => (
+                      <label key={exam._id} className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={selectedExamIds.includes(exam._id)}
+                          onChange={() => handleExamSelection(exam._id)}
+                          className="text-indigo-600 rounded"
+                        />
+                        <span className="text-sm text-slate-700">{exam.exam_name}</span>
+                      </label>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Options Card */}
+          <div className="bg-white rounded-2xl border border-slate-200 p-8 shadow-sm">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-semibold text-slate-900">Options (min. 2)</h2>
+              <button
+                type="button"
+                onClick={addOption}
+                className="px-4 py-2 bg-indigo-600 text-white hover:bg-indigo-700 rounded-xl transition-colors text-sm flex items-center gap-2"
+              >
+                <Plus className="h-4 w-4" />
+                Add Option
+              </button>
+            </div>
+            <div className="space-y-4">
+              {options.map((option, index) => (
+                <div key={index} className="bg-slate-50 rounded-xl border border-slate-200 p-4">
+                  <div className="flex gap-3">
+                    <span className="text-sm font-semibold text-indigo-600 mt-2 min-w-[24px]">
+                      {String.fromCharCode(65 + index)}.
                     </span>
-                    <div className="flex-1 space-y-2">
+                    <div className="flex-1 space-y-3">
                       <div className="flex gap-3">
-                        <label className="flex items-center gap-1.5 cursor-pointer">
+                        <label className="flex items-center gap-2 cursor-pointer">
                           <input
                             type="radio"
                             value="text"
                             checked={option.option_type === 'text'}
                             onChange={(e) => handleOptionChange(index, 'option_type', e.target.value)}
-                            className="text-blue-600"
+                            className="text-indigo-600"
                           />
-                          <span className="text-xs text-gray-600">Text</span>
+                          <span className="text-xs text-slate-700">Text</span>
                         </label>
-                        <label className="flex items-center gap-1.5 cursor-pointer">
+                        <label className="flex items-center gap-2 cursor-pointer">
                           <input
                             type="radio"
                             value="image"
                             checked={option.option_type === 'image'}
                             onChange={(e) => handleOptionChange(index, 'option_type', e.target.value)}
-                            className="text-blue-600"
+                            className="text-indigo-600"
                           />
-                          <span className="text-xs text-gray-600">Image</span>
+                          <span className="text-xs text-slate-700">Image</span>
                         </label>
                       </div>
 
@@ -744,14 +705,14 @@ function EditQuestion() {
                         type="text"
                         value={option.option_text}
                         onChange={(e) => handleOptionChange(index, 'option_text', e.target.value)}
-                        className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition text-sm"
                         placeholder={`Option ${String.fromCharCode(65 + index)}`}
                       />
 
                       {option.option_type === 'image' && (
                         <div>
                           {!option.imagePreview ? (
-                            <div className="border-2 border-dashed border-gray-300 rounded-lg p-3 text-center">
+                            <div className="border-2 border-dashed border-slate-300 rounded-lg p-3 text-center">
                               <input
                                 type="file"
                                 id={`optionImage${index}`}
@@ -760,8 +721,8 @@ function EditQuestion() {
                                 className="hidden"
                               />
                               <label htmlFor={`optionImage${index}`} className="cursor-pointer">
-                                <Upload className="h-6 w-6 text-gray-400 mx-auto mb-1" />
-                                <p className="text-xs text-gray-600">Upload image</p>
+                                <Upload className="h-6 w-6 text-slate-400 mx-auto mb-1" />
+                                <p className="text-xs text-slate-600">Upload image</p>
                               </label>
                             </div>
                           ) : (
@@ -769,14 +730,14 @@ function EditQuestion() {
                               <img
                                 src={option.imagePreview}
                                 alt={`Option ${String.fromCharCode(65 + index)}`}
-                                className="max-w-full h-auto rounded-lg border border-gray-200"
+                                className="max-w-full h-auto rounded-lg border border-slate-200"
                               />
                               <button
                                 type="button"
                                 onClick={() => removeOptionImage(index)}
                                 className="absolute top-1 right-1 bg-white rounded-full p-1 shadow-lg hover:bg-gray-100"
                               >
-                                <X className="h-3 w-3 text-gray-600" />
+                                <X className="h-3 w-3 text-slate-600" />
                               </button>
                             </div>
                           )}
@@ -787,24 +748,31 @@ function EditQuestion() {
                       <button
                         type="button"
                         onClick={() => removeOption(index)}
-                        className="mt-2 text-gray-400 hover:text-red-600"
+                        className="mt-2 text-slate-400 hover:text-red-600 transition-colors"
                       >
                         <Trash2 className="h-4 w-4" />
                       </button>
                     )}
                   </div>
-                ))}
-              </div>
+                </div>
+              ))}
             </div>
+          </div>
 
-            {/* Answer */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Correct Answer</label>
-              <div className="relative">
+          {/* Answer & Explanation Card */}
+          <div className="bg-white rounded-2xl border border-slate-200 p-8 shadow-sm">
+            <h2 className="text-xl font-semibold text-slate-900 mb-6">Answer & Explanation</h2>
+            
+            <div className="space-y-6">
+              {/* Answer */}
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  Correct Answer <span className="text-red-500">*</span>
+                </label>
                 <select
                   value={answer}
                   onChange={(e) => setAnswer(e.target.value)}
-                  className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none"
+                  className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
                   required
                 >
                   <option value="">Select correct answer</option>
@@ -819,44 +787,53 @@ function EditQuestion() {
                     );
                   })}
                 </select>
-                <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
               </div>
-            </div>
 
-            {/* Explanation */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Explanation (optional)</label>
-              <ReactQuill
-                value={explanation}
-                onChange={setExplanation}
-                modules={quillModules}
-                formats={quillFormats}
-                theme="snow"
-                placeholder="Explain the correct answer..."
-              />
+              {/* Explanation */}
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Explanation (optional)</label>
+                <ReactQuill
+                  value={explanation}
+                  onChange={setExplanation}
+                  modules={quillModules}
+                  formats={quillFormats}
+                  theme="snow"
+                  className="h-64 mb-12"
+                  placeholder="Explain the correct answer..."
+                />
+              </div>
             </div>
           </div>
 
           {/* Submit Button */}
-          <button
-            type="submit"
-            disabled={isSubmitting || subtopics.length === 0 || exams.length === 0}
-            className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-medium py-2.5 rounded-lg transition-colors flex items-center justify-center gap-2"
-          >
-            {isSubmitting ? (
-              <>
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                Updating...
-              </>
-            ) : (
-              <>
-                <Save className="h-4 w-4" />
-                Update Question
-              </>
-            )}
-          </button>
+          <div className="flex gap-3 justify-end">
+            <button
+              type="button"
+              onClick={() => router.push('/admin/dashboard')}
+              className="px-6 py-3 border border-slate-300 hover:bg-slate-50 rounded-xl transition-colors text-slate-700 font-medium"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={isSubmitting || subtopics.length === 0 || exams.length === 0}
+              className="px-6 py-3 bg-[#EB5A3C] text-white hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl transition-colors font-medium flex items-center gap-2"
+            >
+              {isSubmitting ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                  Updating...
+                </>
+              ) : (
+                <>
+                  <Save className="h-4 w-4" />
+                  Update Question
+                </>
+              )}
+            </button>
+          </div>
         </form>
-      </main>
+      </div>
     </div>
   );
 }
