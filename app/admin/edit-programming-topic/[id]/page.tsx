@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { ArrowLeft, AlertCircle, CheckCircle } from 'lucide-react';
+import { ArrowLeft, AlertCircle, CheckCircle, Edit } from 'lucide-react';
 import axiosInstance from '@/utils/axiosInstance';
 
 function EditProgrammingTopic() {
@@ -14,7 +14,7 @@ function EditProgrammingTopic() {
   const [fetching, setFetching] = useState(true);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
-  const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
+  const [isSlugEditable, setIsSlugEditable] = useState(false);
 
   const [formData, setFormData] = useState({
     title: '',
@@ -32,18 +32,6 @@ function EditProgrammingTopic() {
   useEffect(() => {
     fetchTopic();
   }, [id]);
-
-  useEffect(() => {
-    if (!slugManuallyEdited && formData.title) {
-      const autoSlug = formData.title
-        .toLowerCase()
-        .replace(/[^a-z0-9\s-]/g, '')
-        .replace(/\s+/g, '-')
-        .replace(/-+/g, '-')
-        .trim();
-      setFormData(prev => ({ ...prev, slug: autoSlug }));
-    }
-  }, [formData.title, slugManuallyEdited]);
 
   const fetchTopic = async () => {
     try {
@@ -181,17 +169,27 @@ function EditProgrammingTopic() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">
-                  Slug <span className="text-red-500">*</span>
-                </label>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-sm font-medium">
+                    Slug <span className="text-red-500">*</span>
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setIsSlugEditable(!isSlugEditable)}
+                    className="text-xs text-[#6366F1] hover:text-[#5558E3] flex items-center gap-1"
+                  >
+                    <Edit className="h-3 w-3" />
+                    {isSlugEditable ? 'Done' : 'Edit'}
+                  </button>
+                </div>
                 <input
                   type="text"
                   value={formData.slug}
-                  onChange={(e) => {
-                    setFormData({ ...formData, slug: e.target.value });
-                    setSlugManuallyEdited(true);
-                  }}
-                  className="w-full bg-[#0A0E27] border border-gray-700 rounded-lg px-4 py-2.5 focus:outline-none focus:border-[#6366F1] font-mono text-sm"
+                  onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+                  disabled={!isSlugEditable}
+                  className={`w-full bg-[#0A0E27] border border-gray-700 rounded-lg px-4 py-2.5 focus:outline-none focus:border-[#6366F1] font-mono text-sm ${
+                    !isSlugEditable ? 'opacity-60 cursor-not-allowed' : ''
+                  }`}
                   required
                 />
                 <p className="text-xs text-gray-400 mt-1">URL-friendly version</p>

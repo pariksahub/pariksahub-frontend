@@ -27,76 +27,152 @@ interface QuestionClientProps {
   questions: Question[];
 }
 
-// Function to detect language from code content
 function detectLanguage(code: string, providedLanguage?: string): string {
-  if (providedLanguage) {
-    return providedLanguage.toLowerCase();
-  }
+  if (providedLanguage) return providedLanguage.toLowerCase();
   
-  const codeLower = code.toLowerCase().trim();
+  const c = code.toLowerCase().trim();
   
-  // Python indicators
-  if (codeLower.includes('def ') || codeLower.includes('import ') || 
-      codeLower.includes('print(') || codeLower.includes('if __name__') ||
-      codeLower.includes('lambda ') || codeLower.includes('yield ')) {
-    return 'python';
-  }
+  if (c.includes('def ') || c.includes('import ') || c.includes('print(') || 
+      c.includes('if __name__') || c.includes('lambda ') || c.includes('yield ')) return 'python';
   
-  // JavaScript indicators
-  if (codeLower.includes('function ') || codeLower.includes('const ') || 
-      codeLower.includes('let ') || codeLower.includes('console.log') ||
-      codeLower.includes('=>') || codeLower.includes('require(')) {
-    return 'javascript';
-  }
+  if (c.includes('function ') || c.includes('const ') || c.includes('let ') || 
+      c.includes('console.log') || c.includes('=>') || c.includes('require(')) return 'javascript';
   
-  // Java indicators
-  if (codeLower.includes('public class') || codeLower.includes('public static void') ||
-      codeLower.includes('system.out.println')) {
-    return 'java';
-  }
+  if (c.includes('public class') || c.includes('public static void') || 
+      c.includes('system.out.println')) return 'java';
   
-  // C/C++ indicators
-  if (codeLower.includes('#include') || codeLower.includes('int main') ||
-      codeLower.includes('printf') || codeLower.includes('std::')) {
-    return 'cpp';
-  }
+  if (c.includes('#include') || c.includes('int main') || c.includes('printf') || 
+      c.includes('std::')) return 'cpp';
   
-  // HTML indicators
-  if (codeLower.includes('<html') || codeLower.includes('<!doctype') ||
-      codeLower.includes('<div') || codeLower.includes('<p>')) {
-    return 'html';
-  }
+  if (c.includes('<html') || c.includes('<!doctype') || c.includes('<div') || 
+      c.includes('<p>')) return 'html';
   
-  // CSS indicators
-  if (codeLower.includes('{') && codeLower.includes(':') && 
-      (codeLower.includes('color') || codeLower.includes('margin') || codeLower.includes('padding'))) {
-    return 'css';
-  }
+  if (c.includes('{') && c.includes(':') && (c.includes('color') || 
+      c.includes('margin') || c.includes('padding'))) return 'css';
   
-  // Default to text if can't detect
   return 'text';
 }
 
-// Function to parse HTML and replace code blocks with syntax-highlighted versions
 function parseDescriptionWithSyntaxHighlighting(html: string): React.ReactNode[] {
-  // Return empty array if no HTML
-  if (!html || typeof html !== 'string') {
-    return [];
-  }
+  if (!html || typeof html !== 'string') return [];
+
+  html = html
+    .replace(/<br\s*\/?>\s*<br\s*\/?>/gi, '<br>')
+    .replace(/(<\/p>)\s*(<p>)/gi, '$1$2')
+    .replace(/\n\s*\n/g, '\n')
+    .trim();
 
   const parts: React.ReactNode[] = [];
   let lastIndex = 0;
   let matchIndex = 0;
   
-  // Regex to match <pre><code>...</code></pre> blocks
-  const codeBlockRegex = /<pre><code[^>]*>([\s\S]*?)<\/code><\/pre>/g;
-  let match;
+  const codeBlockMatches: Array<{index: number, length: number, code: string, isBlock: boolean}> = [];
   
+  // Match ql-code-block-container with nested ql-code-block divs
+  const qlContainerRegex = /<div[^>]*class="ql-code-block-container"[^>]*>([\s\S]*?)<\/div>/g;
+  let match: RegExpExecArray | null;
+  while ((match = qlContainerRegex.exec(html)) !== null) {
+    const containerStart = match.index;
+    const containerContent = match[1];
+    const containerOpeningTag = match[0].substring(0, match[0].indexOf('>') + 1);
+    const containerStartOffset = containerOpeningTag.length;
+    
+    const qlBlockRegex = /<div[^>]*class="ql-code-block"[^>]*>([\s\S]*?)<\/div>/g;
+    let blockMatch: RegExpExecArray | null;
+    while ((blockMatch = qlBlockRegex.exec(containerContent)) !== null) {
+      let code = blockMatch[1]
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&amp;/g, '&')
+        .replace(/&quot;/g, '"')
+        .replace(/&#39;/g, "'")
+        .replace(/&nbsp;/g, ' ');
+      
+      codeBlockMatches.push({
+        index: containerStart + containerStartOffset + blockMatch.index,
+        length: blockMatch[0].length,
+        code: code,
+        isBlock: true
+      });
+    }
+  }
+  
+  // Match standalone ql-code-block divs (not in container we already processed)
+  const qlBlockStandaloneRegex = /<div[^>]*class="ql-code-block"[^>]*>([\s\S]*?)<\/div>/g;
+  match = null;
+  while ((match = qlBlockStandaloneRegex.exec(html)) !== null) {
+    // Check if this block is already captured in a container
+    const isAlreadyCaptured = codeBlockMatches.some(cb => 
+      match!.index >= cb.index && match!.index < cb.index + cb.length
+    );
+    
+    if (!isAlreadyCaptured) {
+      let code = match[1]
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&amp;/g, '&')
+        .replace(/&quot;/g, '"')
+        .replace(/&#39;/g, "'")
+        .replace(/&nbsp;/g, ' ');
+      
+      codeBlockMatches.push({
+        index: match.index,
+        length: match[0].length,
+        code: code,
+        isBlock: true
+      });
+    }
+  }
+  
+  // Match <pre><code> blocks
+  const codeBlockRegex = /<pre><code[^>]*>([\s\S]*?)<\/code><\/pre>/g;
+  match = null;
   while ((match = codeBlockRegex.exec(html)) !== null) {
-    // Add content before the code block
-    if (match.index > lastIndex) {
-      const beforeHtml = html.substring(lastIndex, match.index);
-      // Only add if there's actual content (not just whitespace)
+    let code = match[1]
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&amp;/g, '&')
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'")
+      .replace(/&nbsp;/g, ' ');
+    
+    codeBlockMatches.push({
+      index: match.index,
+      length: match[0].length,
+      code: code,
+      isBlock: true
+    });
+  }
+  
+  const inlineCodeRegex = /<code[^>]*>([\s\S]*?)<\/code>/g;
+  while ((match = inlineCodeRegex.exec(html)) !== null) {
+    const isInsidePre = codeBlockMatches.some(cb => 
+      match!.index >= cb.index && match!.index < cb.index + cb.length
+    );
+    
+    if (!isInsidePre) {
+      let code = match[1]
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&amp;/g, '&')
+        .replace(/&quot;/g, '"')
+        .replace(/&#39;/g, "'")
+        .replace(/&nbsp;/g, ' ');
+      
+      codeBlockMatches.push({
+        index: match.index,
+        length: match[0].length,
+        code: code,
+        isBlock: false
+      });
+    }
+  }
+  
+  codeBlockMatches.sort((a, b) => a.index - b.index);
+  
+  for (const codeMatch of codeBlockMatches) {
+    if (codeMatch.index > lastIndex) {
+      const beforeHtml = html.substring(lastIndex, codeMatch.index);
       if (beforeHtml.trim()) {
         parts.push(
           <div 
@@ -109,49 +185,53 @@ function parseDescriptionWithSyntaxHighlighting(html: string): React.ReactNode[]
       }
     }
     
-    // Extract and clean the code
-    let code = match[1];
-    // Decode HTML entities
-    code = code
-      .replace(/&lt;/g, '<')
-      .replace(/&gt;/g, '>')
-      .replace(/&amp;/g, '&')
-      .replace(/&quot;/g, '"')
-      .replace(/&#39;/g, "'")
-      .replace(/&nbsp;/g, ' ');
-    
-    // Detect language - ensure consistent detection
-    const language = detectLanguage(code);
-    
-    // Add syntax-highlighted code block
-    parts.push(
-      <div key={`code-${matchIndex}-${match.index}`} className="my-4">
-        <SyntaxHighlighter
-          language={language}
-          style={vscDarkPlus}
-          customStyle={{
-            borderRadius: '0.5rem',
-            padding: '1rem',
-            fontSize: '0.875rem',
-            lineHeight: '1.5',
-            margin: '0.75rem 0',
+    if (codeMatch.isBlock) {
+      const language = detectLanguage(codeMatch.code);
+      parts.push(
+        <div key={`code-block-${matchIndex}-${codeMatch.index}`} className="my-2">
+          <SyntaxHighlighter
+            language={language}
+            style={vscDarkPlus}
+            customStyle={{
+              borderRadius: '0.5rem',
+              padding: '1rem',
+              fontSize: '0.875rem',
+              lineHeight: '1.5',
+              margin: 0,
+              backgroundColor: '#1e1e1e',
+            }}
+            PreTag="div"
+          >
+            {codeMatch.code}
+          </SyntaxHighlighter>
+        </div>
+      );
+    } else {
+      parts.push(
+        <code 
+          key={`code-inline-${matchIndex}-${codeMatch.index}`}
+          style={{
             backgroundColor: '#1e1e1e',
+            color: '#d4d4d4',
+            padding: '0.125rem 0.375rem',
+            borderRadius: '0.25rem',
+            fontSize: '0.875rem',
+            fontFamily: 'monospace',
+            border: '1px solid #3e3e3e',
+            display: 'inline',
           }}
-          PreTag="div"
         >
-          {code}
-        </SyntaxHighlighter>
-      </div>
-    );
+          {codeMatch.code}
+        </code>
+      );
+    }
     
-    lastIndex = match.index + match[0].length;
+    lastIndex = codeMatch.index + codeMatch.length;
     matchIndex++;
   }
   
-  // Add remaining content after the last code block
   if (lastIndex < html.length) {
     const afterHtml = html.substring(lastIndex);
-    // Only add if there's actual content
     if (afterHtml.trim()) {
       parts.push(
         <div 
@@ -164,7 +244,6 @@ function parseDescriptionWithSyntaxHighlighting(html: string): React.ReactNode[]
     }
   }
   
-  // If no code blocks found, return original HTML
   if (parts.length === 0 && html.trim()) {
     return [
       <div 
@@ -183,7 +262,6 @@ export default function QuestionClient({ questions }: QuestionClientProps) {
   const [copied, setCopied] = useState<string | null>(null);
   const [isMounted, setIsMounted] = useState(false);
 
-  // Ensure component only renders after hydration to avoid mismatch
   useEffect(() => {
     setIsMounted(true);
   }, []);
@@ -196,10 +274,9 @@ export default function QuestionClient({ questions }: QuestionClientProps) {
     }
   };
 
-  // Prevent hydration mismatch by not rendering until mounted
   if (!isMounted) {
     return (
-      <div className="space-y-8" role="list" aria-label="Programming questions with code examples">
+      <div className="space-y-8">
         {questions.map((question, index) => (
           <article
             key={question._id || `question-${index}`}
@@ -217,23 +294,23 @@ export default function QuestionClient({ questions }: QuestionClientProps) {
   }
 
   return (
-    <div className="space-y-8" role="list" aria-label="Programming questions with code examples">
+    <div className="space-y-8">
       <style dangerouslySetInnerHTML={{
         __html: `
           .prose-custom p {
-            margin-bottom: 0.75rem;
+            margin-bottom: 0.5rem;
             line-height: 1.6;
           }
           
           .prose-custom ul {
             list-style-type: disc !important;
-            margin: 0.75rem 0 !important;
+            margin: 0.5rem 0 !important;
             padding-left: 1.5rem !important;
           }
           
           .prose-custom ol {
             list-style-type: decimal !important;
-            margin: 0.75rem 0 !important;
+            margin: 0.5rem 0 !important;
             padding-left: 1.5rem !important;
           }
           
@@ -250,10 +327,6 @@ export default function QuestionClient({ questions }: QuestionClientProps) {
           
           .prose-custom em {
             font-style: italic;
-          }
-          
-          .prose-custom u {
-            text-decoration: underline;
           }
           
           .prose-custom a {
@@ -273,12 +346,10 @@ export default function QuestionClient({ questions }: QuestionClientProps) {
             margin: 1rem 0 0.5rem 0;
           }
           
-          .prose-custom p {
-            color: rgba(255, 255, 255, 0.8);
-          }
-          
-          .prose-custom li {
-            color: rgba(255, 255, 255, 0.8);
+          .prose-custom br {
+            display: block;
+            content: "";
+            margin: 0.25rem 0;
           }
           
           .prose-custom img {
@@ -291,77 +362,36 @@ export default function QuestionClient({ questions }: QuestionClientProps) {
             border-radius: 0.5rem;
             object-fit: contain;
           }
-          
-          .prose-custom img[style*="width"],
-          .prose-custom img[style*="Width"] {
-            max-width: 100% !important;
-            width: auto !important;
-          }
-          
-          .prose-custom img[style*="height"],
-          .prose-custom img[style*="Height"] {
-            max-height: 500px !important;
-            height: auto !important;
-          }
-          
-          @media (min-width: 640px) {
-            .prose-custom img {
-              max-width: 90% !important;
-              max-height: 450px !important;
+            .prose-custom pre {
+              margin: 0 !important;
+              background-color: #1e1e1e !important;
+              color: #d4d4d4 !important;
             }
-          }
-          
-          @media (min-width: 768px) {
-            .prose-custom img {
-              max-width: 600px !important;
-              max-height: 400px !important;
-            }
-          }
-          
-          @media (min-width: 1024px) {
-            .prose-custom img {
-              max-width: 700px !important;
-              max-height: 450px !important;
-            }
-          }
-          
-          @media (min-width: 1280px) {
-            .prose-custom img {
-              max-width: 800px !important;
-              max-height: 500px !important;
-            }
-          }
+              .prose-custom code {
+                margin: 0 !important;
+                background-color: #1e1e1e !important;
+                color: #d4d4d4 !important;
+              }
         `
       }} />
       
       {questions.map((question, index) => {
-        // Sort content blocks by order
         const sortedBlocks = question.content_blocks 
           ? [...question.content_blocks].sort((a, b) => (a.order || 0) - (b.order || 0))
           : [];
 
-        // Use stable ID for keys and IDs
         const questionId = question._id || `question-${index}`;
-        const questionIndex = index;
 
         return (
           <article
-            id={`question-${questionIndex}`}
+            id={`question-${index}`}
             key={questionId}
             className="bg-[#161B33] rounded-xl border border-gray-800 p-6 sm:p-8 hover:border-[#6366F1] transition-all scroll-mt-20"
-            aria-labelledby={`question-title-${questionIndex}`}
-            role="article"
           >
             <div className="mb-6">
-              <h2 
-                id={`question-title-${questionIndex}`}
-                className="text-xl sm:text-2xl font-bold text-white leading-relaxed mb-3"
-              >
-                <span 
-                  className="inline-flex items-center justify-center w-8 h-8 bg-[#6366F1] text-white font-bold text-sm rounded-full align-middle mr-3 md:mr-2"
-                  aria-label={`Question number ${questionIndex + 1}`}
-                >
-                  {questionIndex + 1}
+              <h2 className="text-xl sm:text-2xl font-bold text-white leading-relaxed mb-3">
+                <span className="inline-flex items-center justify-center w-8 h-8 bg-[#6366F1] text-white font-bold text-sm rounded-full align-middle mr-3 md:mr-2">
+                  {index + 1}
                 </span>
                 {question.title.replace(/<[^>]*>/g, '')}
               </h2>
@@ -378,7 +408,6 @@ export default function QuestionClient({ questions }: QuestionClientProps) {
               )}
             </div>
             
-            {/* Content Blocks */}
             {sortedBlocks.length > 0 && (
               <div className="sm:ml-11 space-y-4">
                 {sortedBlocks.map((block, blockIndex) => {
@@ -399,16 +428,15 @@ export default function QuestionClient({ questions }: QuestionClientProps) {
                           <button
                             onClick={() => copyCode(block.code || '', blockId)}
                             className="text-xs text-white hover:text-[#6366F1] flex items-center gap-1 cursor-pointer transition-colors"
-                            aria-label={copied === blockId ? 'Code copied to clipboard' : 'Copy code to clipboard'}
                           >
                             {copied === blockId ? (
                               <>
-                                <Check className="h-4 w-4 text-[#6366F1]" aria-hidden="true" />
+                                <Check className="h-4 w-4 text-[#6366F1]" />
                                 <span className="font-bold text-[#6366F1]">Copied</span>
                               </>
                             ) : (
                               <>
-                                <Copy className="h-4 w-4" aria-hidden="true" />
+                                <Copy className="h-4 w-4" />
                                 <span className="font-bold">Copy</span>
                               </>
                             )}
@@ -450,4 +478,3 @@ export default function QuestionClient({ questions }: QuestionClientProps) {
     </div>
   );
 }
-

@@ -20,7 +20,8 @@ import {
   FileText,
   Users,
   Calendar,
-  Settings
+  Settings,
+  Edit
 } from 'lucide-react';
 import axiosInstance from '@/utils/axiosInstance';
 import { AxiosError } from 'axios';
@@ -101,6 +102,7 @@ const EditExamPattern = () => {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+  const [isSlugEditable, setIsSlugEditable] = useState(false);
 
   const [formData, setFormData] = useState<FormData>({
     exam_name: '',
@@ -425,15 +427,28 @@ const EditExamPattern = () => {
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Slug (URL-friendly identifier)</label>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-sm font-medium text-gray-300">Slug (URL-friendly identifier)</label>
+                  <button
+                    type="button"
+                    onClick={() => setIsSlugEditable(!isSlugEditable)}
+                    className="text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1"
+                  >
+                    <Edit className="h-3 w-3" />
+                    {isSlugEditable ? 'Done' : 'Edit'}
+                  </button>
+                </div>
                 <input
                   type="text"
                   value={formData.slug || ''}
                   onChange={(e) => setFormData(prev => ({ ...prev, slug: e.target.value }))}
-                  className="w-full px-4 py-3 bg-white/20 border border-white/30 rounded-lg text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  disabled={!isSlugEditable}
+                  className={`w-full px-4 py-3 bg-white/20 border border-white/30 rounded-lg text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                    !isSlugEditable ? 'opacity-60 cursor-not-allowed' : ''
+                  }`}
                   placeholder="ssc-cgl, rrb-ntpc, banking-po"
                 />
-                <p className="text-xs text-gray-400 mt-1">Auto-generates from exam name, but you can edit it</p>
+                <p className="text-xs text-gray-400 mt-1">URL-friendly identifier for the exam</p>
               </div>
               
               <div>

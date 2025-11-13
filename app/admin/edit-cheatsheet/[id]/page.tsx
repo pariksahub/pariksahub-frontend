@@ -11,7 +11,8 @@ import {
   CheckCircle,
   ChevronUp,
   ChevronDown,
-  X
+  X,
+  Edit
 } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import axiosInstance from '@/utils/axiosInstance';
@@ -66,7 +67,7 @@ function EditCheatsheet() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
-  const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
+  const [isSlugEditable, setIsSlugEditable] = useState(false);
   const [categories, setCategories] = useState<string[]>([]);
   const [showCategorySuggestions, setShowCategorySuggestions] = useState(false);
 
@@ -140,18 +141,6 @@ function EditCheatsheet() {
   const filteredCategories = categories.filter((cat: string) =>
     cat.toLowerCase().includes(formData.category.toLowerCase())
   );
-
-  useEffect(() => {
-    if (!slugManuallyEdited && formData.title) {
-      const autoSlug = formData.title
-        .toLowerCase()
-        .replace(/[^a-z0-9\s-]/g, '')
-        .replace(/\s+/g, '-')
-        .replace(/-+/g, '-')
-        .replace(/^-+|-+$/g, '');
-      setFormData(prev => ({ ...prev, slug: autoSlug }));
-    }
-  }, [formData.title, slugManuallyEdited]);
 
   const fetchCheatsheet = async () => {
     try {
@@ -578,15 +567,27 @@ function EditCheatsheet() {
               </div>
               
               <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">Slug</label>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-xs font-medium text-gray-700">Slug</label>
+                  <button
+                    type="button"
+                    onClick={() => setIsSlugEditable(!isSlugEditable)}
+                    className="text-xs text-blue-600 hover:text-blue-700 flex items-center gap-1"
+                  >
+                    <Edit className="h-3 w-3" />
+                    {isSlugEditable ? 'Done' : 'Edit'}
+                  </button>
+                </div>
                 <input
                   type="text"
                   value={formData.slug || ''}
                   onChange={(e) => {
-                    setSlugManuallyEdited(true);
                     setFormData(prev => ({ ...prev, slug: e.target.value }));
                   }}
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  disabled={!isSlugEditable}
+                  className={`w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 ${
+                    !isSlugEditable ? 'bg-gray-100 cursor-not-allowed' : 'bg-white'
+                  }`}
                   placeholder="python-cheatsheet"
                 />
               </div>
