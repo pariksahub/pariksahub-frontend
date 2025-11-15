@@ -193,7 +193,7 @@ export default async function ExamPatterns({ searchParams }: ExamPatternsPagePro
                       {exam.exam_name}
                     </h3>
                     <p className="text-sm text-gray-400 mb-auto relative z-10">
-                      {exam.exam_level} • {exam.exam_mode}
+                      
                     </p>
 
                     {/* Footer */}
@@ -265,7 +265,7 @@ export default async function ExamPatterns({ searchParams }: ExamPatternsPagePro
                       {exam.exam_name}
                     </h3>
                     <p className="text-sm text-gray-400 mb-auto relative z-10">
-                      {exam.exam_level} • {exam.exam_mode}
+                     
                     </p>
 
                     {/* Footer */}
