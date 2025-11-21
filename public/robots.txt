@@ -1,2 +1,6 @@
 User-agent: *
 Disallow: /admin/
+Disallow: /exam-patterns/
+Disallow: /student/
+Allow: /student/register
+Allow: /student/login

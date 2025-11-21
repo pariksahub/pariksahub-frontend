@@ -10,7 +10,6 @@ import axiosInstance from '@/utils/axiosInstance';
 const mainNavLinks = [
   { to: "/practice", label: "Practice" },
   { to: "/random-topics", label: "Random Topics" },
-  { to: "/exam-patterns", label: "Exam Patterns" },
   { to: "/cheatsheets", label: "Cheatsheets" },
   { to: "/programming-topics", label: "Programming" },
   { to: "/faqs", label: "FAQs" },
@@ -28,23 +27,11 @@ function CustomNavbar() {
   useEffect(() => {
     checkStudentAuth();
 
-    // Listen for auth state changes
     const handleAuthChange = () => {
       checkStudentAuth();
     };
 
-    // Listen for custom auth events
     window.addEventListener('studentAuthChange', handleAuthChange);
-    
-    // Listen for route changes (Next.js)
-    const handleRouteChange = () => {
-      // Small delay to ensure cookie is set/cleared
-      setTimeout(() => {
-        checkStudentAuth();
-      }, 100);
-    };
-
-    // Check auth on focus (when user comes back to tab)
     window.addEventListener('focus', handleAuthChange);
 
     return () => {
@@ -53,9 +40,7 @@ function CustomNavbar() {
     };
   }, []);
 
-  // Also check auth when route changes
   useEffect(() => {
-    // Small delay to ensure cookies are set/cleared after navigation
     const timer = setTimeout(() => {
       checkStudentAuth();
     }, 200);
