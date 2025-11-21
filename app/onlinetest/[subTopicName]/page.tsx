@@ -1,12 +1,11 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { AlertCircle, Timer, ChevronLeft, ChevronRight, Send, Check, X } from 'lucide-react';
 import axiosInstance from '../../../utils/axiosInstance';
 import { formatDisplayText } from '../../../utils/textUtils';
- 
 
 interface QuestionItem {
   question: {
@@ -23,9 +22,15 @@ interface QuestionItem {
   }[];
 }
 
+type Score = {
+  correct: number;
+  total: number;
+  answered: number;
+  percentage: number;
+};
+
 function OnlineTest() {
   const params = useParams();
-  const router = useRouter();
   const subTopicName = params.subTopicName as string;
   const [questions, setQuestions] = useState<QuestionItem[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -34,128 +39,13 @@ function OnlineTest() {
   const [error, setError] = useState('');
   const [timeLeft, setTimeLeft] = useState(30 * 60);
   const [isFinished, setIsFinished] = useState(false);
-  const [score, setScore] = useState<{ correct: number; total: number; answered: number; percentage: number } | null>(null);
+  const [score, setScore] = useState<Score | null>(null);
 
-  // Use refs to store latest values for timer
-  const questionsRef = useRef<QuestionItem[]>([]);
-  const answersRef = useRef<Record<string, string>>({});
-  const subTopicNameRef = useRef<string>('');
-
-  useEffect(() => {
-    questionsRef.current = questions;
-  }, [questions]);
-
-  useEffect(() => {
-    answersRef.current = answers;
-  }, [answers]);
-
-  useEffect(() => {
-    subTopicNameRef.current = subTopicName;
-  }, [subTopicName]);
-
-  // Save test result function - defined early so it can be used in timer
-  const saveTestResult = async (topicName: string, score: { correct: number; total: number; answered: number; percentage: number }) => {
-    if (!topicName) {
-      console.log('No topic name provided for test result');
-      return;
-    }
-    
-    try {
-      const response = await axiosInstance.get('/api/student/profile');
-      if (response.status === 200) {
-        // User is logged in, save test result
-        const saveResponse = await axiosInstance.post('/api/student/save-test-result', {
-          subTopicName: topicName,
-          score: score
-        });
-        console.log('Test result saved successfully:', saveResponse.data);
-      }
-    } catch (err: any) {
-      // Not logged in or error, skip saving
-      if (err.response?.status === 401) {
-        console.log('User not logged in, skipping test result save');
-      } else {
-        console.error('Error saving test result:', err);
-      }
-    }
-  };
-
-  useEffect(() => {
-    if (subTopicName) {
-      fetchQuestions();
-    }
-  }, [subTopicName]);
-
-  useEffect(() => {
-    if (timeLeft > 0 && !isFinished && questions.length > 0) {
-      const timer = setInterval(() => {
-        setTimeLeft((prev) => {
-          if (prev <= 1) {
-            // Calculate score when timer expires using refs
-            let correct = 0;
-            let answered = 0;
-            questionsRef.current.forEach(item => {
-              const selectedOptionId = answersRef.current[item.question._id];
-              if (selectedOptionId) {
-                answered++;
-                const selectedOption = item.options.find(opt => opt._id === selectedOptionId);
-                if (selectedOption && selectedOption.option_text === item.question.answer) {
-                  correct++;
-                }
-              }
-            });
-            const testScore = {
-              correct,
-              total: questionsRef.current.length,
-              answered,
-              percentage: questionsRef.current.length ? Math.round((correct / questionsRef.current.length) * 100) : 0
-            };
-            setScore(testScore);
-            setIsFinished(true);
-            
-            // Save test result to database if logged in
-            saveTestResult(subTopicNameRef.current, testScore);
-            
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-      return () => clearInterval(timer);
-    }
-  }, [timeLeft, isFinished, questions.length]);
-
-  const fetchQuestions = async () => {
-    try {
-      setLoading(true);
-      const response = await axiosInstance.get(`/api/questions/subtopic/${subTopicName}`);
-      setQuestions(response.data);
-      setError('');
-    } catch (error) {
-      setError('Failed to load questions. Please try again later.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleAnswer = (questionId: string, optionId: string) => {
-    setAnswers(prev => ({
-      ...prev,
-      [questionId]: optionId
-    }));
-  };
-
-  const formatTime = (seconds: number) => {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
-  };
-
-  const submitTest = async () => {
+  const calculateScore = useCallback((questionsList: QuestionItem[], answersMap: Record<string, string>): Score => {
     let correct = 0;
     let answered = 0;
-    questions.forEach(item => {
-      const selectedOptionId = answers[item.question._id];
+    questionsList.forEach(item => {
+      const selectedOptionId = answersMap[item.question._id];
       if (selectedOptionId) {
         answered++;
         const selectedOption = item.options.find(opt => opt._id === selectedOptionId);
@@ -164,26 +54,94 @@ function OnlineTest() {
         }
       }
     });
-    const testScore = {
+    return {
       correct,
-      total: questions.length,
+      total: questionsList.length,
       answered,
-      percentage: questions.length ? Math.round((correct / questions.length) * 100) : 0
+      percentage: questionsList.length ? Math.round((correct / questionsList.length) * 100) : 0
     };
+  }, []);
+
+  const saveTestResult = useCallback(async (topicName: string, testScore: Score) => {
+    if (!topicName) return;
+    try {
+      const response = await axiosInstance.get('/api/student/profile');
+      if (response.status === 200) {
+        await axiosInstance.post('/api/student/save-test-result', {
+          subTopicName: topicName,
+          score: testScore
+        });
+      }
+    } catch (err: any) {
+      if (err.response?.status !== 401) {
+        console.error('Error saving test result:', err);
+      }
+    }
+  }, []);
+
+  const finishTest = useCallback((testScore: Score) => {
     setScore(testScore);
     setIsFinished(true);
-    
-    // Save test result to database if logged in
     saveTestResult(subTopicName, testScore);
-  };
+  }, [subTopicName, saveTestResult, calculateScore]);
+
+  useEffect(() => {
+    if (subTopicName) {
+      const fetchQuestions = async () => {
+        try {
+          setLoading(true);
+          const response = await axiosInstance.get(`/api/questions/subtopic/${subTopicName}`);
+          setQuestions(response.data);
+          setError('');
+        } catch (error) {
+          setError('Failed to load questions. Please try again later.');
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchQuestions();
+    }
+  }, [subTopicName]);
+
+  useEffect(() => {
+    if (timeLeft <= 0 || isFinished || questions.length === 0) return;
+    
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          const testScore = calculateScore(questions, answers);
+          finishTest(testScore);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    
+    return () => clearInterval(timer);
+  }, [timeLeft, isFinished, questions, answers, calculateScore, finishTest]);
+
+  const handleAnswer = useCallback((questionId: string, optionId: string) => {
+    setAnswers(prev => ({ ...prev, [questionId]: optionId }));
+  }, []);
+
+  const formatTime = useCallback((seconds: number) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+  }, []);
+
+  const submitTest = useCallback(() => {
+    const testScore = calculateScore(questions, answers);
+    finishTest(testScore);
+  }, [questions, answers, calculateScore, finishTest]);
+
+  const currentQuestion = useMemo(() => questions[currentQuestionIndex], [questions, currentQuestionIndex]);
 
   if (loading) {
     return (
       <div className="min-h-screen bg-[#0A0E27] flex items-center justify-center pt-20">
         <div className="relative">
-          <div 
-            className="w-16 h-16 border-4 border-gray-800 border-t-[#6366F1] rounded-full animate-spin"
-          ></div>
+          <div className="w-16 h-16 border-4 border-gray-800 border-t-[#6366F1] rounded-full animate-spin"></div>
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="w-8 h-8 bg-[#6366F1] rounded-full animate-pulse"></div>
           </div>
@@ -217,7 +175,6 @@ function OnlineTest() {
     return (
       <div className="min-h-screen bg-[#0A0E27] text-white p-4 pt-20">
         <div className="max-w-4xl mx-auto">
-          {/* Score Summary */}
           <div className="bg-[#161B33] border border-gray-700 rounded-2xl shadow-lg shadow-[#6366F1]/20 p-8 mb-6 text-center">
             <div className="w-20 h-20 bg-gradient-to-br from-[#6366F1] to-[#8B5CF6] rounded-full flex items-center justify-center mx-auto mb-6">
               <span className="text-white text-2xl font-bold">{score.percentage}%</span>
@@ -237,15 +194,14 @@ function OnlineTest() {
             </Link>
           </div>
 
-          {/* Detailed Results */}
           <div className="bg-[#161B33] border border-gray-700 rounded-2xl shadow-lg shadow-[#6366F1]/20 p-8">
             <h3 className="text-2xl font-bold text-white mb-6 text-center">Question Review</h3>
             <div className="space-y-4">
               {questions.map((item, index) => {
                 const selectedOptionId = answers[item.question._id];
-                const selectedOption = item.options.find(opt => opt._id === selectedOptionId);
-                const isAnswered = !!selectedOptionId;
-                const isCorrect = selectedOption && selectedOption.option_text === item.question.answer;
+                const isAnswered = Boolean(selectedOptionId && selectedOptionId.trim());
+                const selectedOption = isAnswered ? item.options.find(opt => opt._id === selectedOptionId) : null;
+                const isCorrect = selectedOption ? selectedOption.option_text === item.question.answer : false;
                 
                 return (
                   <div key={item.question._id} className={`p-4 rounded-xl border-2 ${
@@ -279,7 +235,7 @@ function OnlineTest() {
                         </div>
                         
                         <div className="space-y-2">
-                          {item.options.map((option) => {
+                          {item.options.map((option, optIndex) => {
                             const isSelected = selectedOptionId === option._id;
                             const isCorrectOption = option.option_text === item.question.answer;
                             
@@ -299,7 +255,7 @@ function OnlineTest() {
                                         ? 'bg-red-500 text-white' 
                                         : 'bg-gray-700 text-gray-400'
                                   }`}>
-                                    {String.fromCharCode(65 + item.options.indexOf(option))}
+                                    {String.fromCharCode(65 + optIndex)}
                                   </span>
                                   <span 
                                     className="quill-content flex-1"
@@ -352,14 +308,12 @@ function OnlineTest() {
     );
   }
 
-  const item = questions[currentQuestionIndex];
+  if (!currentQuestion) return null;
 
   return (
     <div className="min-h-screen bg-[#0A0E27] text-white flex items-center justify-center p-2 sm:p-4 pt-20 sm:pt-4">
       <div className="w-full max-w-4xl">
-        {/* Single Card Container - Responsive Height */}
         <div className="bg-[#161B33] border border-gray-700 rounded-2xl shadow-lg shadow-[#6366F1]/20 flex flex-col max-h-[85vh] sm:max-h-[85vh]">
-          {/* Header - Fixed Height */}
           <div className="bg-[#1a1f3a] border-b border-gray-700 rounded-t-2xl p-3 sm:p-4 flex-shrink-0">
             <h1 className="text-lg sm:text-xl font-bold text-white mb-2 text-center">Online Test - {formatDisplayText(subTopicName)}</h1>
             <div className="flex justify-between items-center text-white">
@@ -384,35 +338,34 @@ function OnlineTest() {
             </div>
           </div>
 
-          {/* Content Area - Flexible Height with Better Mobile Spacing */}
           <div className="flex-1 p-3 sm:p-4 overflow-y-auto">
             <div 
               className="text-lg sm:text-xl font-medium text-white mb-4 sm:mb-6 leading-relaxed bg-[#1a1f3a] border border-gray-700 p-4 sm:p-6 rounded-xl border-l-4 border-l-[#6366F1] shadow-lg text-[1.125rem] quill-content" 
-              dangerouslySetInnerHTML={{ __html: item.question.question }} 
+              dangerouslySetInnerHTML={{ __html: currentQuestion.question.question }} 
             />
-            {item.question.question_image_url && (
+            {currentQuestion.question.question_image_url && (
               <div className="mb-3 sm:mb-4">
                 <img 
-                  src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/${item.question.question_image_url}`}
+                  src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/${currentQuestion.question.question_image_url}`}
                   alt="Question"
                   className="max-w-full h-auto rounded-xl shadow-lg border border-gray-700"
                 />
               </div>
             )}
             <div className="space-y-2">
-              {item.options.map((option, index) => (
+              {currentQuestion.options.map((option, index) => (
                 <button
                   key={option._id}
-                  onClick={() => handleAnswer(item.question._id, option._id)}
+                  onClick={() => handleAnswer(currentQuestion.question._id, option._id)}
                   className={`group w-full p-3 text-left rounded-xl border-2 transition-all duration-200 cursor-pointer ${
-                    answers[item.question._id] === option._id
+                    answers[currentQuestion.question._id] === option._id
                       ? 'border-[#6366F1] bg-[#6366F1]/10 shadow-lg shadow-[#6366F1]/20'
                       : 'border-gray-700 bg-[#1a1f3a] hover:border-[#6366F1]/50 hover:bg-[#6366F1]/5 hover:shadow-md'
                   }`}
                 >
                   <div className="flex items-center space-x-3">
                     <div className={`w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center text-xs sm:text-sm font-bold transition-all flex-shrink-0 ${
-                      answers[item.question._id] === option._id
+                      answers[currentQuestion.question._id] === option._id
                         ? 'bg-gradient-to-r from-[#6366F1] to-[#8B5CF6] text-white'
                         : 'bg-gray-700 text-gray-400 group-hover:bg-gray-600'
                     }`}>
@@ -443,7 +396,6 @@ function OnlineTest() {
             </div>
           </div>
           
-          {/* Navigation - Fixed at Bottom */}
           <div className="bg-[#1a1f3a] border-t border-gray-700 px-3 sm:px-4 py-3 flex justify-between items-center flex-shrink-0 rounded-b-2xl">
             <button
               onClick={() => setCurrentQuestionIndex(prev => Math.max(0, prev - 1))}

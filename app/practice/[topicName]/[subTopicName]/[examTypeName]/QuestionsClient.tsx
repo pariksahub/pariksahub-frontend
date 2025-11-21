@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { Bookmark, BookmarkCheck, Lightbulb, X, Eye } from 'lucide-react';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import Link from 'next/link';
 import axiosInstance from '@/utils/axiosInstance';
+import { getCachedAIAnswer, setCachedAIAnswer } from '@/utils/aiAnswerCache';
 
 interface Question {
   _id: string;
@@ -54,14 +55,14 @@ export default function QuestionsClient({ questions, apiUrl, topicName, subTopic
   const modalRef = useRef<HTMLDivElement>(null);
   const normalModalRef = useRef<HTMLDivElement>(null);
   
-  const API_KEY = process.env.NEXT_PUBLIC_GOOGLE_API_KEY || '';
-  const genAI = new GoogleGenerativeAI(API_KEY);
+  const genAI = useMemo(() => {
+    const API_KEY = process.env.NEXT_PUBLIC_GOOGLE_API_KEY || '';
+    return API_KEY ? new GoogleGenerativeAI(API_KEY) : null;
+  }, []);
 
   useEffect(() => {
     setIsMounted(true);
     loadSavedQuestions();
-    
-    // Prevent duplicate tracking
     if (!trackingRef.current) {
       trackingRef.current = true;
       trackTopicVisit();
@@ -72,30 +73,27 @@ export default function QuestionsClient({ questions, apiUrl, topicName, subTopic
     try {
       const response = await axiosInstance.get('/api/student/profile');
       if (response.status === 200) {
-        // User is logged in, track the visit
         await axiosInstance.post('/api/student/track-topic-visit', {
-          topicName: topicName,
-          subTopicName: subTopicName
+          topicName,
+          subTopicName
         });
       }
-    } catch (err) {
+    } catch {
       // Not logged in or error, skip tracking
     }
   };
 
   useEffect(() => {
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth'
-    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [currentPage]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
+      const target = event.target as Node;
+      if (showAIExplanationModal && modalRef.current && !modalRef.current.contains(target)) {
         setShowAIExplanationModal(false);
       }
-      if (normalModalRef.current && !normalModalRef.current.contains(event.target as Node)) {
+      if (showNormalExplanationModal && normalModalRef.current && !normalModalRef.current.contains(target)) {
         setShowNormalExplanationModal(false);
       }
     };
@@ -114,44 +112,35 @@ export default function QuestionsClient({ questions, apiUrl, topicName, subTopic
   const loadSavedQuestions = () => {
     try {
       const saved = localStorage.getItem('savedQuestions');
-      if (saved) {
-        setSavedQuestions(new Set(JSON.parse(saved)));
-      }
-    } catch (error) {
-      console.error('Error loading saved questions:', error);
+      if (saved) setSavedQuestions(new Set(JSON.parse(saved)));
+    } catch {
+      // Ignore localStorage errors
     }
   };
 
   const toggleSaveQuestion = async (questionId: string) => {
+    const newSavedQuestions = new Set(savedQuestions);
+    const isCurrentlySaved = savedQuestions.has(questionId);
+    
+    if (isCurrentlySaved) {
+      newSavedQuestions.delete(questionId);
+    } else {
+      newSavedQuestions.add(questionId);
+    }
+    setSavedQuestions(newSavedQuestions);
+    
     try {
-      const newSavedQuestions = new Set(savedQuestions);
-      const isCurrentlySaved = savedQuestions.has(questionId);
-      
-      if (isCurrentlySaved) {
-        newSavedQuestions.delete(questionId);
-      } else {
-        newSavedQuestions.add(questionId);
-      }
-      
-      setSavedQuestions(newSavedQuestions);
       localStorage.setItem('savedQuestions', JSON.stringify([...newSavedQuestions]));
-      
-      // Also save to database if logged in
-      try {
-        const response = await axiosInstance.get('/api/student/profile');
-        if (response.status === 200) {
-          // User is logged in, sync with database
-          if (isCurrentlySaved) {
-            await axiosInstance.post('/api/student/remove-saved-question', { questionId });
-          } else {
-            await axiosInstance.post('/api/student/save-question', { questionId });
-          }
+      const response = await axiosInstance.get('/api/student/profile');
+      if (response.status === 200) {
+        if (isCurrentlySaved) {
+          await axiosInstance.post('/api/student/remove-saved-question', { questionId });
+        } else {
+          await axiosInstance.post('/api/student/save-question', { questionId });
         }
-      } catch (err) {
-        // Not logged in or error, continue with localStorage only
       }
-    } catch (error) {
-      console.error('Error saving question:', error);
+    } catch {
+      // Continue with localStorage only if API fails
     }
   };
 
@@ -186,30 +175,38 @@ export default function QuestionsClient({ questions, apiUrl, topicName, subTopic
   };
 
   const formatAIResponse = (text: string) => {
-    text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-    text = text.replace(/\*(.*?)\*/g, '<em>$1</em>');
-    text = text.replace(/\n\n/g, '</p><p>');
-    text = text.replace(/\n/g, '<br>');
-    text = `<p>${text}</p>`;
-    text = text.replace(/<p><\/p>/g, '');
-    text = text.replace(/<p><br><\/p>/g, '');
-    return text;
+    return `<p>${text
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.*?)\*/g, '<em>$1</em>')
+      .replace(/\n\n/g, '</p><p>')
+      .replace(/\n/g, '<br>')
+      .replace(/<p><\/p>/g, '')
+      .replace(/<p><br><\/p>/g, '')}</p>`;
   };
 
   const handleAIExplanation = async (questionItem: QuestionItem) => {
     setCurrentQuestionForAI(questionItem);
     setShowAIExplanationModal(true);
-    setIsGeneratingAIExplanation(true);
     setAiExplanationError(null);
+    
+    const questionId = questionItem.question._id;
+    const cachedAnswer = getCachedAIAnswer(questionId);
+    
+    if (cachedAnswer) {
+      setAiExplanation(cachedAnswer);
+      setIsGeneratingAIExplanation(false);
+      return;
+    }
+
+    setIsGeneratingAIExplanation(true);
     setAiExplanation('');
 
     try {
-      if (!API_KEY) {
-        throw new Error('Google API Key is not configured. Please set NEXT_PUBLIC_GOOGLE_API_KEY.');
+      if (!genAI) {
+        throw new Error('Google API Key is not configured.');
       }
 
       const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
-      
       const prompt = `You are an expert educator. Explain this question clearly and simply.
 
 **QUESTION:**
@@ -224,14 +221,12 @@ ${questionItem.question.question}
 6. Write in a conversational tone
 
 Focus only on helping students understand the concept and reasoning.`;
-
+      
       const result = await model.generateContent(prompt);
       const response = await result.response;
-      let text = response.text();
-      
-      text = formatAIResponse(text);
-      
-      setAiExplanation(text);
+      const formattedAnswer = formatAIResponse(response.text());
+      setAiExplanation(formattedAnswer);
+      setCachedAIAnswer(questionId, formattedAnswer);
     } catch (err) {
       console.error('AI explanation error:', err);
       setAiExplanationError('Failed to generate AI explanation. Please Try Again.');
@@ -258,10 +253,13 @@ Focus only on helping students understand the concept and reasoning.`;
   const currentQuestions = questions.slice(indexOfFirstQuestion, indexOfLastQuestion);
 
   const paginate = (pageNumber: number) => {
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth'
-    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const getPaginationUrl = (page: number) => {
+    const params = new URLSearchParams();
+    if (page > 1) params.set('page', page.toString());
+    return `/practice/${topicName}/${subTopicName}/${examTypeName}${params.toString() ? `?${params.toString()}` : ''}`;
   };
 
   return (
@@ -381,7 +379,7 @@ Focus only on helping students understand the concept and reasoning.`;
 
       <div className="flex justify-between items-center mt-6 mb-4">
         <Link
-          href={currentPage > 1 ? `/practice/${topicName}/${subTopicName}/${examTypeName}?page=${currentPage - 1}` : '#'}
+          href={currentPage > 1 ? getPaginationUrl(currentPage - 1) : '#'}
           onClick={() => currentPage > 1 && paginate(currentPage - 1)}
           className={`px-5 py-2.5 rounded-full font-semibold transition duration-300 transform hover:scale-105 cursor-pointer inline-block ${
             currentPage === 1
@@ -393,9 +391,8 @@ Focus only on helping students understand the concept and reasoning.`;
         >
           Previous
         </Link>
-        
         <Link
-          href={currentPage < Math.ceil(questions.length / questionsPerPage) ? `/practice/${topicName}/${subTopicName}/${examTypeName}?page=${currentPage + 1}` : '#'}
+          href={currentPage < Math.ceil(questions.length / questionsPerPage) ? getPaginationUrl(currentPage + 1) : '#'}
           onClick={() => currentPage < Math.ceil(questions.length / questionsPerPage) && paginate(currentPage + 1)}
           className={`px-5 py-2.5 rounded-full font-semibold transition duration-300 transform hover:scale-105 cursor-pointer inline-block ${
             currentPage === Math.ceil(questions.length / questionsPerPage)
@@ -413,7 +410,7 @@ Focus only on helping students understand the concept and reasoning.`;
         <div className="flex justify-center">
           <div className="flex items-center space-x-2">
             <Link
-              href={currentPage > 1 ? `/practice/${topicName}/${subTopicName}/${examTypeName}?page=${currentPage - 1}` : '#'}
+              href={currentPage > 1 ? getPaginationUrl(currentPage - 1) : '#'}
               onClick={() => currentPage > 1 && paginate(currentPage - 1)}
               className={`p-2 rounded-lg cursor-pointer transform hover:scale-110 transition duration-200 inline-block ${
                 currentPage === 1
@@ -425,13 +422,12 @@ Focus only on helping students understand the concept and reasoning.`;
             >
               {'<'}
             </Link>
-            
             {Array.from({ length: Math.ceil(questions.length / questionsPerPage) }).map((_, index) => {
               const pageNum = index + 1;
               return (
                 <Link
                   key={index}
-                  href={`/practice/${topicName}/${subTopicName}/${examTypeName}?page=${pageNum}`}
+                  href={getPaginationUrl(pageNum)}
                   onClick={() => paginate(pageNum)}
                   className={`w-10 h-10 rounded-lg font-medium transition duration-300 cursor-pointer transform hover:scale-110 inline-flex items-center justify-center ${
                     currentPage === pageNum
@@ -445,9 +441,8 @@ Focus only on helping students understand the concept and reasoning.`;
                 </Link>
               );
             })}
-            
             <Link
-              href={currentPage < Math.ceil(questions.length / questionsPerPage) ? `/practice/${topicName}/${subTopicName}/${examTypeName}?page=${currentPage + 1}` : '#'}
+              href={currentPage < Math.ceil(questions.length / questionsPerPage) ? getPaginationUrl(currentPage + 1) : '#'}
               onClick={() => currentPage < Math.ceil(questions.length / questionsPerPage) && paginate(currentPage + 1)}
               className={`p-2 rounded-lg cursor-pointer transform hover:scale-110 transition duration-200 inline-block ${
                 currentPage === Math.ceil(questions.length / questionsPerPage)

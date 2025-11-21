@@ -1,10 +1,8 @@
-import React from 'react';
 import Link from 'next/link';
 import { fetchFromApi } from '../../../../../utils/serverApi';
 import { formatDisplayText } from '../../../../../utils/textUtils';
 import FloatingNotes from '../../../../../components/FloatingNotes';
 import QuestionsClient from './QuestionsClient';
- 
 interface Question {
   _id: string;
   question: string;
@@ -31,13 +29,8 @@ interface SubTopicAndExamPageProps {
 }
 
 async function getQuestions(examTypeName: string, subtopicName: string): Promise<QuestionItem[]> {
-  try {
-    const data = await fetchFromApi(`/api/questions/exam/${encodeURIComponent(examTypeName)}/subtopic/${encodeURIComponent(subtopicName)}`) as QuestionItem[];
-    return data || [];
-  } catch (error) {
-    console.error('Error fetching questions:', error);
-    throw new Error('Failed to load questions. Please try again later.');
-  }
+  const data = await fetchFromApi(`/api/questions/exam/${encodeURIComponent(examTypeName)}/subtopic/${encodeURIComponent(subtopicName)}`) as QuestionItem[];
+  return data || [];
 }
 
 export default async function SubTopicAndExam({ params, searchParams }: SubTopicAndExamPageProps) {

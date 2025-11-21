@@ -9,11 +9,11 @@ import axiosInstance from '@/utils/axiosInstance';
 
 const mainNavLinks = [
   { to: "/practice", label: "Practice" },
-  { to: "/random-topics", label: "Random Topics" },
   { to: "/cheatsheets", label: "Cheatsheets" },
   { to: "/programming-topics", label: "Programming" },
   { to: "/faqs", label: "FAQs" },
   { to: "/test-topics", label: "Mock Test" },
+  { to: "/random-topics", label: "Random Topics" },
   { to: "/saved", label: "Saved" }
 ];
 

@@ -1,6 +1,5 @@
 'use client';
 
-import React from 'react';
 import { useRouter } from 'next/navigation';
 import { ChevronDown } from 'lucide-react';
 import { formatDisplayText } from '../../../utils/textUtils';
@@ -23,19 +22,9 @@ export default function ExamFilter({ topicName, exams, selectedExam, search }: E
   const handleExamChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const examValue = e.target.value;
     const params = new URLSearchParams();
-    
-    if (examValue) {
-      params.set('exam', examValue);
-    }
-    
-    if (search) {
-      params.set('search', search);
-    }
-    
-    const queryString = params.toString();
-    const url = `/practice/${topicName}${queryString ? `?${queryString}` : ''}`;
-    // Use Next.js router for instant client-side navigation
-    router.push(url);
+    if (examValue) params.set('exam', examValue);
+    if (search) params.set('search', search);
+    router.push(`/practice/${topicName}${params.toString() ? `?${params.toString()}` : ''}`);
   };
 
   return (

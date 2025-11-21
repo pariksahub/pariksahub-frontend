@@ -1,10 +1,8 @@
-import React from 'react';
 import Link from 'next/link';
 import { fetchFromApi } from '../../../../utils/serverApi';
 import { formatDisplayText } from '../../../../utils/textUtils';
 import FloatingNotes from '../../../../components/FloatingNotes';
 import QuestionsClient from './QuestionsClient';
- 
 
 interface Question {
   _id: string;
@@ -32,19 +30,11 @@ interface SubTopicQuestionsPageProps {
 }
 
 async function getQuestions(subTopicName: string, exam?: string): Promise<QuestionItem[]> {
-  try {
-    let apiUrl: string;
-    if (exam) {
-      apiUrl = `/api/questions/all/exam/${encodeURIComponent(exam)}/subtopic/${encodeURIComponent(subTopicName)}`;
-    } else {
-      apiUrl = `/api/questions/all/subtopic/${encodeURIComponent(subTopicName)}`;
-    }
-    const data = await fetchFromApi(apiUrl) as QuestionItem[];
-    return data || [];
-  } catch (error) {
-    console.error('Error fetching questions:', error);
-    throw new Error('Failed to load questions. Please try again later.');
-  }
+  const apiUrl = exam
+    ? `/api/questions/all/exam/${encodeURIComponent(exam)}/subtopic/${encodeURIComponent(subTopicName)}`
+    : `/api/questions/all/subtopic/${encodeURIComponent(subTopicName)}`;
+  const data = await fetchFromApi(apiUrl) as QuestionItem[];
+  return data || [];
 }
 
 export default async function SubTopicQuestions({ params, searchParams }: SubTopicQuestionsPageProps) {
@@ -90,20 +80,16 @@ export default async function SubTopicQuestions({ params, searchParams }: SubTop
       <div className="min-h-screen bg-[#0A0E27] text-white">
         {/* Hero Section */}
         <section className="relative pt-20 pb-10 overflow-hidden">
-          {/* Subtle Background Pattern */}
           <div className="absolute inset-0 opacity-5" style={{
             backgroundImage: `radial-gradient(circle at 2px 2px, rgb(99, 102, 241) 1px, transparent 0)`,
             backgroundSize: '40px 40px'
           }}></div>
-          
-          {/* Gradient Glow */}
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-gradient-to-b from-[#6366F1] to-transparent rounded-full blur-[100px] opacity-20"></div>
           
           <div className="relative max-w-6xl mx-auto px-6 text-center z-10">
             <div className="hidden md:block">
               <FloatingNotes />
             </div>
-            
             <nav className="mb-6 text-sm text-gray-400" aria-label="Breadcrumb navigation">
               <Link href="/practice" className="hover:text-white transition-colors" aria-label="Go to practice topics">Practice</Link>
               <span className="mx-2" aria-hidden="true">/</span>
@@ -113,28 +99,23 @@ export default async function SubTopicQuestions({ params, searchParams }: SubTop
               <span className="mx-2" aria-hidden="true">/</span>
               <span className="text-[#6366F1] font-medium">{displaySubTopicName}</span>
             </nav>
-            
             <div className="inline-block mb-5 px-4 py-1.5 bg-[#6366F1] bg-opacity-10 backdrop-blur-sm border border-[#6366F1] border-opacity-30 rounded-full">
               <span className="text-xs font-bold text-[#ffffff] tracking-wider uppercase">Practice Questions</span>
             </div>
-            
             <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black mb-5 leading-[1.1] tracking-tight">
               <span className="block">{displaySubTopicName}</span>
               <span className="block bg-gradient-to-r from-[#6366F1] via-[#8B5CF6] to-[#EC4899] text-transparent bg-clip-text pb-3">Practice Questions</span>
             </h1>
-            
             <p className="text-base sm:text-lg text-gray-400 max-w-2xl mx-auto mb-8">
               Improve your understanding of {displaySubTopicName} with comprehensive practice questions, clear explanations, and AI-powered guidance from {displayTopicName} Topic.
             </p>
           </div>
         </section>
 
-        {/* Empty State Section */}
         <section className="relative py-12 bg-gradient-to-b from-[#0A0E27] to-[#1a1f3a]">
           <div className="max-w-6xl mx-auto px-6">
             <div className="text-center py-20 border-2 border-dashed border-gray-700 rounded-2xl bg-white bg-opacity-5">
-         
-              <h2 className="text-xl text-black font-bold mb-2">No Questions Yet</h2>
+              <h2 className="text-xl text-white font-bold mb-2">No Questions Yet</h2>
               <p className="text-gray-400">Check back soon for practice materials</p>
             </div>
           </div>
@@ -145,22 +126,17 @@ export default async function SubTopicQuestions({ params, searchParams }: SubTop
 
   return (
     <div className="min-h-screen bg-[#0A0E27] text-white">
-      {/* Hero Section */}
       <section className="relative pt-20 pb-10 overflow-hidden">
-        {/* Subtle Background Pattern */}
         <div className="absolute inset-0 opacity-5" style={{
           backgroundImage: `radial-gradient(circle at 2px 2px, rgb(99, 102, 241) 1px, transparent 0)`,
           backgroundSize: '40px 40px'
         }}></div>
-        
-        {/* Gradient Glow */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-gradient-to-b from-[#6366F1] to-transparent rounded-full blur-[100px] opacity-20"></div>
         
         <div className="relative max-w-6xl mx-auto px-6 text-center z-10">
           <div className="hidden md:block">
             <FloatingNotes />
           </div>
-          
           <nav className="mb-6 text-sm text-gray-400" aria-label="Breadcrumb navigation">
             <Link href="/practice" className="hover:text-white transition-colors" aria-label="Go to practice topics">Practice</Link>
             <span className="mx-2" aria-hidden="true">/</span>
@@ -170,20 +146,16 @@ export default async function SubTopicQuestions({ params, searchParams }: SubTop
             <span className="mx-2" aria-hidden="true">/</span>
             <span className="text-[#6366F1] font-medium">{displaySubTopicName}</span>
           </nav>
-          
-      
           <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black mb-2 leading-[1.1] tracking-tight">
             <span className="block">{displaySubTopicName}</span>
             <span className="block bg-gradient-to-r from-[#6366F1] via-[#8B5CF6] to-[#EC4899] text-transparent bg-clip-text pb-3">Practice Questions</span>
           </h1>
-          
           <p className="text-base sm:text-lg text-gray-400 max-w-2xl mx-auto mb-0">
             Improve your understanding of {displaySubTopicName} with comprehensive practice questions, clear explanations, and AI-powered guidance from {displayTopicName} Topic.
           </p>
         </div>
       </section>
 
-      {/* Questions Section */}
       <section className="relative py-12 bg-gradient-to-b from-[#0A0E27] to-[#1a1f3a]">
         <div className="max-w-6xl mx-auto px-6">
           <QuestionsClient 
@@ -191,6 +163,7 @@ export default async function SubTopicQuestions({ params, searchParams }: SubTop
             apiUrl={API_URL} 
             topicName={topicName}
             subTopicName={subTopicName}
+            exam={exam}
             currentPage={currentPage}
             questionsPerPage={questionsPerPage}
           />
