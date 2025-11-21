@@ -84,7 +84,7 @@ function CustomNavbar() {
         scrolled ? 'bg-white shadow-lg' : 'bg-white'
       }`}>
         <div className="max-w-full mx-auto px-4 sm:px-4 lg:px-4 mr-4 ml-4">
-          <div className="flex items-center justify-between  ">
+          <div className="flex items-center md:justify-around justify-between ">
             <Link href="/" className="flex-shrink-0 group">
               <Image src="/assets/logo.png" alt="PariksaHub Logo Image" width={150} height={50} />
             </Link>

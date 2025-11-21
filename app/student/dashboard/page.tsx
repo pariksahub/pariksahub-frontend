@@ -94,6 +94,14 @@ function StudentDashboard() {
     });
   };
 
+  const formatDisplayName = (name: string) => {
+    if (!name) return '';
+    return name
+      .split('-')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(' ');
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-[#0A0E27] flex items-center justify-center">
@@ -189,7 +197,7 @@ function StudentDashboard() {
                   >
                     <div className="flex justify-between items-start mb-2">
                       <div>
-                        <h3 className="text-white font-semibold">{result.subTopicName}</h3>
+                        <h3 className="text-white font-semibold">{formatDisplayName(result.subTopicName)}</h3>
                         <p className="text-gray-400 text-sm mt-1">
                           {formatDate(result.completedAt)}
                         </p>
@@ -244,9 +252,9 @@ function StudentDashboard() {
                   >
                     <div className="flex justify-between items-center">
                       <div>
-                        <h3 className="text-white font-semibold">{topic.topicName}</h3>
+                        <h3 className="text-white font-semibold">{formatDisplayName(topic.topicName)}</h3>
                         {topic.subTopicName && (
-                          <p className="text-gray-400 text-sm">{topic.subTopicName}</p>
+                          <p className="text-gray-400 text-sm">{formatDisplayName(topic.subTopicName)}</p>
                         )}
                       </div>
                       <p className="text-gray-500 text-xs">
