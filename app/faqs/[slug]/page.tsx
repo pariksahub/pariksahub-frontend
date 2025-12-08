@@ -155,6 +155,46 @@ export default async function FAQDetail({ params }: FAQDetailPageProps) {
               <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white mb-6">
                 Questions & Answers
               </h2>
+              
+              {/* Table of Contents */}
+              <div className="bg-[#161B33] border border-gray-800 rounded-2xl p-6 mb-8">
+                <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                  <HelpCircle className="w-5 h-5 text-[#6366F1]" aria-hidden="true" />
+                  Table of Contents
+                </h3>
+                <nav aria-label="Table of contents">
+                  <ol className="space-y-2">
+                    {questions.map((question, index) => {
+                      // Strip HTML from question to prevent unwanted highlighting and decode entities
+                      let plainQuestion = question.question.replace(/<[^>]*>/g, '');
+                      plainQuestion = plainQuestion
+                        .replace(/&lt;/g, '<')
+                        .replace(/&gt;/g, '>')
+                        .replace(/&amp;/g, '&')
+                        .replace(/&quot;/g, '"')
+                        .replace(/&#39;/g, "'")
+                        .replace(/&nbsp;/g, ' ');
+                      
+                      return (
+                        <li key={question._id || index}>
+                          <a
+                            href={`#question-${index}`}
+                            className="flex items-start gap-2 sm:gap-3 text-gray-300 hover:text-white transition-colors group"
+                          >
+                            <span className="text-sm font-bold text-[#6366F1] flex-shrink-0 mt-0.5">
+                              {index + 1}.
+                            </span>
+                            <span className="flex-1 group-hover:text-[#6366F1] transition-colors leading-relaxed">
+                              {plainQuestion}
+                            </span>
+                          </a>
+                        </li>
+                      );
+                    })}
+                  </ol>
+                </nav>
+              </div>
+              
               <FAQClient questions={questions} />
             </div>
           ) : (

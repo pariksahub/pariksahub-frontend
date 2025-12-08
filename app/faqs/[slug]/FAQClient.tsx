@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
+import { Copy, Check } from 'lucide-react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
@@ -56,9 +57,15 @@ function detectLanguage(code: string): string {
 }
 
 // Function to parse HTML and replace code blocks with syntax-highlighted versions
-function parseAnswerWithSyntaxHighlighting(html: string): React.ReactNode[] {
+function parseAnswerWithSyntaxHighlighting(
+  html: string, 
+  questionId: string,
+  onCopyCode: (code: string, blockId: string) => void,
+  copied: string | null
+): React.ReactNode[] {
   const parts: React.ReactNode[] = [];
   let lastIndex = 0;
+  let codeBlockIndex = 0;
   
   // Regex to match <pre><code>...</code></pre> blocks
   const codeBlockRegex = /<pre><code[^>]*>([\s\S]*?)<\/code><\/pre>/g;
@@ -85,14 +92,37 @@ function parseAnswerWithSyntaxHighlighting(html: string): React.ReactNode[] {
       .replace(/&gt;/g, '>')
       .replace(/&amp;/g, '&')
       .replace(/&quot;/g, '"')
-      .replace(/&#39;/g, "'");
+      .replace(/&#39;/g, "'")
+      .replace(/&nbsp;/g, ' ');
     
     // Detect language
     const language = detectLanguage(code);
+    const blockId = `${questionId}-code-${codeBlockIndex}`;
     
-    // Add syntax-highlighted code block
+    // Add syntax-highlighted code block with copy button
     parts.push(
       <div key={`code-${match.index}`} className="my-4">
+        <div className="flex items-center justify-between mb-2 pb-2 border-b border-gray-800">
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-mono text-gray-400 uppercase">{language}</span>
+          </div>
+          <button
+            onClick={() => onCopyCode(code, blockId)}
+            className="text-xs text-white hover:text-[#6366F1] flex items-center gap-1 cursor-pointer transition-colors"
+          >
+            {copied === blockId ? (
+              <>
+                <Check className="h-4 w-4 text-[#6366F1]" />
+                <span className="font-bold text-[#6366F1]">Copied</span>
+              </>
+            ) : (
+              <>
+                <Copy className="h-4 w-4" />
+                <span className="font-bold">Copy</span>
+              </>
+            )}
+          </button>
+        </div>
         <SyntaxHighlighter
           language={language}
           style={vscDarkPlus}
@@ -101,7 +131,7 @@ function parseAnswerWithSyntaxHighlighting(html: string): React.ReactNode[] {
             padding: '1rem',
             fontSize: '0.875rem',
             lineHeight: '1.5',
-            margin: '0.75rem 0',
+            margin: 0,
             backgroundColor: '#1e1e1e',
           }}
           PreTag="div"
@@ -112,6 +142,7 @@ function parseAnswerWithSyntaxHighlighting(html: string): React.ReactNode[] {
     );
     
     lastIndex = match.index + match[0].length;
+    codeBlockIndex++;
   }
   
   // Add remaining content after the last code block
@@ -141,6 +172,16 @@ function parseAnswerWithSyntaxHighlighting(html: string): React.ReactNode[] {
 }
 
 export default function FAQClient({ questions }: FAQClientProps) {
+  const [copied, setCopied] = useState<string | null>(null);
+
+  const copyCode = (code: string, id: string) => {
+    if (typeof window !== 'undefined' && navigator.clipboard) {
+      navigator.clipboard.writeText(code);
+      setCopied(id);
+      setTimeout(() => setCopied(null), 2000);
+    }
+  };
+
   return (
     <div className="space-y-6" role="list" aria-label="Frequently asked questions and answers">
       <style dangerouslySetInnerHTML={{
@@ -209,12 +250,17 @@ export default function FAQClient({ questions }: FAQClientProps) {
       }} />
       
       {questions.map((q, index) => {
-        const answerParts = useMemo(() => parseAnswerWithSyntaxHighlighting(q.answer), [q.answer]);
+        const questionId = q._id || `question-${index}`;
+        const answerParts = useMemo(() => 
+          parseAnswerWithSyntaxHighlighting(q.answer, questionId, copyCode, copied), 
+          [q.answer, questionId, copied]
+        );
         
         return (
           <article
+            id={`question-${index}`}
             key={q._id || index}
-            className="bg-[#161B33] rounded-xl border border-gray-800 p-6 sm:p-8 hover:border-[#6366F1] transition-all"
+            className="bg-[#161B33] rounded-xl border border-gray-800 p-6 sm:p-8 hover:border-[#6366F1] transition-all scroll-mt-20"
             aria-labelledby={`faq-question-${index}`}
             role="article"
           >
