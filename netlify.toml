@@ -1,6 +1,9 @@
 [build]
-  command = "npm install --force && npm run build"
+  command = "rm -rf package-lock.json node_modules && npm install --include=optional && npm run build"
   publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "20"
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
