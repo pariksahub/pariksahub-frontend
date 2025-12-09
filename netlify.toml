@@ -1,0 +1,8 @@
+[build]
+  command = "rm -rf package-lock.json node_modules && npm install --include=optional && npm run build"
+  publish = ".next"
+
+ 
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
