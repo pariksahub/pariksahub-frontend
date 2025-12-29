@@ -1,9 +1,9 @@
- 
+
 import Link from 'next/link';
-import { 
-  ArrowLeft, 
-  Target, 
-  FileText, 
+import {
+  ArrowLeft,
+  Target,
+  FileText,
   Calendar,
   CheckCircle,
   AlertCircle,
@@ -92,7 +92,7 @@ async function getExamPattern(slug: string): Promise<ExamPattern | null> {
 
 export default async function ExamPatternDetail({ params }: ExamPatternDetailPageProps) {
   const { slug } = await params;
-  
+
   let examPattern: ExamPattern | null = null;
   let error: string | null = null;
 
@@ -117,6 +117,7 @@ export default async function ExamPatternDetail({ params }: ExamPatternDetailPag
             The exam pattern you're looking for doesn't exist or has been removed.
           </p>
           <Link
+            prefetch
             href="/exam-patterns"
             className="inline-flex items-center px-6 py-2.5 text-sm font-bold text-white rounded-xl transition-colors hover:bg-[#5558E3] cursor-pointer bg-[#6366F1]"
           >
@@ -136,14 +137,15 @@ export default async function ExamPatternDetail({ params }: ExamPatternDetailPag
           backgroundImage: `radial-gradient(circle at 2px 2px, rgb(99, 102, 241) 1px, transparent 0)`,
           backgroundSize: '40px 40px'
         }}></div>
-        
+
         {/* Gradient Glow */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-gradient-to-b from-[#6366F1] to-transparent rounded-full blur-[100px] opacity-20"></div>
-        
+
         <div className="relative max-w-6xl mx-auto px-6 z-10">
           {/* Header */}
           <div className="no-print mb-3 sm:mb-6 print:hidden">
             <Link
+              prefetch
               href="/exam-patterns"
               className="text-sm text-gray-400 hover:text-white flex items-center gap-2 mb-2 sm:mb-4 transition-colors"
               aria-label="Back to exam patterns list"
@@ -173,11 +175,11 @@ export default async function ExamPatternDetail({ params }: ExamPatternDetailPag
                     </span>
                   )}
                 </div>
-                
+
                 <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white mb-1 sm:mb-2">
                   {examPattern.exam_name}
                 </h1>
-                
+
                 {examPattern.description && (
                   <p className="text-base sm:text-lg text-gray-400 mt-2 sm:mt-3 leading-relaxed">
                     {examPattern.description}
@@ -223,7 +225,7 @@ export default async function ExamPatternDetail({ params }: ExamPatternDetailPag
 
           {/* Info Cards Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-            
+
             {/* Marking Scheme */}
             <div className="bg-[#161B33] rounded-xl border border-gray-800 p-6">
               <div className="flex items-center mb-4">
@@ -276,9 +278,9 @@ export default async function ExamPatternDetail({ params }: ExamPatternDetailPag
                 {examPattern.exam_official_website && (
                   <div className="pt-2">
                     <span className="text-sm text-white/80 font-semibold block mb-1.5">Official Website</span>
-                    <a 
-                      href={examPattern.exam_official_website} 
-                      target="_blank" 
+                    <a
+                      href={examPattern.exam_official_website}
+                      target="_blank"
                       rel="noopener noreferrer"
                       className="text-sm font-medium hover:underline inline-flex items-center text-[#6366F1]"
                     >
@@ -311,73 +313,73 @@ export default async function ExamPatternDetail({ params }: ExamPatternDetailPag
               </div>
               <h2 className="text-lg font-bold text-white">Exam Sections</h2>
             </div>
-          
-          {examPattern.sections && examPattern.sections.length > 0 ? (
-            <div className="space-y-4">
-              {examPattern.sections.map((section, index) => (
-                <div key={index} className="border border-gray-800 rounded-xl p-5 bg-[#0A0E27] hover:border-[#6366F1] transition-all">
-                  <div className="mb-4">
-                    <h3 className="text-base font-bold text-white mb-1">
-                      {section.section_name}
-                    </h3>
-              
-                  </div>
-                  
-                  <div className="grid grid-cols-3 gap-3 mb-4 pb-4 border-b border-gray-800">
-                    <div className="text-center">
-                      <div className="text-xl font-bold text-white">{section.questions}</div>
-                      <div className="text-xs text-gray-400 font-semibold mt-0.5">Questions</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-xl font-bold text-white">{section.total_marks}</div>
-                      <div className="text-xs text-gray-400 font-semibold mt-0.5">Marks</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-xl font-bold text-white">{section.duration}</div>
-                      <div className="text-xs text-gray-400 font-semibold mt-0.5">Minutes</div>
-                    </div>
-                  </div>
-                  
-                  {section.topics && section.topics.length > 0 && (
-                    <div className="mb-4">
-                      <h4 className="text-sm font-bold text-white mb-3">Topics Covered</h4>
-                      <div className="space-y-2">
-                        {section.topics.map((topic, topicIndex) => (
-                          <div key={topicIndex} className="flex items-center justify-between text-sm">
-                            <span className="text-white/80 flex items-center font-semibold">
-                              <span className="w-1.5 h-1.5 rounded-full mr-2 bg-[#6366F1]"></span>
-                              {topic.topic_name}
-                            </span>
-                            <span className="text-xs px-2 py-1 bg-[#161B33] text-white border border-gray-700 font-semibold rounded">
-                              {topic.difficulty_level}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
 
-                  {section.question_types && section.question_types.length > 0 && (
-                    <div>
-                      <h4 className="text-sm font-bold text-white mb-2">Question Types</h4>
-                      <div className="flex flex-wrap gap-2">
-                        {section.question_types.map((type, typeIndex) => (
-                          <span key={typeIndex} className="px-3 py-1.5 bg-[#6366F1] text-white rounded-lg text-xs font-bold">
-                            {type}
-                          </span>
-                        ))}
+            {examPattern.sections && examPattern.sections.length > 0 ? (
+              <div className="space-y-4">
+                {examPattern.sections.map((section, index) => (
+                  <div key={index} className="border border-gray-800 rounded-xl p-5 bg-[#0A0E27] hover:border-[#6366F1] transition-all">
+                    <div className="mb-4">
+                      <h3 className="text-base font-bold text-white mb-1">
+                        {section.section_name}
+                      </h3>
+
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-3 mb-4 pb-4 border-b border-gray-800">
+                      <div className="text-center">
+                        <div className="text-xl font-bold text-white">{section.questions}</div>
+                        <div className="text-xs text-gray-400 font-semibold mt-0.5">Questions</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-xl font-bold text-white">{section.total_marks}</div>
+                        <div className="text-xs text-gray-400 font-semibold mt-0.5">Marks</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-xl font-bold text-white">{section.duration}</div>
+                        <div className="text-xs text-gray-400 font-semibold mt-0.5">Minutes</div>
                       </div>
                     </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-12">
-              <FileText className="h-12 w-12 text-gray-400 mx-auto mb-3" />
-              <p className="text-sm text-gray-400 font-semibold">No sections available</p>
-            </div>
-          )}
+
+                    {section.topics && section.topics.length > 0 && (
+                      <div className="mb-4">
+                        <h4 className="text-sm font-bold text-white mb-3">Topics Covered</h4>
+                        <div className="space-y-2">
+                          {section.topics.map((topic, topicIndex) => (
+                            <div key={topicIndex} className="flex items-center justify-between text-sm">
+                              <span className="text-white/80 flex items-center font-semibold">
+                                <span className="w-1.5 h-1.5 rounded-full mr-2 bg-[#6366F1]"></span>
+                                {topic.topic_name}
+                              </span>
+                              <span className="text-xs px-2 py-1 bg-[#161B33] text-white border border-gray-700 font-semibold rounded">
+                                {topic.difficulty_level}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {section.question_types && section.question_types.length > 0 && (
+                      <div>
+                        <h4 className="text-sm font-bold text-white mb-2">Question Types</h4>
+                        <div className="flex flex-wrap gap-2">
+                          {section.question_types.map((type, typeIndex) => (
+                            <span key={typeIndex} className="px-3 py-1.5 bg-[#6366F1] text-white rounded-lg text-xs font-bold">
+                              {type}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <FileText className="h-12 w-12 text-gray-400 mx-auto mb-3" />
+                <p className="text-sm text-gray-400 font-semibold">No sections available</p>
+              </div>
+            )}
           </div>
 
           {/* Eligibility Criteria */}
@@ -429,7 +431,7 @@ export default async function ExamPatternDetail({ params }: ExamPatternDetailPag
                 </div>
                 <h2 className="text-lg font-bold text-white">Preparation Strategy</h2>
               </div>
-              
+
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div>
                   {examPattern.preparation_strategy.recommended_study_time && (
@@ -441,7 +443,7 @@ export default async function ExamPatternDetail({ params }: ExamPatternDetailPag
                       <p className="text-sm text-white/80 font-medium">{examPattern.preparation_strategy.recommended_study_time}</p>
                     </div>
                   )}
-                  
+
                   {examPattern.preparation_strategy.important_topics && examPattern.preparation_strategy.important_topics.length > 0 && (
                     <div>
                       <h4 className="text-sm font-bold text-white mb-3">Important Topics</h4>
@@ -520,10 +522,9 @@ export default async function ExamPatternDetail({ params }: ExamPatternDetailPag
                     <Award className="h-4 w-4 text-[#6366F1]" />
                   </div>
                   <div className="flex items-center">
-                    <div className={`w-2 h-2 rounded-full mr-2 ${
-                      examPattern.difficulty_level === 'Easy' ? 'bg-emerald-500' :
+                    <div className={`w-2 h-2 rounded-full mr-2 ${examPattern.difficulty_level === 'Easy' ? 'bg-emerald-500' :
                       examPattern.difficulty_level === 'Medium' ? 'bg-amber-500' : 'bg-red-500'
-                    }`}></div>
+                      }`}></div>
                     <span className="text-sm font-bold text-white">{examPattern.difficulty_level}</span>
                   </div>
                 </div>
@@ -536,10 +537,9 @@ export default async function ExamPatternDetail({ params }: ExamPatternDetailPag
                     <TrendingUp className="h-4 w-4 text-[#6366F1]" />
                   </div>
                   <div className="flex items-center">
-                    <div className={`w-2 h-2 rounded-full mr-2 ${
-                      examPattern.competition_level === 'Low' ? 'bg-emerald-500' :
+                    <div className={`w-2 h-2 rounded-full mr-2 ${examPattern.competition_level === 'Low' ? 'bg-emerald-500' :
                       examPattern.competition_level === 'Medium' ? 'bg-amber-500' : 'bg-red-500'
-                    }`}></div>
+                      }`}></div>
                     <span className="text-sm font-bold text-white">{examPattern.competition_level}</span>
                   </div>
                 </div>

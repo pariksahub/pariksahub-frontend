@@ -41,7 +41,7 @@ async function getFAQ(slug: string): Promise<FAQ | null> {
 
 export default async function FAQDetail({ params }: FAQDetailPageProps) {
   const { slug } = await params;
-  
+
   let faq: FAQ | null = null;
   let error: string | null = null;
 
@@ -58,10 +58,11 @@ export default async function FAQDetail({ params }: FAQDetailPageProps) {
     return (
       <div className="min-h-screen bg-[#0A0E27] flex items-center justify-center p-4">
         <main className="text-center max-w-md mx-auto px-4">
-       
+
           <h1 className="text-2xl font-bold text-white mb-2">FAQ Not Found</h1>
           <p className="text-gray-400 mb-6">The FAQ you're looking for doesn't exist.</p>
           <Link
+            prefetch
             href="/faqs"
             className="inline-block bg-[#6366F1] text-white font-bold px-6 py-3 rounded-xl hover:bg-[#5558E3] transition duration-300"
             aria-label="Back to FAQs"
@@ -74,7 +75,7 @@ export default async function FAQDetail({ params }: FAQDetailPageProps) {
   }
 
   // Sort questions by order
-  const questions = faq.questions && faq.questions.length > 0 
+  const questions = faq.questions && faq.questions.length > 0
     ? faq.questions.sort((a, b) => (a.order || 0) - (b.order || 0))
     : [];
 
@@ -87,15 +88,16 @@ export default async function FAQDetail({ params }: FAQDetailPageProps) {
           backgroundImage: `radial-gradient(circle at 2px 2px, rgb(99, 102, 241) 1px, transparent 0)`,
           backgroundSize: '40px 40px'
         }}></div>
-        
+
         {/* Gradient Glow */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-gradient-to-b from-[#6366F1] to-transparent rounded-full blur-[100px] opacity-20"></div>
-        
+
         <div className="relative max-w-4xl mx-auto px-6 z-10">
           {/* Header */}
           <div className="mb-3 sm:mb-6">
             <nav aria-label="Breadcrumb navigation">
               <Link
+                prefetch
                 href="/faqs"
                 className="text-sm text-gray-400 hover:text-white flex items-center gap-2 mb-2 sm:mb-4 transition-colors"
                 aria-label="Back to FAQs"
@@ -109,7 +111,7 @@ export default async function FAQDetail({ params }: FAQDetailPageProps) {
           {/* Title Section */}
           <div className="border-b-4 border-[#6366F1] pb-2 mb-2">
             <div className="flex items-start gap-4">
-               
+
               <div className="flex-1">
                 <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white mb-2">
                   {faq.topic_title}
@@ -155,7 +157,7 @@ export default async function FAQDetail({ params }: FAQDetailPageProps) {
               <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white mb-6">
                 Questions & Answers
               </h2>
-              
+
               {/* Table of Contents */}
               <div className="bg-[#161B33] border border-gray-800 rounded-2xl p-6 mb-8">
                 <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
@@ -174,7 +176,7 @@ export default async function FAQDetail({ params }: FAQDetailPageProps) {
                         .replace(/&quot;/g, '"')
                         .replace(/&#39;/g, "'")
                         .replace(/&nbsp;/g, ' ');
-                      
+
                       return (
                         <li key={question._id || index}>
                           <a
@@ -194,7 +196,7 @@ export default async function FAQDetail({ params }: FAQDetailPageProps) {
                   </ol>
                 </nav>
               </div>
-              
+
               <FAQClient questions={questions} />
             </div>
           ) : (
@@ -207,6 +209,7 @@ export default async function FAQDetail({ params }: FAQDetailPageProps) {
           {/* Back to FAQs */}
           <div className="mt-12 pt-8 border-t border-gray-800">
             <Link
+              prefetch
               href="/faqs"
               className="inline-flex items-center gap-2 text-[#6366F1] hover:text-[#8B5CF6] font-bold transition-colors"
               aria-label="See other FAQs"

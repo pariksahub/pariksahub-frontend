@@ -105,7 +105,7 @@ function OnlineTest() {
 
   useEffect(() => {
     if (timeLeft <= 0 || isFinished || questions.length === 0) return;
-    
+
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) {
@@ -116,7 +116,7 @@ function OnlineTest() {
         return prev - 1;
       });
     }, 1000);
-    
+
     return () => clearInterval(timer);
   }, [timeLeft, isFinished, questions, answers, calculateScore, finishTest]);
 
@@ -160,6 +160,7 @@ function OnlineTest() {
           <h1 className="text-2xl font-bold text-white mb-2">Something Went Wrong</h1>
           <p className="text-gray-400 mb-6">{error}</p>
           <Link
+            prefetch
             href="/test-topics"
             className="bg-[#6366F1] text-white font-bold px-6 py-3 rounded-xl hover:bg-[#5558E3] transition duration-300 inline-block"
             aria-label="Go back to test topics"
@@ -187,6 +188,7 @@ function OnlineTest() {
               {score.total - score.answered} questions were skipped
             </div>
             <Link
+              prefetch
               href="/test-topics"
               className="inline-block px-8 py-3 bg-gradient-to-r from-[#6366F1] to-[#8B5CF6] text-white rounded-xl font-semibold text-lg hover:from-[#5558E3] hover:to-[#7C3AED] transform hover:scale-105 transition-all duration-200 shadow-lg"
             >
@@ -202,30 +204,28 @@ function OnlineTest() {
                 const isAnswered = Boolean(selectedOptionId && selectedOptionId.trim());
                 const selectedOption = isAnswered ? item.options.find(opt => opt._id === selectedOptionId) : null;
                 const isCorrect = selectedOption ? selectedOption.option_text === item.question.answer : false;
-                
+
                 return (
-                  <div key={item.question._id} className={`p-4 rounded-xl border-2 ${
-                    !isAnswered
-                      ? 'bg-yellow-500/10 border-yellow-500/30'
-                      : isCorrect 
-                        ? 'bg-green-500/10 border-green-500/30' 
-                        : 'bg-red-500/10 border-red-500/30'
-                  }`}>
+                  <div key={item.question._id} className={`p-4 rounded-xl border-2 ${!isAnswered
+                    ? 'bg-yellow-500/10 border-yellow-500/30'
+                    : isCorrect
+                      ? 'bg-green-500/10 border-green-500/30'
+                      : 'bg-red-500/10 border-red-500/30'
+                    }`}>
                     <div className="flex items-start gap-3">
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0 ${
-                        !isAnswered 
-                          ? 'bg-yellow-500' 
-                          : isCorrect 
-                            ? 'bg-green-500' 
-                            : 'bg-red-500'
-                      }`}>
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0 ${!isAnswered
+                        ? 'bg-yellow-500'
+                        : isCorrect
+                          ? 'bg-green-500'
+                          : 'bg-red-500'
+                        }`}>
                         {index + 1}
                       </div>
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
-                          <div 
+                          <div
                             className="text-lg font-medium text-white quill-content"
-                            dangerouslySetInnerHTML={{ __html: item.question.question }} 
+                            dangerouslySetInnerHTML={{ __html: item.question.question }}
                           />
                           {!isAnswered && (
                             <span className="text-yellow-400 font-semibold text-sm bg-yellow-500/20 px-2 py-1 rounded-full border border-yellow-500/30">
@@ -233,33 +233,31 @@ function OnlineTest() {
                             </span>
                           )}
                         </div>
-                        
+
                         <div className="space-y-2">
                           {item.options.map((option, optIndex) => {
                             const isSelected = selectedOptionId === option._id;
                             const isCorrectOption = option.option_text === item.question.answer;
-                            
+
                             return (
-                              <div key={option._id} className={`p-3 rounded-lg border ${
-                                isCorrectOption 
-                                  ? 'bg-green-500/10 border-green-500/30 text-green-300 font-medium' 
-                                  : isSelected 
-                                    ? 'bg-red-500/10 border-red-500/30 text-red-300' 
-                                    : 'bg-gray-800/50 border-gray-700 text-gray-400'
-                              }`}>
+                              <div key={option._id} className={`p-3 rounded-lg border ${isCorrectOption
+                                ? 'bg-green-500/10 border-green-500/30 text-green-300 font-medium'
+                                : isSelected
+                                  ? 'bg-red-500/10 border-red-500/30 text-red-300'
+                                  : 'bg-gray-800/50 border-gray-700 text-gray-400'
+                                }`}>
                                 <div className="flex items-center gap-2">
-                                  <span className={`w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold ${
-                                    isCorrectOption 
-                                      ? 'bg-green-500 text-white' 
-                                      : isSelected 
-                                        ? 'bg-red-500 text-white' 
-                                        : 'bg-gray-700 text-gray-400'
-                                  }`}>
+                                  <span className={`w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold ${isCorrectOption
+                                    ? 'bg-green-500 text-white'
+                                    : isSelected
+                                      ? 'bg-red-500 text-white'
+                                      : 'bg-gray-700 text-gray-400'
+                                    }`}>
                                     {String.fromCharCode(65 + optIndex)}
                                   </span>
-                                  <span 
+                                  <span
                                     className="quill-content flex-1"
-                                    dangerouslySetInnerHTML={{ __html: option.option_text }} 
+                                    dangerouslySetInnerHTML={{ __html: option.option_text }}
                                   />
                                   {isCorrectOption && (
                                     <span className="text-green-400 font-semibold text-sm flex items-center gap-1">
@@ -298,6 +296,7 @@ function OnlineTest() {
           <h2 className="text-2xl font-bold text-white mb-2">No Questions Available</h2>
           <p className="text-gray-400 mb-6">Questions will appear here once they are added for this subtopic.</p>
           <Link
+            prefetch
             href="/test-topics"
             className="inline-block px-6 py-2 bg-gradient-to-r from-[#6366F1] to-[#8B5CF6] text-white rounded-lg font-semibold hover:from-[#5558E3] hover:to-[#7C3AED] transition-all"
           >
@@ -331,7 +330,7 @@ function OnlineTest() {
               </div>
             </div>
             <div className="mt-2 bg-gray-800 rounded-full h-1.5">
-              <div 
+              <div
                 className="bg-gradient-to-r from-[#6366F1] to-[#8B5CF6] rounded-full h-1.5 transition-all duration-500"
                 style={{ width: `${((currentQuestionIndex + 1) / questions.length) * 100}%` }}
               ></div>
@@ -339,13 +338,13 @@ function OnlineTest() {
           </div>
 
           <div className="flex-1 p-3 sm:p-4 overflow-y-auto">
-            <div 
-              className="text-lg sm:text-xl font-medium text-white mb-4 sm:mb-6 leading-relaxed bg-[#1a1f3a] border border-gray-700 p-4 sm:p-6 rounded-xl border-l-4 border-l-[#6366F1] shadow-lg text-[1.125rem] quill-content" 
-              dangerouslySetInnerHTML={{ __html: currentQuestion.question.question }} 
+            <div
+              className="text-lg sm:text-xl font-medium text-white mb-4 sm:mb-6 leading-relaxed bg-[#1a1f3a] border border-gray-700 p-4 sm:p-6 rounded-xl border-l-4 border-l-[#6366F1] shadow-lg text-[1.125rem] quill-content"
+              dangerouslySetInnerHTML={{ __html: currentQuestion.question.question }}
             />
             {currentQuestion.question.question_image_url && (
               <div className="mb-3 sm:mb-4">
-                <img 
+                <img
                   src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/${currentQuestion.question.question_image_url}`}
                   alt="Question"
                   className="max-w-full h-auto rounded-xl shadow-lg border border-gray-700"
@@ -357,31 +356,29 @@ function OnlineTest() {
                 <button
                   key={option._id}
                   onClick={() => handleAnswer(currentQuestion.question._id, option._id)}
-                  className={`group w-full p-3 text-left rounded-xl border-2 transition-all duration-200 cursor-pointer ${
-                    answers[currentQuestion.question._id] === option._id
-                      ? 'border-[#6366F1] bg-[#6366F1]/10 shadow-lg shadow-[#6366F1]/20'
-                      : 'border-gray-700 bg-[#1a1f3a] hover:border-[#6366F1]/50 hover:bg-[#6366F1]/5 hover:shadow-md'
-                  }`}
+                  className={`group w-full p-3 text-left rounded-xl border-2 transition-all duration-200 cursor-pointer ${answers[currentQuestion.question._id] === option._id
+                    ? 'border-[#6366F1] bg-[#6366F1]/10 shadow-lg shadow-[#6366F1]/20'
+                    : 'border-gray-700 bg-[#1a1f3a] hover:border-[#6366F1]/50 hover:bg-[#6366F1]/5 hover:shadow-md'
+                    }`}
                 >
                   <div className="flex items-center space-x-3">
-                    <div className={`w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center text-xs sm:text-sm font-bold transition-all flex-shrink-0 ${
-                      answers[currentQuestion.question._id] === option._id
-                        ? 'bg-gradient-to-r from-[#6366F1] to-[#8B5CF6] text-white'
-                        : 'bg-gray-700 text-gray-400 group-hover:bg-gray-600'
-                    }`}>
+                    <div className={`w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center text-xs sm:text-sm font-bold transition-all flex-shrink-0 ${answers[currentQuestion.question._id] === option._id
+                      ? 'bg-gradient-to-r from-[#6366F1] to-[#8B5CF6] text-white'
+                      : 'bg-gray-700 text-gray-400 group-hover:bg-gray-600'
+                      }`}>
                       {String.fromCharCode(65 + index)}
                     </div>
                     <div className="flex-1 min-w-0">
                       {option.option_type === 'text' ? (
-                        <span 
+                        <span
                           className="text-white text-sm sm:text-base block font-normal quill-content"
-                          dangerouslySetInnerHTML={{ __html: option.option_text }} 
+                          dangerouslySetInnerHTML={{ __html: option.option_text }}
                         />
                       ) : (
                         <>
                           {option.option_text && <span className="text-white text-sm sm:text-base block mb-2 font-normal">{option.option_text}</span>}
                           {option.path_url && (
-                            <img 
+                            <img
                               src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/${option.path_url}`}
                               alt="Option"
                               className="max-w-full sm:max-w-xs h-auto rounded-lg border border-gray-700"
@@ -395,7 +392,7 @@ function OnlineTest() {
               ))}
             </div>
           </div>
-          
+
           <div className="bg-[#1a1f3a] border-t border-gray-700 px-3 sm:px-4 py-3 flex justify-between items-center flex-shrink-0 rounded-b-2xl">
             <button
               onClick={() => setCurrentQuestionIndex(prev => Math.max(0, prev - 1))}

@@ -58,7 +58,7 @@ export default async function SubTopics({ params, searchParams }: PracticeSubtop
   const { topicName } = await params;
   const { search, exam } = await searchParams;
   const selectedExam = exam || '';
-  
+
   let subtopics: Subtopic[] = [];
   let exams: Exam[] = [];
   let error: string | null = null;
@@ -76,10 +76,11 @@ export default async function SubTopics({ params, searchParams }: PracticeSubtop
     return (
       <div className="min-h-screen bg-[#0A0E27] flex items-center justify-center p-4">
         <main className="text-center max-w-md mx-auto px-4">
-          
+
           <h1 className="text-2xl font-bold text-white mb-2">Something Went Wrong</h1>
           <p className="text-gray-400 mb-6">{error}</p>
           <Link
+            prefetch
             href={`/practice/${topicName}`}
             className="bg-[#6366F1] text-white font-bold px-6 py-3 rounded-xl hover:bg-[#5558E3] transition duration-300 inline-block"
             aria-label="Try loading subtopics again"
@@ -102,10 +103,10 @@ export default async function SubTopics({ params, searchParams }: PracticeSubtop
           backgroundSize: '40px 40px'
         }}></div>
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-gradient-to-b from-[#6366F1] to-transparent rounded-full blur-[100px] opacity-20"></div>
-        
+
         <div className="relative max-w-6xl mx-auto px-6 text-center z-10">
           <nav className="mb-6 text-sm text-gray-400" aria-label="Breadcrumb navigation">
-            <Link href="/practice" className="hover:text-white transition-colors" aria-label="Go to practice topics">Practice</Link>
+            <Link href="/practice" className="hover:text-white transition-colors" aria-label="Go to practice topics" prefetch>Practice</Link>
             <span className="mx-2" aria-hidden="true">/</span>
             <span className="text-[#6366F1] font-medium">{formatDisplayText(topicName)}</span>
           </nav>
@@ -115,50 +116,50 @@ export default async function SubTopics({ params, searchParams }: PracticeSubtop
           <p className="text-base sm:text-lg text-gray-400 max-w-2xl mx-auto mb-8">
             Choose a specific topic to practice and master your skills. Select from the available topics below to start practicing.
           </p>
-          
+
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 justify-center max-w-2xl mx-auto">
-              <ExamFilter 
-                topicName={topicName}
-                exams={exams}
-                selectedExam={selectedExam}
-                search={search}
-              />
-              <div className="relative flex-1 sm:max-w-md">
-                <form action={`/practice/${topicName}`} method="get" className="relative">
-                  <input type="hidden" name="exam" value={selectedExam} />
-                  <div className={`relative bg-[#161B33] border rounded-lg transition-all duration-300 ${
-                    search ? 'border-[#6366F1] ring-2 ring-[#6366F1]/20' : 'border-gray-800'
+            <ExamFilter
+              topicName={topicName}
+              exams={exams}
+              selectedExam={selectedExam}
+              search={search}
+            />
+            <div className="relative flex-1 sm:max-w-md">
+              <form action={`/practice/${topicName}`} method="get" className="relative">
+                <input type="hidden" name="exam" value={selectedExam} />
+                <div className={`relative bg-[#161B33] border rounded-lg transition-all duration-300 ${search ? 'border-[#6366F1] ring-2 ring-[#6366F1]/20' : 'border-gray-800'
                   }`}>
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <Search className="h-5 w-5 text-gray-400" aria-hidden="true" />
-                    </div>
-                    <input
-                      type="text"
-                      name="search"
-                      defaultValue={search || ''}
-                      placeholder="Search subtopics..."
-                      className="block w-full pl-10 pr-10 py-2.5 text-white placeholder-gray-500 bg-transparent focus:outline-none focus:ring-0 text-sm"
-                      aria-label="Search subtopics by name"
-                    />
-                    {search && (
-                      <Link
-                        href={`/practice/${topicName}${selectedExam ? `?exam=${encodeURIComponent(selectedExam)}` : ''}`}
-                        className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-white transition-colors"
-                        aria-label="Clear search"
-                      >
-                        <X className="h-4 w-4" aria-hidden="true" />
-                      </Link>
-                    )}
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Search className="h-5 w-5 text-gray-400" aria-hidden="true" />
                   </div>
-                  <button type="submit" className="sr-only" aria-label="Submit search">Search</button>
-                </form>
-                {search && (
-                  <div className="absolute top-full left-0 mt-2 text-sm text-gray-400">
-                    {filteredSubtopics.length} subtopic{filteredSubtopics.length !== 1 ? 's' : ''} found
-                  </div>
-                )}
-              </div>
+                  <input
+                    type="text"
+                    name="search"
+                    defaultValue={search || ''}
+                    placeholder="Search subtopics..."
+                    className="block w-full pl-10 pr-10 py-2.5 text-white placeholder-gray-500 bg-transparent focus:outline-none focus:ring-0 text-sm"
+                    aria-label="Search subtopics by name"
+                  />
+                  {search && (
+                    <Link
+                      prefetch
+                      href={`/practice/${topicName}${selectedExam ? `?exam=${encodeURIComponent(selectedExam)}` : ''}`}
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-white transition-colors"
+                      aria-label="Clear search"
+                    >
+                      <X className="h-4 w-4" aria-hidden="true" />
+                    </Link>
+                  )}
+                </div>
+                <button type="submit" className="sr-only" aria-label="Submit search">Search</button>
+              </form>
+              {search && (
+                <div className="absolute top-full left-0 mt-2 text-sm text-gray-400">
+                  {filteredSubtopics.length} subtopic{filteredSubtopics.length !== 1 ? 's' : ''} found
+                </div>
+              )}
             </div>
+          </div>
         </div>
       </section>
 
@@ -174,6 +175,7 @@ export default async function SubTopics({ params, searchParams }: PracticeSubtop
                 No subtopics match your search for "{search}". Try a different search term.
               </p>
               <Link
+                prefetch
                 href={`/practice/${topicName}${selectedExam ? `?exam=${encodeURIComponent(selectedExam)}` : ''}`}
                 className="px-6 py-2.5 rounded-xl text-sm font-bold text-white transition-all hover:bg-[#5558E3] bg-[#6366F1] inline-block"
                 aria-label="Clear search and show all subtopics"
@@ -199,11 +201,12 @@ export default async function SubTopics({ params, searchParams }: PracticeSubtop
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                     {categorySubtopics.map((subtopic, index) => {
-                      const targetRoute = selectedExam 
+                      const targetRoute = selectedExam
                         ? `/practice/${topicName}/${subtopic.subtopic_name}?exam=${encodeURIComponent(selectedExam)}`
                         : `/practice/${topicName}/${subtopic.subtopic_name}`;
                       return (
                         <Link
+                          prefetch
                           key={subtopic._id}
                           href={targetRoute}
                           className="group relative bg-[#161B33] rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 flex flex-col border border-gray-700 hover:border-[#6366F1] shadow-lg shadow-[#6366F1]/20 hover:shadow-2xl hover:shadow-[#6366F1]/50 min-h-[200px]"

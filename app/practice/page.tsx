@@ -29,10 +29,11 @@ export default async function Practice() {
     return (
       <div className="min-h-screen bg-[#0A0E27] flex items-center justify-center p-4">
         <main className="text-center max-w-md mx-auto px-4">
-          
+
           <h1 className="text-2xl font-bold text-white mb-2">Something Went Wrong</h1>
           <p className="text-gray-400 mb-6">{error}</p>
           <Link
+            prefetch
             href="/practice"
             className="bg-[#6366F1] text-white font-bold px-6 py-3 rounded-xl hover:bg-[#5558E3] transition duration-300 inline-block"
             aria-label="Try loading practice topics again"
@@ -52,7 +53,7 @@ export default async function Practice() {
           backgroundSize: '40px 40px'
         }}></div>
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-gradient-to-b from-[#6366F1] to-transparent rounded-full blur-[100px] opacity-20"></div>
-        
+
         <div className="relative max-w-6xl mx-auto px-6 text-center z-10">
           <div className="inline-block mb-5 px-4 py-1.5 bg-[#6366F1] bg-opacity-10 backdrop-blur-sm border border-[#6366F1] border-opacity-30 rounded-full">
             <span className="text-xs font-bold text-[#ffffff] tracking-wider uppercase">Practice Resources</span>
@@ -75,7 +76,7 @@ export default async function Practice() {
               {topics.length} Topics Ready
             </h2>
           </div>
-          
+
           {topics.length === 0 ? (
             <div className="text-center py-20 border-2 border-dashed border-gray-700 rounded-2xl bg-white bg-opacity-5">
               <h3 className="text-xl font-bold mb-2">No Topics Yet</h3>
@@ -85,6 +86,7 @@ export default async function Practice() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
               {topics.map((topic, index) => (
                 <Link
+                  prefetch
                   key={topic._id}
                   href={`/practice/${topic.topic_name}`}
                   className="group relative bg-[#161B33] rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 flex flex-col border border-gray-700 hover:border-[#6366F1] shadow-lg shadow-[#6366F1]/20 hover:shadow-2xl hover:shadow-[#6366F1]/50 min-h-[200px]"

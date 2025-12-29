@@ -65,7 +65,7 @@ function filterExamPatterns(examPatterns: ExamPattern[], search?: string, exam_l
 
   if (search) {
     const searchTerm = search.toLowerCase();
-    filtered = filtered.filter(exam => 
+    filtered = filtered.filter(exam =>
       exam.exam_name.toLowerCase().includes(searchTerm) ||
       exam.exam_level.toLowerCase().includes(searchTerm) ||
       exam.exam_mode.toLowerCase().includes(searchTerm) ||
@@ -114,6 +114,7 @@ export default async function ExamPatterns({ searchParams }: ExamPatternsPagePro
           <h1 className="text-2xl font-bold text-white mb-2">Something Went Wrong</h1>
           <p className="text-gray-400 mb-6">{error}</p>
           <Link
+            prefetch
             href="/exam-patterns"
             className="bg-[#6366F1] text-white font-bold px-6 py-3 rounded-xl hover:bg-[#5558E3] transition duration-300 inline-block"
             aria-label="Try loading exam patterns again"
@@ -136,23 +137,23 @@ export default async function ExamPatterns({ searchParams }: ExamPatternsPagePro
           backgroundImage: `radial-gradient(circle at 2px 2px, rgb(99, 102, 241) 1px, transparent 0)`,
           backgroundSize: '40px 40px'
         }}></div>
-        
+
         {/* Gradient Glow */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-gradient-to-b from-[#6366F1] to-transparent rounded-full blur-[100px] opacity-20"></div>
-        
+
         <div className="relative max-w-6xl mx-auto px-6 text-center z-10">
           <div className="inline-block mb-5 px-4 py-1.5 bg-[#6366F1] bg-opacity-10 backdrop-blur-sm border border-[#6366F1] border-opacity-30 rounded-full">
             <span className="text-xs font-bold text-[#ffffff] tracking-wider uppercase">Exam Patterns</span>
           </div>
-          
+
           <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black mb-5 leading-[1.1] tracking-tight">
             Exam Patterns & <span className="bg-gradient-to-r from-[#6366F1] via-[#8B5CF6] to-[#EC4899] text-transparent bg-clip-text">Syllabus</span>
           </h1>
-          
+
           <p className="text-base sm:text-lg text-gray-400 max-w-2xl mx-auto mb-8">
             Comprehensive guide for SSC, RRB, Banking, UPSC and other competitive exams. Get detailed exam patterns, marking schemes, and syllabus information.
           </p>
-          
+
           {/* Search and Filter */}
           <div className="max-w-2xl mx-auto">
             <SearchForm search={search} examLevels={filterOptions.examLevels} selectedLevel={exam_level} />
@@ -170,10 +171,11 @@ export default async function ExamPatterns({ searchParams }: ExamPatternsPagePro
                 Featured Exams
               </h2>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
               {featuredExams.map((exam, index) => (
                 <Link
+                  prefetch
                   key={exam._id}
                   href={`/exam-patterns/${exam.slug}`}
                   className="group relative bg-[#161B33] rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 flex flex-col border border-gray-700 hover:border-[#6366F1] shadow-lg shadow-[#6366F1]/20 hover:shadow-2xl hover:shadow-[#6366F1]/50 min-h-[200px]"
@@ -181,19 +183,19 @@ export default async function ExamPatterns({ searchParams }: ExamPatternsPagePro
                 >
                   {/* Gradient Overlay */}
                   <div className="absolute inset-0 bg-gradient-to-br from-[#6366F1]/10 via-transparent to-[#EC4899]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  
+
                   <div className="relative p-6 flex flex-col flex-grow">
                     {/* Index Number */}
                     <div className="absolute top-4 right-4 text-5xl font-black text-white opacity-40 group-hover:opacity-50 transition-opacity">
                       {String(index + 1).padStart(2, '0')}
                     </div>
-                    
+
                     {/* Title */}
                     <h3 className="text-xl font-bold mb-3 line-clamp-2 leading-snug relative z-10 pr-8">
                       {exam.exam_name}
                     </h3>
                     <p className="text-sm text-gray-400 mb-auto relative z-10">
-                      
+
                     </p>
 
                     {/* Footer */}
@@ -227,7 +229,7 @@ export default async function ExamPatterns({ searchParams }: ExamPatternsPagePro
               </h2>
             </div>
           </div>
-          
+
           {examPatterns.length === 0 ? (
             <div className="text-center py-20 border-2 border-dashed border-gray-800 rounded-2xl bg-[#161B33]">
               <div className="w-16 h-16 rounded-xl bg-[#0A0E27] border border-gray-800 mx-auto mb-4 flex items-center justify-center">
@@ -236,6 +238,7 @@ export default async function ExamPatterns({ searchParams }: ExamPatternsPagePro
               <h3 className="text-xl font-bold mb-2 text-white">No Exam Patterns Found</h3>
               <p className="text-sm text-gray-400 mb-6">Try adjusting your search or filters</p>
               <Link
+                prefetch
                 href="/exam-patterns"
                 className="px-6 py-2.5 rounded-xl text-sm font-bold text-white transition-all hover:bg-[#5558E3] bg-[#6366F1] inline-block"
               >
@@ -246,6 +249,7 @@ export default async function ExamPatterns({ searchParams }: ExamPatternsPagePro
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
               {examPatterns.map((exam, index) => (
                 <Link
+                  prefetch
                   key={exam._id}
                   href={`/exam-patterns/${exam.slug}`}
                   className="group relative bg-[#161B33] rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 flex flex-col border border-gray-700 hover:border-[#6366F1] shadow-lg shadow-[#6366F1]/20 hover:shadow-2xl hover:shadow-[#6366F1]/50 min-h-[200px]"
@@ -253,19 +257,19 @@ export default async function ExamPatterns({ searchParams }: ExamPatternsPagePro
                 >
                   {/* Gradient Overlay */}
                   <div className="absolute inset-0 bg-gradient-to-br from-[#6366F1]/10 via-transparent to-[#EC4899]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  
+
                   <div className="relative p-6 flex flex-col flex-grow">
                     {/* Index Number */}
                     <div className="absolute top-4 right-4 text-5xl font-black text-white opacity-40 group-hover:opacity-50 transition-opacity">
                       {String(index + 1).padStart(2, '0')}
                     </div>
-                    
+
                     {/* Title */}
                     <h3 className="text-xl font-bold mb-3 line-clamp-2 leading-snug relative z-10 pr-8">
                       {exam.exam_name}
                     </h3>
                     <p className="text-sm text-gray-400 mb-auto relative z-10">
-                     
+
                     </p>
 
                     {/* Footer */}

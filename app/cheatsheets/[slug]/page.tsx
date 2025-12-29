@@ -52,7 +52,7 @@ async function getCheatsheet(slug: string): Promise<Cheatsheet | null> {
 
 export default async function CheatsheetDetail({ params }: CheatsheetDetailPageProps) {
   const { slug } = await params;
-  
+
   let cheatsheet: Cheatsheet | null = null;
   let error: string | null = null;
 
@@ -73,6 +73,7 @@ export default async function CheatsheetDetail({ params }: CheatsheetDetailPageP
             <h1 className="text-2xl font-bold text-white mb-2">Cheatsheet Not Found</h1>
             <p className="text-gray-400 mb-6">The cheatsheet you're looking for doesn't exist.</p>
             <Link
+              prefetch
               href="/cheatsheets"
               className="inline-block bg-[#6366F1] text-white font-bold px-6 py-3 rounded-xl hover:bg-[#5558E3] transition duration-300"
               aria-label="Go back to cheatsheets list"
@@ -85,11 +86,11 @@ export default async function CheatsheetDetail({ params }: CheatsheetDetailPageP
     );
   }
 
-  const items = cheatsheet.items && cheatsheet.items.length > 0 
+  const items = cheatsheet.items && cheatsheet.items.length > 0
     ? cheatsheet.items.sort((a, b) => (a.order || 0) - (b.order || 0))
     : [];
 
-  const itemCategories = items.length > 0 
+  const itemCategories = items.length > 0
     ? ['all', ...new Set(items.map(item => item.category).filter(Boolean) as string[])]
     : ['all'];
 
@@ -102,14 +103,15 @@ export default async function CheatsheetDetail({ params }: CheatsheetDetailPageP
           backgroundImage: `radial-gradient(circle at 2px 2px, rgb(99, 102, 241) 1px, transparent 0)`,
           backgroundSize: '40px 40px'
         }}></div>
-        
+
         {/* Gradient Glow */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-gradient-to-b from-[#6366F1] to-transparent rounded-full blur-[100px] opacity-20"></div>
-        
+
         <div className="relative max-w-6xl mx-auto px-6 z-10">
           {/* Header */}
           <div className="no-print mb-3 sm:mb-6 print:hidden">
             <Link
+              prefetch
               href="/cheatsheets"
               className="text-sm text-gray-400 hover:text-white flex items-center gap-2 mb-2 sm:mb-4 transition-colors"
               aria-label="Back to cheatsheets list"

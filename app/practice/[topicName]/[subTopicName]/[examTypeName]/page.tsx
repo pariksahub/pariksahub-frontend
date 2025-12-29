@@ -38,7 +38,7 @@ export default async function SubTopicAndExam({ params, searchParams }: SubTopic
   const { page } = await searchParams;
   const currentPage = parseInt(page || '1', 10);
   const questionsPerPage = 10;
-  
+
   let questions: QuestionItem[] = [];
   let error: string | null = null;
 
@@ -79,11 +79,11 @@ export default async function SubTopicAndExam({ params, searchParams }: SubTopic
           <div className="hidden md:block">
             <FloatingNotes />
           </div>
-          
+
           <nav className="mb-4 text-sm text-gray-500" aria-label="Breadcrumb navigation">
-            <Link href="/practice" className="hover:text-[#C0A063] cursor-pointer" aria-label="Go to practice topics">Practice</Link>
+            <Link prefetch href="/practice" className="hover:text-[#C0A063] cursor-pointer" aria-label="Go to practice topics">Practice</Link>
             <span className="mx-2" aria-hidden="true">/</span>
-            <Link href={`/practice/${topicName}`} className="hover:text-[#C0A063] cursor-pointer" aria-label={`Go to ${displayTopicName} topic`}>{displayTopicName}</Link>
+            <Link prefetch href={`/practice/${topicName}`} className="hover:text-[#C0A063] cursor-pointer" aria-label={`Go to ${displayTopicName} topic`}>{displayTopicName}</Link>
             <span className="mx-2" aria-hidden="true">/</span>
             <span className="text-[#192A41] font-medium">{displaySubTopicName}</span>
             <span className="mx-2" aria-hidden="true">/</span>
@@ -98,7 +98,7 @@ export default async function SubTopicAndExam({ params, searchParams }: SubTopic
               Learn {displaySubTopicName} step by step with clear examples, practice questions, and simple guidance from {displayTopicName}.
             </p>
           </div>
-          
+
           <div className="text-center py-12">
             <div className="bg-white rounded-2xl p-6 max-w-md mx-auto shadow-lg">
               <div className="w-16 h-16 bg-gray-100 rounded-full mx-auto mb-4"></div>
@@ -117,7 +117,7 @@ export default async function SubTopicAndExam({ params, searchParams }: SubTopic
         <div className="hidden md:block">
           <FloatingNotes />
         </div>
-        
+
         <nav className="mb-4 text-sm text-gray-500" aria-label="Breadcrumb navigation">
           <Link href="/practice" className="hover:text-[#C0A063] cursor-pointer" aria-label="Go to practice topics">Practice</Link>
           <span className="mx-2" aria-hidden="true">/</span>
@@ -137,9 +137,9 @@ export default async function SubTopicAndExam({ params, searchParams }: SubTopic
           </p>
         </div>
 
-        <QuestionsClient 
-          questions={questions} 
-          apiUrl={API_URL} 
+        <QuestionsClient
+          questions={questions}
+          apiUrl={API_URL}
           topicName={topicName}
           subTopicName={subTopicName}
           examTypeName={examTypeName}

@@ -54,7 +54,7 @@ function filterTopics(topics: ProgrammingTopic[], search?: string, category?: st
 
   if (search) {
     const searchTerm = search.toLowerCase();
-    filtered = filtered.filter(topic => 
+    filtered = filtered.filter(topic =>
       topic.title.toLowerCase().includes(searchTerm) ||
       topic.description?.toLowerCase().includes(searchTerm) ||
       topic.category.toLowerCase().includes(searchTerm) ||
@@ -97,6 +97,7 @@ export default async function ProgrammingTopics({ searchParams }: ProgrammingTop
           <h1 className="text-2xl font-bold text-white mb-2">Something Went Wrong</h1>
           <p className="text-gray-400 mb-6">{error}</p>
           <Link
+            prefetch
             href="/programming-topics"
             className="bg-[#6366F1] text-white font-bold px-6 py-3 rounded-xl hover:bg-[#5558E3] transition duration-300 inline-block"
             aria-label="Try loading programming topics again"
@@ -119,24 +120,24 @@ export default async function ProgrammingTopics({ searchParams }: ProgrammingTop
           backgroundImage: `radial-gradient(circle at 2px 2px, rgb(99, 102, 241) 1px, transparent 0)`,
           backgroundSize: '40px 40px'
         }}></div>
-        
+
         {/* Gradient Glow */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-gradient-to-b from-[#6366F1] to-transparent rounded-full blur-[100px] opacity-20"></div>
-        
+
         <div className="relative max-w-6xl mx-auto px-6 text-center z-10">
           <div className="inline-block mb-5 px-4 py-1.5 bg-[#6366F1] bg-opacity-10 backdrop-blur-sm border border-[#6366F1] border-opacity-30 rounded-full">
             <span className="text-xs font-bold text-[#ffffff] tracking-wider uppercase">Code Practice</span>
           </div>
-          
+
           <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black mb-5 leading-[1.1] tracking-tight">
             <span className="block">Programming Topics &</span>
             <span className="block bg-gradient-to-r from-[#6366F1] via-[#8B5CF6] to-[#EC4899] text-transparent bg-clip-text pb-3">Code Questions</span>
           </h1>
-          
+
           <p className="text-base sm:text-lg text-gray-400 max-w-2xl mx-auto mb-8">
             Practice programming with real code examples, multiple solutions, and detailed explanations. Master Python, Java, DSA, and interview questions.
           </p>
-          
+
           {/* Search */}
           <div className="max-w-2xl mx-auto">
             <SearchForm search={search} category={category} categories={categories} />
@@ -154,10 +155,11 @@ export default async function ProgrammingTopics({ searchParams }: ProgrammingTop
                 Featured Programming Topics
               </h2>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
               {featuredTopics.map((topic, index) => (
                 <Link
+                  prefetch
                   key={topic._id}
                   href={`/programming-topics/${topic.slug}`}
                   className="group relative bg-[#161B33] rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 flex flex-col border border-gray-700 hover:border-[#6366F1] shadow-lg shadow-[#6366F1]/20 hover:shadow-2xl hover:shadow-[#6366F1]/50 min-h-[200px]"
@@ -165,13 +167,13 @@ export default async function ProgrammingTopics({ searchParams }: ProgrammingTop
                 >
                   {/* Gradient Overlay */}
                   <div className="absolute inset-0 bg-gradient-to-br from-[#6366F1]/10 via-transparent to-[#EC4899]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  
+
                   <div className="relative p-6 flex flex-col flex-grow">
                     {/* Index Number */}
                     <div className="absolute top-4 right-4 text-5xl font-black text-white opacity-40 group-hover:opacity-50 transition-opacity">
                       {String(index + 1).padStart(2, '0')}
                     </div>
-                    
+
                     {/* Featured Badge */}
                     <div className="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold mb-4 max-w-fit bg-[#6366F1] text-white border border-[#6366F1]">
                       <Star className="w-3.5 h-3.5" fill="currentColor" aria-hidden="true" />
@@ -234,7 +236,7 @@ export default async function ProgrammingTopics({ searchParams }: ProgrammingTop
               </h2>
             </div>
           </div>
-          
+
           {topics.length === 0 ? (
             <div className="text-center py-20 border-2 border-dashed border-gray-700 rounded-2xl bg-white bg-opacity-5">
               <div className="w-16 h-16 rounded-xl bg-[#161B33] border border-gray-800 mx-auto mb-4 flex items-center justify-center">
@@ -243,6 +245,7 @@ export default async function ProgrammingTopics({ searchParams }: ProgrammingTop
               <h3 className="text-xl font-bold mb-2 text-white">No Results Found</h3>
               <p className="text-sm text-gray-400 mb-6">Try adjusting your search or filters</p>
               <Link
+                prefetch
                 href="/programming-topics"
                 className="px-6 py-2.5 rounded-xl text-sm font-bold text-white transition-all hover:bg-[#5558E3] bg-[#6366F1] inline-block"
               >
@@ -253,6 +256,7 @@ export default async function ProgrammingTopics({ searchParams }: ProgrammingTop
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
               {topics.map((topic, index) => (
                 <Link
+                  prefetch
                   key={topic._id}
                   href={`/programming-topics/${topic.slug}`}
                   className="group relative bg-[#161B33] rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 flex flex-col border border-gray-700 hover:border-[#6366F1] shadow-lg shadow-[#6366F1]/20 hover:shadow-2xl hover:shadow-[#6366F1]/50 min-h-[200px]"
@@ -260,15 +264,15 @@ export default async function ProgrammingTopics({ searchParams }: ProgrammingTop
                 >
                   {/* Gradient Overlay */}
                   <div className="absolute inset-0 bg-gradient-to-br from-[#6366F1]/10 via-transparent to-[#EC4899]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  
+
                   <div className="relative p-6 flex flex-col flex-grow">
                     {/* Index Number */}
                     <div className="absolute top-4 right-4 text-5xl font-black text-white opacity-40 group-hover:opacity-50 transition-opacity">
                       {String(index + 1).padStart(2, '0')}
                     </div>
-                    
+
                     {/* Icon */}
-                    <div 
+                    <div
                       className="w-12 h-12 rounded-lg flex items-center justify-center mb-3 transition-transform group-hover:scale-110 bg-[#6366F1]"
                     >
                       <Code className="w-6 h-6 text-white" />
@@ -278,7 +282,7 @@ export default async function ProgrammingTopics({ searchParams }: ProgrammingTop
                     <h3 className="text-xl font-bold mb-3 line-clamp-2 leading-snug relative z-10 pr-8">
                       {topic.title}
                     </h3>
-                    
+
                     {/* Badges */}
                     <div className="flex flex-wrap gap-2 mb-3 relative z-10">
                       <span className="px-2.5 py-1 rounded-md text-xs font-medium bg-[#161B33] text-white border border-gray-700">
@@ -339,13 +343,13 @@ export default async function ProgrammingTopics({ searchParams }: ProgrammingTop
             <p className="text-sm sm:text-base text-gray-400 leading-relaxed">
               This page contains programming topics with code questions, solutions, and explanations. Each topic includes multiple questions with code examples in various programming languages.
             </p>
-            
+
             <div className="bg-[#161B33] border border-gray-800 rounded-xl p-4 sm:p-5">
               <p className="text-sm sm:text-base text-gray-400 leading-relaxed">
                 <strong className="text-white">What you'll find:</strong> Python programs, Java code examples, DSA problems, interview questions, and coding challenges. Each question includes multiple code solutions with explanations.
               </p>
             </div>
-            
+
             <div className="bg-[#161B33] border border-gray-800 rounded-xl p-4 sm:p-5">
               <p className="text-sm sm:text-base text-gray-400 leading-relaxed">
                 <strong className="text-white">How to use it:</strong> Browse topics by category, search for specific problems, open a topic to see all questions with code examples. Copy code snippets, read explanations, and practice coding.

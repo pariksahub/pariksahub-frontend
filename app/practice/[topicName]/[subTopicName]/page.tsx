@@ -42,7 +42,7 @@ export default async function SubTopicQuestions({ params, searchParams }: SubTop
   const { page, exam } = await searchParams;
   const currentPage = parseInt(page || '1', 10);
   const questionsPerPage = 10;
-  
+
   let questions: QuestionItem[] = [];
   let error: string | null = null;
 
@@ -60,10 +60,11 @@ export default async function SubTopicQuestions({ params, searchParams }: SubTop
     return (
       <div className="min-h-screen bg-[#0A0E27] flex items-center justify-center p-4">
         <main className="text-center max-w-md mx-auto px-4">
-          
+
           <h1 className="text-2xl font-bold text-white mb-2">Something Went Wrong</h1>
           <p className="text-gray-400 mb-6">{error}</p>
           <Link
+            prefetch
             href={`/practice/${topicName}/${subTopicName}`}
             className="bg-[#6366F1] text-white font-bold px-6 py-3 rounded-xl hover:bg-[#5558E3] transition duration-300 inline-block"
             aria-label="Try loading questions again"
@@ -85,15 +86,15 @@ export default async function SubTopicQuestions({ params, searchParams }: SubTop
             backgroundSize: '40px 40px'
           }}></div>
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-gradient-to-b from-[#6366F1] to-transparent rounded-full blur-[100px] opacity-20"></div>
-          
+
           <div className="relative max-w-6xl mx-auto px-6 text-center z-10">
             <div className="hidden md:block">
               <FloatingNotes />
             </div>
             <nav className="mb-6 text-sm text-gray-400" aria-label="Breadcrumb navigation">
-              <Link href="/practice" className="hover:text-white transition-colors" aria-label="Go to practice topics">Practice</Link>
+              <Link prefetch href="/practice" className="hover:text-white transition-colors" aria-label="Go to practice topics">Practice</Link>
               <span className="mx-2" aria-hidden="true">/</span>
-              <Link href={`/practice/${topicName}`} className="hover:text-white transition-colors" aria-label={`Go to ${displayTopicName} topic`}>
+              <Link prefetch href={`/practice/${topicName}`} className="hover:text-white transition-colors" aria-label={`Go to ${displayTopicName} topic`}>
                 {displayTopicName}
               </Link>
               <span className="mx-2" aria-hidden="true">/</span>
@@ -132,7 +133,7 @@ export default async function SubTopicQuestions({ params, searchParams }: SubTop
           backgroundSize: '40px 40px'
         }}></div>
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-gradient-to-b from-[#6366F1] to-transparent rounded-full blur-[100px] opacity-20"></div>
-        
+
         <div className="relative max-w-6xl mx-auto px-6 text-center z-10">
           <div className="hidden md:block">
             <FloatingNotes />
@@ -158,9 +159,9 @@ export default async function SubTopicQuestions({ params, searchParams }: SubTop
 
       <section className="relative py-12 bg-gradient-to-b from-[#0A0E27] to-[#1a1f3a]">
         <div className="max-w-6xl mx-auto px-6">
-          <QuestionsClient 
-            questions={questions} 
-            apiUrl={API_URL} 
+          <QuestionsClient
+            questions={questions}
+            apiUrl={API_URL}
             topicName={topicName}
             subTopicName={subTopicName}
             exam={exam}
