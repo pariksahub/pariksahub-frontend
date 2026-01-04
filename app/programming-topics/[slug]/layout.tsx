@@ -1,6 +1,10 @@
 import type { Metadata } from 'next';
 import { fetchFromApi } from '../../../utils/serverApi';
 
+// Force dynamic rendering to prevent stale cache
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 interface TopicLayoutProps {
   children: React.ReactNode;
   params: Promise<{ slug: string }>;
@@ -26,7 +30,7 @@ async function getTopicMetadata(slug: string) {
 export async function generateMetadata({ params }: TopicLayoutProps): Promise<Metadata> {
   const { slug } = await params;
   const data = await getTopicMetadata(slug);
-  
+
   if (!data || !data.topic) {
     return {
       title: 'Programming Topic Not Found',

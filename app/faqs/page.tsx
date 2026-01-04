@@ -1,5 +1,5 @@
-
 import Link from 'next/link';
+import Image from 'next/image';
 import { AlertCircle, Star, HelpCircle, ArrowRight } from 'lucide-react';
 import { fetchFromApi } from '../../utils/serverApi';
 import SearchForm from './SearchForm';
@@ -158,9 +158,11 @@ export default async function FAQs({ searchParams }: FAQsPageProps) {
                     {/* Icon & Badge */}
                     <div className="flex items-start justify-between mb-4 relative z-10">
                       {faq.logo_url ? (
-                        <img
+                        <Image
                           src={faq.logo_url}
                           alt={faq.topic_title}
+                          width={64}
+                          height={64}
                           className="w-16 h-16 rounded-lg object-cover border border-gray-700"
                         />
                       ) : (
@@ -222,7 +224,7 @@ export default async function FAQs({ searchParams }: FAQsPageProps) {
             <div>
               <div className="text-xs font-bold text-[#6366F1] mb-2 tracking-widest uppercase">Available Now</div>
               <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight">
-                {faqs.length} {faqs.length === 1 ? 'FAQ' : 'FAQs'} Ready
+                {faqs.length} {faqs.length === 1 ? 'Interview Question' : 'Interview Questions'} Ready
               </h2>
             </div>
           </div>
@@ -264,9 +266,11 @@ export default async function FAQs({ searchParams }: FAQsPageProps) {
 
                     {/* Icon */}
                     {faq.logo_url ? (
-                      <img
+                      <Image
                         src={faq.logo_url}
                         alt={faq.topic_title}
+                        width={64}
+                        height={64}
                         className="w-16 h-16 rounded-lg object-cover border border-gray-700 mb-3 transition-transform group-hover:scale-110 relative z-10"
                       />
                     ) : (

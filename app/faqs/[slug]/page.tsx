@@ -1,5 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { ArrowLeft, HelpCircle } from 'lucide-react';
 import { fetchFromApi } from '../../../utils/serverApi';
 import FAQClient from './FAQClient';
@@ -119,9 +120,11 @@ export default async function FAQDetail({ params }: FAQDetailPageProps) {
               {/* Logo */}
               {faq.logo_url && (
                 <div className="flex-shrink-0">
-                  <img
+                  <Image
                     src={faq.logo_url}
                     alt={faq.topic_title}
+                    width={80}
+                    height={80}
                     className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl object-cover border-2 border-[#6366F1]"
                   />
                 </div>

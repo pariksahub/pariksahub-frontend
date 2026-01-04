@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import JsonLdSchema from '../../components/JsonLdSchema';
 
 export const metadata: Metadata = {
-  title: 'FAQs & Common Questions for Competitive Exams and Technical Interviews',
+  title: 'Frequently Asked Interview Questions with Answers',
   description: 'Frequently asked questions about competitive exams, study resources, exam patterns, preparation strategies and more. Get answers to common queries.',
   keywords: [
     'FAQs',
@@ -15,14 +15,14 @@ export const metadata: Metadata = {
     'exam guidance'
   ],
   openGraph: {
-    title: 'FAQs & Common Questions for Competitive Exams and Technical Interviews',
+    title: 'Frequently Asked Interview Questions with Answers',
     description: 'Frequently asked questions about competitive exams, study resources, exam patterns, and preparation strategies. Get answers to common queries.',
     url: '/faqs',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'FAQs & Common Questions for Competitive Exams and Technical Interviews',
+    title: 'Frequently Asked Interview Questions with Answers',
     description: 'Frequently asked questions about competitive exams, study resources, exam patterns, and preparation strategies. Get answers to common queries.',
   },
   alternates: {
@@ -35,7 +35,7 @@ const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://pariksahub.com';
 const faqsSchema = {
   '@context': 'https://schema.org',
   '@type': 'CollectionPage',
-  name: 'FAQs & Common Questions',
+  name: 'Frequently Asked Interview Questions with Answers',
   description: 'Frequently asked questions about competitive exams, study resources, exam patterns, preparation strategies and more. Get answers to common queries.',
   url: `${baseUrl}/faqs`,
   breadcrumb: {
@@ -50,7 +50,7 @@ const faqsSchema = {
       {
         '@type': 'ListItem',
         position: 2,
-        name: 'FAQs',
+        name: 'Frequently Asked Interview Questions with Answers',
         item: `${baseUrl}/faqs`,
       },
     ],

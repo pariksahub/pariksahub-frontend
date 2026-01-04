@@ -5,6 +5,10 @@ import { fetchFromApi } from '../../../utils/serverApi';
 import QuestionClient from './QuestionClient';
 import ScrollToTopButton from '../../../components/ScrollToTopButton';
 
+// Force dynamic rendering to prevent stale cache
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 interface ContentBlock {
   type: 'code' | 'text';
   code?: string;
