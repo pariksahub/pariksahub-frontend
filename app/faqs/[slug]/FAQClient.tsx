@@ -243,7 +243,7 @@ export default function FAQClient({ questions }: FAQClientProps) {
         const questionId = q._id || `question-${index}`;
         const answerParts = useMemo(() =>
           parseAnswerWithSyntaxHighlighting(q.answer, questionId, copyCode, copied),
-          [q.answer, questionId]
+          [q.answer, questionId, copied]
         );
 
         return (

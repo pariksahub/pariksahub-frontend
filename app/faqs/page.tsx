@@ -12,6 +12,7 @@ interface FAQ {
   tags?: string[];
   featured?: boolean;
   views?: number;
+  logo_url?: string;
 }
 
 interface FAQsPageProps {
@@ -107,12 +108,7 @@ export default async function FAQs({ searchParams }: FAQsPageProps) {
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-gradient-to-b from-[#6366F1] to-transparent rounded-full blur-[100px] opacity-20"></div>
 
         <div className="relative max-w-6xl mx-auto px-6 text-center z-10">
-          <div className="inline-block mb-5 px-4 py-1.5 bg-[#6366F1] bg-opacity-10 backdrop-blur-sm border border-[#6366F1] border-opacity-30 rounded-full">
-            <span className="text-xs font-bold text-white tracking-wider uppercase flex items-center gap-2 justify-center">
-              <HelpCircle className="w-3.5 h-3.5" aria-hidden="true" />
-              Help & Support
-            </span>
-          </div>
+
 
           <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black mb-5 leading-[1.1] tracking-tight">
             Frequently Asked Questions
@@ -161,6 +157,17 @@ export default async function FAQs({ searchParams }: FAQsPageProps) {
 
                     {/* Icon & Badge */}
                     <div className="flex items-start justify-between mb-4 relative z-10">
+                      {faq.logo_url ? (
+                        <img
+                          src={faq.logo_url}
+                          alt={faq.topic_title}
+                          className="w-16 h-16 rounded-lg object-cover border border-gray-700"
+                        />
+                      ) : (
+                        <div className="w-16 h-16 rounded-lg bg-[#6366F1] flex items-center justify-center">
+                          <HelpCircle className="w-7 h-7 text-white" />
+                        </div>
+                      )}
                       <div className="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-[#6366F1] text-white">
                         <Star className="w-3.5 h-3.5" fill="currentColor" aria-hidden="true" />
                         <span>Featured</span>
@@ -256,11 +263,19 @@ export default async function FAQs({ searchParams }: FAQsPageProps) {
                     </div>
 
                     {/* Icon */}
-                    <div
-                      className="w-10 h-10 rounded-lg flex items-center justify-center mb-3 transition-transform group-hover:scale-110 bg-[#6366F1] relative z-10"
-                    >
-                      <HelpCircle className="w-5 h-5 text-white" />
-                    </div>
+                    {faq.logo_url ? (
+                      <img
+                        src={faq.logo_url}
+                        alt={faq.topic_title}
+                        className="w-16 h-16 rounded-lg object-cover border border-gray-700 mb-3 transition-transform group-hover:scale-110 relative z-10"
+                      />
+                    ) : (
+                      <div
+                        className="w-16 h-16 rounded-lg flex items-center justify-center mb-3 transition-transform group-hover:scale-110 bg-[#6366F1] relative z-10"
+                      >
+                        <HelpCircle className="w-7 h-7 text-white" />
+                      </div>
+                    )}
 
                     {/* Title */}
                     <h3 className="text-xl font-bold mb-3 line-clamp-2 leading-snug relative z-10 pr-8">

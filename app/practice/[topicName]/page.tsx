@@ -113,9 +113,7 @@ export default async function SubTopics({ params, searchParams }: PracticeSubtop
           <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black mb-5 leading-[1.1] tracking-tight">
             <span>{formatDisplayText(topicName)}  <span className="block bg-gradient-to-r from-[#6366F1] via-[#8B5CF6] to-[#EC4899] text-transparent bg-clip-text pb-3">Practice Topics</span></span>
           </h1>
-          <p className="text-base sm:text-lg text-gray-400 max-w-2xl mx-auto mb-8">
-            Choose a specific topic to practice and master your skills. Select from the available topics below to start practicing.
-          </p>
+
 
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 justify-center max-w-2xl mx-auto">
             <ExamFilter

@@ -5,6 +5,10 @@ import { fetchFromApi } from '../../../utils/serverApi';
 import FAQClient from './FAQClient';
 import ScrollToTopButton from '../../../components/ScrollToTopButton';
 
+// Force dynamic rendering to prevent stale cache
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 interface Question {
   _id?: string;
   question: string;
@@ -23,6 +27,7 @@ interface FAQ {
   questions: Question[];
   createdAt?: string;
   updatedAt?: string;
+  logo_url?: string;
 }
 
 interface FAQDetailPageProps {
@@ -111,6 +116,16 @@ export default async function FAQDetail({ params }: FAQDetailPageProps) {
           {/* Title Section */}
           <div className="border-b-4 border-[#6366F1] pb-2 mb-2">
             <div className="flex items-start gap-4">
+              {/* Logo */}
+              {faq.logo_url && (
+                <div className="flex-shrink-0">
+                  <img
+                    src={faq.logo_url}
+                    alt={faq.topic_title}
+                    className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl object-cover border-2 border-[#6366F1]"
+                  />
+                </div>
+              )}
 
               <div className="flex-1">
                 <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white mb-2">

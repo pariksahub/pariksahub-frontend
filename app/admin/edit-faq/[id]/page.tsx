@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { ArrowLeft, Save, Plus, Trash2, AlertCircle, CheckCircle, ChevronUp, ChevronDown, FileText, Edit } from 'lucide-react';
+import { ArrowLeft, Save, Plus, Trash2, AlertCircle, CheckCircle, ChevronUp, ChevronDown, FileText, Edit, Image } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import axiosInstance from '@/utils/axiosInstance';
 import { AxiosError } from 'axios';
@@ -30,6 +30,7 @@ function EditFAQ() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const [isSlugEditable, setIsSlugEditable] = useState(false);
+  const [uploading, setUploading] = useState(false);
 
   const [formData, setFormData] = useState({
     topic_title: '',
@@ -43,7 +44,8 @@ function EditFAQ() {
     }] as Question[],
     featured: false,
     is_active: true,
-    tags: [] as string[]
+    tags: [] as string[],
+    logo_url: ''
   });
   const [nextQuestionId, setNextQuestionId] = useState(2);
 
@@ -73,24 +75,24 @@ function EditFAQ() {
       setLoading(true);
       const response = await axiosInstance.get(`/api/faqs/admin/${id}`);
       const data = response.data;
-      
-      const sortedQuestions = data.questions && data.questions.length > 0 
+
+      const sortedQuestions = data.questions && data.questions.length > 0
         ? data.questions.sort((a: Question, b: Question) => (a.order || 0) - (b.order || 0))
         : [];
 
-      const questionsWithIds = sortedQuestions.length > 0 
+      const questionsWithIds = sortedQuestions.length > 0
         ? sortedQuestions.map((q: any, index: number) => ({
-            _id: index + 1,
-            question: q.question || '',
-            answer: q.answer || '',
-            order: q.order !== undefined ? q.order : index
-          }))
+          _id: index + 1,
+          question: q.question || '',
+          answer: q.answer || '',
+          order: q.order !== undefined ? q.order : index
+        }))
         : [{
-            _id: 1,
-            question: '',
-            answer: '',
-            order: 0
-          }];
+          _id: 1,
+          question: '',
+          answer: '',
+          order: 0
+        }];
 
       setFormData({
         topic_title: data.topic_title || '',
@@ -99,7 +101,8 @@ function EditFAQ() {
         questions: questionsWithIds,
         featured: data.featured || false,
         is_active: data.is_active !== undefined ? data.is_active : true,
-        tags: data.tags || []
+        tags: data.tags || [],
+        logo_url: data.logo_url || ''
       });
       setNextQuestionId(questionsWithIds.length + 1);
     } catch (error) {
@@ -198,11 +201,11 @@ function EditFAQ() {
 
     const newQuestions = [...formData.questions];
     const targetIndex = direction === 'up' ? index - 1 : index + 1;
-    
+
     const temp = newQuestions[index];
     newQuestions[index] = newQuestions[targetIndex];
     newQuestions[targetIndex] = temp;
-    
+
     newQuestions.forEach((q, i) => {
       q.order = i;
     });
@@ -229,6 +232,60 @@ function EditFAQ() {
       ...prev,
       tags: prev.tags.filter((_, i) => i !== index)
     }));
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      setError('Please select an image file');
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      setError('Image size should be less than 5MB');
+      return;
+    }
+
+    setUploading(true);
+    setError('');
+
+    try {
+      // Convert to base64
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = async () => {
+        try {
+          const base64Image = reader.result as string;
+
+          // Upload to Cloudinary via backend
+          const response = await axiosInstance.post('/api/upload/image', {
+            image: base64Image,
+            folder: 'faq-logos'
+          });
+
+          setFormData(prev => ({ ...prev, logo_url: response.data.url }));
+        } catch (error: any) {
+          setError(error.response?.data?.error || 'Failed to upload image');
+        } finally {
+          setUploading(false);
+        }
+      };
+      reader.onerror = () => {
+        setError('Failed to read image file');
+        setUploading(false);
+      };
+    } catch (error) {
+      setError('Failed to upload image');
+      setUploading(false);
+    }
+  };
+
+  const removeImage = () => {
+    setFormData(prev => ({ ...prev, logo_url: '' }));
   };
 
   if (loading) {
@@ -288,7 +345,7 @@ function EditFAQ() {
               <FileText className="text-indigo-600" />
               <h2 className="text-xl font-semibold text-slate-900">Basic Information</h2>
             </div>
-            
+
             <div className="space-y-6">
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-2">
@@ -321,9 +378,8 @@ function EditFAQ() {
                   value={formData.slug || ''}
                   onChange={(e) => setFormData(prev => ({ ...prev, slug: e.target.value }))}
                   disabled={!isSlugEditable}
-                  className={`w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition ${
-                    !isSlugEditable ? 'bg-slate-100 cursor-not-allowed' : 'bg-white'
-                  }`}
+                  className={`w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition ${!isSlugEditable ? 'bg-slate-100 cursor-not-allowed' : 'bg-white'
+                    }`}
                   placeholder="python-programming-faq"
                 />
               </div>
@@ -339,6 +395,58 @@ function EditFAQ() {
                 />
               </div>
 
+              {/* Logo Upload Section */}
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  Logo Image (Optional)
+                </label>
+                <div className="space-y-3">
+                  {formData.logo_url ? (
+                    <div className="relative inline-block">
+                      <img
+                        src={formData.logo_url}
+                        alt="FAQ Logo"
+                        className="w-32 h-32 object-cover rounded-xl border-2 border-slate-200"
+                      />
+                      <button
+                        type="button"
+                        onClick={removeImage}
+                        className="absolute -top-2 -right-2 p-1.5 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
+                        title="Remove image"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-3">
+                      <label className="cursor-pointer">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleImageUpload}
+                          className="hidden"
+                          disabled={uploading}
+                        />
+                        <div className="px-4 py-2 bg-indigo-600 text-white hover:bg-indigo-700 rounded-xl transition-colors text-sm flex items-center gap-2">
+                          {uploading ? (
+                            <>
+                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                              Uploading...
+                            </>
+                          ) : (
+                            <>
+                              <Image className="h-4 w-4" />
+                              Upload Logo
+                            </>
+                          )}
+                        </div>
+                      </label>
+                      <span className="text-xs text-slate-500">Max 5MB, PNG/JPG/WEBP</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
               <div className="flex items-center gap-6">
                 <label className="flex items-center gap-3 cursor-pointer">
                   <input
@@ -349,7 +457,7 @@ function EditFAQ() {
                   />
                   <span className="text-sm font-medium text-slate-700">Active</span>
                 </label>
-                
+
                 <label className="flex items-center gap-3 cursor-pointer">
                   <input
                     type="checkbox"

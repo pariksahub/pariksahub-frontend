@@ -2,13 +2,17 @@ import type { Metadata } from 'next';
 import JsonLdSchema from '../../../components/JsonLdSchema';
 import axiosInstance from '../../../utils/axiosInstance';
 
+// Force dynamic rendering to prevent stale cache
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 type Props = {
   params: Promise<{ slug: string }>;
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  
+
   try {
     const response = await axiosInstance.get(`/api/faqs/slug/${slug}`);
     const faq = response.data;

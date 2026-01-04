@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Plus, Trash2, AlertCircle, CheckCircle, ChevronUp, ChevronDown, FileText } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, AlertCircle, CheckCircle, ChevronUp, ChevronDown, FileText, Image } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import axiosInstance from '@/utils/axiosInstance';
 import 'react-quill-new/dist/quill.snow.css';
@@ -26,6 +26,7 @@ function CreateFAQ() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
+  const [uploading, setUploading] = useState(false);
 
   const [formData, setFormData] = useState({
     topic_title: '',
@@ -39,7 +40,8 @@ function CreateFAQ() {
     }] as Question[],
     featured: false,
     is_active: true,
-    tags: [] as string[]
+    tags: [] as string[],
+    logo_url: ''
   });
 
   const quillModules = {
@@ -157,11 +159,11 @@ function CreateFAQ() {
 
     const newQuestions = [...formData.questions];
     const targetIndex = direction === 'up' ? index - 1 : index + 1;
-    
+
     const temp = newQuestions[index];
     newQuestions[index] = newQuestions[targetIndex];
     newQuestions[targetIndex] = temp;
-    
+
     newQuestions.forEach((q, i) => {
       q.order = i;
     });
@@ -188,6 +190,60 @@ function CreateFAQ() {
       ...prev,
       tags: prev.tags.filter((_, i) => i !== index)
     }));
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      setError('Please select an image file');
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      setError('Image size should be less than 5MB');
+      return;
+    }
+
+    setUploading(true);
+    setError('');
+
+    try {
+      // Convert to base64
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = async () => {
+        try {
+          const base64Image = reader.result as string;
+
+          // Upload to Cloudinary via backend
+          const response = await axiosInstance.post('/api/upload/image', {
+            image: base64Image,
+            folder: 'faq-logos'
+          });
+
+          setFormData(prev => ({ ...prev, logo_url: response.data.url }));
+        } catch (error: any) {
+          setError(error.response?.data?.error || 'Failed to upload image');
+        } finally {
+          setUploading(false);
+        }
+      };
+      reader.onerror = () => {
+        setError('Failed to read image file');
+        setUploading(false);
+      };
+    } catch (error) {
+      setError('Failed to upload image');
+      setUploading(false);
+    }
+  };
+
+  const removeImage = () => {
+    setFormData(prev => ({ ...prev, logo_url: '' }));
   };
 
   return (
@@ -236,7 +292,7 @@ function CreateFAQ() {
               <FileText className="text-indigo-600" />
               <h2 className="text-xl font-semibold text-slate-900">Basic Information</h2>
             </div>
-            
+
             <div className="space-y-6">
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-2">
@@ -277,6 +333,58 @@ function CreateFAQ() {
                 />
               </div>
 
+              {/* Logo Upload Section */}
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  Logo Image (Optional)
+                </label>
+                <div className="space-y-3">
+                  {formData.logo_url ? (
+                    <div className="relative inline-block">
+                      <img
+                        src={formData.logo_url}
+                        alt="FAQ Logo"
+                        className="w-32 h-32 object-cover rounded-xl border-2 border-slate-200"
+                      />
+                      <button
+                        type="button"
+                        onClick={removeImage}
+                        className="absolute -top-2 -right-2 p-1.5 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
+                        title="Remove image"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-3">
+                      <label className="cursor-pointer">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleImageUpload}
+                          className="hidden"
+                          disabled={uploading}
+                        />
+                        <div className="px-4 py-2 bg-indigo-600 text-white hover:bg-indigo-700 rounded-xl transition-colors text-sm flex items-center gap-2">
+                          {uploading ? (
+                            <>
+                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                              Uploading...
+                            </>
+                          ) : (
+                            <>
+                              <Image className="h-4 w-4" />
+                              Upload Logo
+                            </>
+                          )}
+                        </div>
+                      </label>
+                      <span className="text-xs text-slate-500">Max 5MB, PNG/JPG/WEBP</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
               <div className="flex items-center gap-6">
                 <label className="flex items-center gap-3 cursor-pointer">
                   <input
@@ -287,7 +395,7 @@ function CreateFAQ() {
                   />
                   <span className="text-sm font-medium text-slate-700">Active</span>
                 </label>
-                
+
                 <label className="flex items-center gap-3 cursor-pointer">
                   <input
                     type="checkbox"
